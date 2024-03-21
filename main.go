@@ -119,7 +119,28 @@ func main() {
 				return
 			}
 		}
-		http.Error(w, "entry not found", http.StatusNotFound)
+		http.Error(w, "invalid id", http.StatusNotFound)
+	})
+
+	mux.HandleFunc("PUT /entry/", func(w http.ResponseWriter, r *http.Request) {
+		logger.Info("Updating entry")
+		body, err := io.ReadAll(r.Body)
+		var e entry
+		if err != nil {
+			http.Error(w, "error reading body", http.StatusInternalServerError)
+		}
+		err = json.Unmarshal(body, &e)
+		if err != nil {
+			http.Error(w, "error parsing body", http.StatusInternalServerError)
+		}
+		// update entry
+		for i, v := range entries {
+			if v.ID == e.ID {
+				entries[i] = e
+				return
+			}
+		}
+		http.Error(w, "invalid id", http.StatusNotFound)
 	})
 
 	logger.Info("Starting server")
