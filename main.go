@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"net/http"
 	"encoding/json"
+	"strconv"
+	"io"
 )
 
 type entry struct {
@@ -45,20 +47,40 @@ func renderJSON(w http.ResponseWriter, v interface{}) {
 
 func main() {
 	mux := http.NewServeMux()
+
 	mux.HandleFunc("GET /entries/", func(w http.ResponseWriter, r *http.Request) {
 		entries = getEntries()
 		renderJSON(w, entries)
 	})
 
-	mux.HandleFunc("/entry/{id}/", func(w http.ResponseWriter, r *http.Request) {
-		fmt.Fprintf(w, "handling entry with id=%v\n", id)
+	mux.HandleFunc("GET /entry/{id}/", func(w http.ResponseWriter, r *http.Request) {
 		id := r.PathValue("id")
-		e, ok := getEntry(id)
-		if != ok {
+		fmt.Fprintf(w, "handling entry with id=%v\n", id)
+		idInt, err := strconv.Atoi(id)
+		if err != nil {
+			http.Error(w, "invalid id", http.StatusInternalServerError)
+			return
+		}
+		e, ok := getEntry(idInt)
+		if !ok {
 			http.Error(w, "entry not found", http.StatusNotFound)
 			return
 		}
 		renderJSON(w, e)
+	})
+
+	mux.HandleFunc("POST /entry/", func(w http.ResponseWriter, r *http.Request) {
+		fmt.Fprintf(w, "handling POST entry\n")
+		body, err := io.ReadAll(r.Body)
+		var e entry
+		if err != nil {
+			http.Error(w, "error reading body", http.StatusInternalServerError)
+		}
+		err = json.Unmarshal(body, &e)
+		if err != nil {
+			http.Error(w, "error parsing body", http.StatusInternalServerError)
+		}
+		entries = append(entries, e)
 	})
 
 	http.ListenAndServe("localhost:8080", mux)
