@@ -64,7 +64,11 @@ func main() {
 			slog.Info("Invalid log level, falling back to default", "level", level)
 		}
 	}
-	logger := slog.New(slog.NewJSONHandler(os.Stdout, &slog.HandlerOptions{Level: level}))
+	logger := slog.New(slog.NewJSONHandler(os.Stdout, &slog.HandlerOptions{
+		Level: level,
+		AddSource: true,
+	}))
+	slog.SetDefault(logger)
 
 	// Setup mux & routes
 	mux := http.NewServeMux()
