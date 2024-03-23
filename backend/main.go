@@ -3,35 +3,13 @@ package main
 import (
 	"encoding/json"
 	"io"
-	"log/slog"
 	"net/http"
-	"os"
 	"strconv"
+
+	"github.com/bamaas/gofit/internal/config"
+	"github.com/bamaas/gofit/internal/database"
+	"github.com/bamaas/gofit/internal/logger"
 )
-
-type entry struct {
-	ID     int     `json:"id"`
-	Weight float64 `json:"weight"`
-}
-
-var entries = []entry{
-	{ID: 1, Weight: 1.0},
-	{ID: 2, Weight: 2.0},
-	{ID: 3, Weight: 3.0},
-}
-
-func getEntries() []entry {
-	return entries
-}
-
-func getEntry(id int) (entry, bool) {
-	for i, v := range entries {
-		if v.ID == id {
-			return entries[i], true
-		}
-	}
-	return entry{}, false
-}
 
 // renderJSON renders 'v' as JSON and writes it as a response into w.
 func renderJSON(w http.ResponseWriter, v interface{}) {
@@ -44,37 +22,38 @@ func renderJSON(w http.ResponseWriter, v interface{}) {
 	w.Write(js)
 }
 
-var logLevel map[string]slog.Level = map[string]slog.Level{
-	"DEBUG": slog.LevelDebug,
-	"INFO":  slog.LevelInfo,
-	"WARN":  slog.LevelWarn,
-	"ERROR": slog.LevelError,
-}
-
 func main() {
 
-	// Setup logger
-	level := logLevel["INFO"]
-	envLogLevel := os.Getenv("LOGLEVEL")
-	if envLogLevel != "" {
-		_, ok := logLevel[envLogLevel]
-		if ok {
-			level = logLevel[envLogLevel]
-		} else {
-			slog.Info("Invalid log level, falling back to default", "level", level)
-		}
+	// Retrieve config
+	cfg, err := config.Get()
+	if err != nil {
+		panic(err)
 	}
-	logger := slog.New(slog.NewJSONHandler(os.Stdout, &slog.HandlerOptions{
-		Level: level,
-		AddSource: true,
-	}))
-	slog.SetDefault(logger)
+
+	// Setup logger
+	logger, err := logger.New(cfg.LogLevel)
+	if err != nil {
+		panic(err)
+	}
+
+	// Database
+	db, err := database.New(logger)
+	if err != nil{
+		panic(err)
+	}
+	defer db.Close()
 
 	// Setup mux & routes
 	mux := http.NewServeMux()
+
 	mux.HandleFunc("GET /entries/", func(w http.ResponseWriter, r *http.Request) {
 		logger.Info("Getting entries")
-		entries = getEntries()
+		entries, err := db.GetEntries()
+		if err != nil {
+			logger.Error(err.Error())
+			http.Error(w, "error getting entries", http.StatusInternalServerError)
+			return
+		}
 		renderJSON(w, entries)
 	})
 
@@ -86,8 +65,8 @@ func main() {
 			http.Error(w, "invalid id", http.StatusInternalServerError)
 			return
 		}
-		e, ok := getEntry(idInt)
-		if !ok {
+		e, err := db.GetEntry(idInt)
+		if err != nil {
 			http.Error(w, "entry not found", http.StatusNotFound)
 			return
 		}
@@ -97,16 +76,20 @@ func main() {
 	mux.HandleFunc("POST /entry/", func(w http.ResponseWriter, r *http.Request) {
 		logger.Info("Creating entry")
 		body, err := io.ReadAll(r.Body)
-		var e entry
+		var e database.Entry
 		if err != nil {
 			http.Error(w, "error reading body", http.StatusInternalServerError)
+			return
 		}
 		err = json.Unmarshal(body, &e)
 		logger.Debug("Creating entry", "entry", e)
 		if err != nil {
 			http.Error(w, "error parsing body", http.StatusInternalServerError)
+			return
 		}
-		entries = append(entries, e)
+		if err = db.InsertEntry(e); err != nil {
+			http.Error(w, "error inserting record into database", http.StatusInternalServerError)
+		}
 	})
 
 	mux.HandleFunc("DELETE /entry/{id}/", func(w http.ResponseWriter, r *http.Request) {
@@ -114,37 +97,32 @@ func main() {
 		logger.Info("Deleting entry", "id", id)
 		idInt, err := strconv.Atoi(id)
 		if err != nil {
-			http.Error(w, "invalid id", http.StatusInternalServerError)
+			http.Error(w, "invalid id", http.StatusNotAcceptable)
 			return
 		}
-		for i, v := range entries {
-			if v.ID == idInt {
-				entries = append(entries[:i], entries[i+1:]...)
-				return
-			}
+		if err = db.DeleteEntry(idInt); err != nil {
+			logger.Error(err.Error())
+			http.Error(w, "error deleting", http.StatusInternalServerError)
 		}
-		http.Error(w, "invalid id", http.StatusNotFound)
 	})
 
 	mux.HandleFunc("PUT /entry/", func(w http.ResponseWriter, r *http.Request) {
 		logger.Info("Updating entry")
 		body, err := io.ReadAll(r.Body)
-		var e entry
+		var e database.Entry
 		if err != nil {
 			http.Error(w, "error reading body", http.StatusInternalServerError)
+			return
 		}
 		err = json.Unmarshal(body, &e)
 		if err != nil {
 			http.Error(w, "error parsing body", http.StatusInternalServerError)
+			return
 		}
-		// update entry
-		for i, v := range entries {
-			if v.ID == e.ID {
-				entries[i] = e
-				return
-			}
+		if err = db.UpdateEntry(e); err != nil {
+			logger.Error(err.Error())
+			http.Error(w, "error updating", http.StatusInternalServerError)
 		}
-		http.Error(w, "invalid id", http.StatusNotFound)
 	})
 
 	logger.Info("Starting server")
