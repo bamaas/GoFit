@@ -10,7 +10,6 @@ COPY ./go.mod ./go.sum ./
 RUN go mod download
 COPY ./ ./
 RUN go build \
-    -installsuffix 'static' \
     -ldflags="-s -w" \
     -o /app ./cmd/gofit
 RUN upx --best --lzma /app

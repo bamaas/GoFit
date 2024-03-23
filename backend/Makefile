@@ -4,11 +4,10 @@
 # Build env
 SHELL = /bin/bash
 GO_BINARY=$(shell which go)
-CGO_ENABLED?=0
 
 # App
 APP_NAME=gofit
-APP_VERSION?=0.0.2
+APP_VERSION?=0.0.3
 APP_ENTRYPOINT=./cmd/${APP_NAME}/main.go
 
 # Image

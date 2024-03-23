@@ -126,5 +126,7 @@ func main() {
 	})
 
 	logger.Info("Starting server")
-	http.ListenAndServe("localhost:8080", mux)
+	if err = http.ListenAndServe("0.0.0.0:8080", mux); err != nil {
+		panic(err)
+	}
 }
