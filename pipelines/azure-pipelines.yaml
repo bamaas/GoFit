@@ -1,0 +1,15 @@
+---
+
+trigger: none
+
+pool:
+  vmImage: 'Ubuntu-latest'
+
+stages:
+  - stage: Build
+    displayName: Build
+    jobs:
+      - job: Build
+        steps:
+          - script: cd backend && make image
+            displayName: Build

@@ -21,7 +21,7 @@ func New(logger *slog.Logger) (*db, error){
 
 	logger.Debug("Intializing database...")
 
-	d, err := sql.Open("sqlite", "gofit.db")
+	d, err := sql.Open("sqlite", ":memory:")
 	if err != nil {
 		return nil, err
 	}
