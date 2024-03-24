@@ -1,31 +1,44 @@
 ---
 
-trigger: none
-
+trigger:
+  - master
 pool:
-  vmImage: 'Ubuntu-latest'
-
-  # - stage: Build
-  #   displayName: Build
-  #   jobs:
-  #     - job: Build
-  #       steps:
-  #         - script: cd backend && make image
-  #           displayName: Build
-
+  vmImage: ubuntu-latest
 steps:
+  - checkout: self
   - task: AzureWebAppContainer@1
     inputs:
       azureSubscription: gofit-ARM
       appName: gofit-api
       containers: bamaas/gofit:0.0.3
 
-          # - task: AzureRmWebAppDeployment@4
-          #   inputs:
-          #     ConnectionType: AzureRM
-          #     azureSubscription: 'Azure subscription 1(437557e5-7531-4188-a963-e03ec1b56b24)'
-          #     appType: webAppContainer
-          #     WebAppName: gofit
-          #     DockerNamespace: dockerhub.io
-          #     DockerRepository: bamaas/gofit
-          #     DockerImageTag: '0.0.3'
+# trigger: none
+
+# pool:
+#   vmImage: 'Ubuntu-latest'
+
+#   # - stage: Build
+#   #   displayName: Build
+#   #   jobs:
+#   #     - job: Build
+#   #       steps:
+#   #         - script: cd backend && make image
+#   #           displayName: Build
+
+# steps:
+
+#   - task: AzureWebAppContainer@1
+#     inputs:
+#       azureSubscription: gofit-ARM
+#       appName: gofit-api
+#       containers: bamaas/gofit:0.0.3
+
+#           # - task: AzureRmWebAppDeployment@4
+#           #   inputs:
+#           #     ConnectionType: AzureRM
+#           #     azureSubscription: 'Azure subscription 1(437557e5-7531-4188-a963-e03ec1b56b24)'
+#           #     appType: webAppContainer
+#           #     WebAppName: gofit
+#           #     DockerNamespace: dockerhub.io
+#           #     DockerRepository: bamaas/gofit
+#           #     DockerImageTag: '0.0.3'
