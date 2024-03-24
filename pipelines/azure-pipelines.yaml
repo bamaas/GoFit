@@ -8,26 +8,35 @@ pool:
 
 steps:
 
-  - task: Docker@2
-    displayName: Login to DockerHub
+  # - task: Docker@2
+  #   displayName: Login to DockerHub
+  #   inputs:
+  #     command: login
+  #     containerRegistry: dockerhub
+
+  # - script: make backend
+  #   displayName: Build backend image
+
+  # - script: make push_backend
+  #   displayName: Push backend image
+
+  # - script: |
+  #     echo "##vso[task.setvariable variable=backendImage]$(make get_backend_image)"
+  #     echo "Defined backend image task variable value: ${backendImage}"
+  #   displayName: Define backend image task variable
+
+  # - task: AzureWebAppContainer@1
+  #   displayName: Deploy backend
+  #   inputs:
+  #     azureSubscription: gofit-ARM
+  #     appName: gofit-api
+  #     containers: $(backendImage)
+
+  - task: AzureStaticWebApp@0
+    displayName: Deploy frontend
     inputs:
-      command: login
-      containerRegistry: dockerhub
-
-  - script: make backend
-    displayName: Build backend image
-
-  - script: make push_backend
-    displayName: Push backend image
-
-  - script: |
-      echo "##vso[task.setvariable variable=backendImage]$(make get_backend_image)"
-      echo "Defined backend image task variable value: ${backendImage}"
-    displayName: Define backend image task variable
-
-  - task: AzureWebAppContainer@1
-    displayName: Deploy backend
-    inputs:
-      azureSubscription: gofit-ARM
-      appName: gofit-api
-      containers: $(backendImage)
+      app_location: '/frontend'
+      api_location: 'frontend'
+      output_location: '/frontend'
+      azure_static_web_apps_api_token: $(DEPLOYMENT_TOKEN)
+      production_branch: main

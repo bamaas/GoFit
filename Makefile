@@ -18,6 +18,8 @@ IMAGE_REPOSITORY=bamaas/${APP_NAME}
 IMAGE_TAG=${APP_VERSION}
 IMAGE?=${IMAGE_REGISTRY}/${IMAGE_REPOSITORY}:${IMAGE_TAG}
 
+# Backend
+
 get_backend_image:
 	@echo ${IMAGE}
 
@@ -29,3 +31,7 @@ backend:																						## Build an application container image
 
 push_backend:
 	docker push ${IMAGE}
+
+# Frontend
+frontend:
+	cd frontend && npm run build
