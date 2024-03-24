@@ -40,7 +40,6 @@ steps:
     displayName: Deploy frontend
     inputs:
       app_location: '/frontend'
-      # api_location: 'frontend'
-      output_location: '/frontend'
+      output_location: '/build'
       azure_static_web_apps_api_token: $(DEPLOYMENT_TOKEN)
       production_branch: main
