@@ -35,6 +35,6 @@
 	},
 	"type": "module",
 	"dependencies": {
-		"svelte-adapter-azure-swa": "^0.20.0"
+		"@sveltejs/adapter-static": "^3.0.1"
 	}
 }
