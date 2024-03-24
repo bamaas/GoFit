@@ -5,6 +5,7 @@
 	"engines": {
 		"node": ">=18.13 < 21"
 	},
+	"prepare": "svelte-kit sync",
 	"scripts": {
 		"dev": "vite dev",
 		"build": "vite build",
