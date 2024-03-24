@@ -5,7 +5,6 @@ trigger: none
 pool:
   vmImage: 'Ubuntu-latest'
 
-stages:
   # - stage: Build
   #   displayName: Build
   #   jobs:
@@ -14,16 +13,12 @@ stages:
   #         - script: cd backend && make image
   #           displayName: Build
 
-  - stage: Deploy
-    displayName: Deploy
-    jobs:
-      - job: Deploy
-        steps:
-          - task: AzureWebAppContainer@1
-            inputs:
-              azureSubscription: gofit-ARM
-              appName: gofit-api
-              containers: bamaas/gofit:0.0.3
+steps:
+  - task: AzureWebAppContainer@1
+    inputs:
+      azureSubscription: gofit-ARM
+      appName: gofit-api
+      containers: bamaas/gofit:0.0.3
 
           # - task: AzureRmWebAppDeployment@4
           #   inputs:
