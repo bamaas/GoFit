@@ -21,8 +21,8 @@ stages:
         steps:
           - task: AzureWebAppContainer@1
             inputs:
-              azureSubscription: 'Azure subscription 1'
-              appName: 'gofit-api'
+              azureSubscription: gofit-ARM
+              appName: gofit-api
               containers: bamaas/gofit:0.0.3
 
           # - task: AzureRmWebAppDeployment@4
