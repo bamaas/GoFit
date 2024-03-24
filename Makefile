@@ -25,7 +25,7 @@ run_backend:
 	go run ./backend/cmd/${APP_NAME}/main.go
 
 backend:																						## Build an application container image
-	docker build -f ./backend/build/Dockerfile -t ${IMAGE} .
+	docker build -f ./backend/build/Dockerfile -t ${IMAGE} ./backend
 
 push_backend:
 	docker push ${IMAGE}
