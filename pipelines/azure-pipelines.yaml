@@ -32,15 +32,15 @@ steps:
   #     appName: gofit-api
   #     containers: $(backendImage)
 
-- task: UseNode@1
-  inputs:
-    version: "20.10.0"
+  - task: UseNode@1
+    inputs:
+      version: "20.10.0"
 
   - task: AzureStaticWebApp@0
     displayName: Deploy frontend
     inputs:
       app_location: '/frontend'
-      api_location: 'frontend'
+      # api_location: 'frontend'
       output_location: '/frontend'
       azure_static_web_apps_api_token: $(DEPLOYMENT_TOKEN)
       production_branch: main
