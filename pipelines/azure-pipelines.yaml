@@ -36,6 +36,6 @@ steps:
     displayName: Deploy frontend
     inputs:
       app_location: '/frontend'
-      output_location: '/frontend/build'
+      output_location: '/frontend/.svelte-kit/output/'
       azure_static_web_apps_api_token: $(DEPLOYMENT_TOKEN)
       production_branch: main
