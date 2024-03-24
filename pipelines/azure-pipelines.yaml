@@ -6,10 +6,31 @@ pool:
   vmImage: 'Ubuntu-latest'
 
 stages:
-  - stage: Build
-    displayName: Build
+  # - stage: Build
+  #   displayName: Build
+  #   jobs:
+  #     - job: Build
+  #       steps:
+  #         - script: cd backend && make image
+  #           displayName: Build
+
+  - stage: Deploy
+    displayName: Deploy
     jobs:
-      - job: Build
+      - job: Deploy
         steps:
-          - script: cd backend && make image
-            displayName: Build
+          - task: AzureWebAppContainer@1
+            inputs:
+              azureSubscription: 'Azure subscription 1(437557e5-7531-4188-a963-e03ec1b56b24)'
+              appName: 'gofit-api'
+              containers: bamaas/gofit:0.0.3
+
+          # - task: AzureRmWebAppDeployment@4
+          #   inputs:
+          #     ConnectionType: AzureRM
+          #     azureSubscription: 'Azure subscription 1(437557e5-7531-4188-a963-e03ec1b56b24)'
+          #     appType: webAppContainer
+          #     WebAppName: gofit
+          #     DockerNamespace: dockerhub.io
+          #     DockerRepository: bamaas/gofit
+          #     DockerImageTag: '0.0.3'
