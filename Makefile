@@ -8,17 +8,24 @@ GO_BINARY=$(shell which go)
 # App
 APP_NAME=gofit
 APP_VERSION?=0.0.3
-APP_ENTRYPOINT=./cmd/${APP_NAME}/main.go
+
+# Backend
+GO_VERSION=1.22
 
 # Image
-GO_VERSION=1.22
 IMAGE_REGISTRY=docker.io
 IMAGE_REPOSITORY=bamaas/${APP_NAME}
 IMAGE_TAG=${APP_VERSION}
 IMAGE?=${IMAGE_REGISTRY}/${IMAGE_REPOSITORY}:${IMAGE_TAG}
 
-run:
-	go run ${APP_ENTRYPOINT}
+get_backend_image:
+	@echo ${IMAGE}
 
-image:																						## Build an application container image
-	docker build -f ./build/Dockerfile -t ${IMAGE} .
+run_backend:
+	go run ./backend/cmd/${APP_NAME}/main.go
+
+backend:																						## Build an application container image
+	docker build -f ./backend/build/Dockerfile -t ${IMAGE} .
+
+push_backend:
+	docker push ${IMAGE}
