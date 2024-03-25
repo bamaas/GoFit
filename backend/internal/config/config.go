@@ -4,7 +4,7 @@ import (
 	"os"
 )
 
-type config struct {
+type Config struct {
 	LogLevel string
 }
 
@@ -18,9 +18,9 @@ func getEnv(key, fallback string) string {
     return fallback
 }
 
-func Get() (*config, error){
+func Get() (*Config, error){
 
-	return &config{
+	return &Config{
 		LogLevel: getEnv("LOG_LEVEL", defaultLogLevel),
 	}, nil
 }

@@ -4,7 +4,7 @@ import { apiData, entries } from '../store';
 import * as Table from "$lib/components/ui/table";
 
 onMount(async () => {
-  fetch("https://gofit-api.azurewebsites.net/entries/")
+  fetch("https://gofit-api.azurewebsites.net/v1/check-ins")
   .then(response => response.json())
   .then(data => {
 		console.log(data);
@@ -31,4 +31,4 @@ onMount(async () => {
 	  </Table.Row>
     {/each}
 	</Table.Body>
-  </Table.Root>  
+  </Table.Root>

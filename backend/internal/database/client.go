@@ -7,17 +7,17 @@ import (
 	_ "modernc.org/sqlite"
 )
 
-type Entry struct {
+type CheckIn struct {
 	ID     int     `json:"id"`
 	Weight float64 `json:"weight"`
 }
 
-type db struct {
+type Database struct {
 	*sql.DB
 	logger *slog.Logger
 }
 
-func New(logger *slog.Logger) (*db, error){
+func New(logger *slog.Logger) (*Database, error){
 
 	logger.Debug("Intializing database...")
 
@@ -41,56 +41,53 @@ func New(logger *slog.Logger) (*db, error){
 	}
 
 	// Insert some data
-	database := &db{
+	return &Database{
 		d,
 		logger,
-	}
-	database.InsertEntry(Entry{ID: 1, Weight: 100})
-
-	return database, nil
+	}, nil
 }
 
-func parseRowsToEntries(r *sql.Rows) ([]Entry, error){
-	entries := []Entry{}
+func parseRowsToEntries(r *sql.Rows) ([]CheckIn, error){
+	entries := []CheckIn{}
 	for r.Next() {
-		var e Entry
+		var e CheckIn
 		err := r.Scan(&e.ID, &e.Weight)
 		if err != nil {
-			return []Entry{}, err
+			return []CheckIn{}, err
 		}
 		entries = append(entries, e)
 	}
 	return entries, nil
 }
 
-func (d *db) GetEntry(id int) (Entry, error) {
+func (d *Database) GetCheckIn(id int) (CheckIn, error) {
 
 	d.logger.Debug("Get entry", "id", id)
 
 	q := `
-	SELECT id, weight 
-	FROM entries 
+	SELECT id, weight
+	FROM entries
 	WHERE id=?`
 
 	r, err := d.Query(q, id)
 	if err != nil {
-		return Entry{}, err
+		return CheckIn{}, err
 	}
 
 	entries, err := parseRowsToEntries(r)
 	if err != nil {
-		return Entry{}, err
+		return CheckIn{}, err
 	}
 
 	return entries[0], nil
 }
 
-func (d *db) GetEntries() ([]Entry, error) {
+func (d *Database) GetCheckIns() ([]CheckIn, error) {
 
 	d.logger.Debug("Get all the entries")
 
 	q := `
-	SELECT id, weight 
+	SELECT id, weight
 	FROM entries
 	`
 	r, err := d.Query(q)
@@ -101,14 +98,14 @@ func (d *db) GetEntries() ([]Entry, error) {
 	return parseRowsToEntries(r)
 }
 
-func (d *db) InsertEntry(e Entry) error {
+func (d *Database) InsertCheckIn(e CheckIn) error {
 
-	d.logger.Debug("Insert entry", "entry", e)
+	d.logger.Debug("Insert check-in", "check-in", e)
 
 	q := `
-	INSERT INTO entries 
+	INSERT INTO entries
 	(id, weight)
-	VALUES 
+	VALUES
 	(?, ?);
 	`
 	_, err := d.Exec(q, e.ID, e.Weight)
@@ -118,7 +115,7 @@ func (d *db) InsertEntry(e Entry) error {
 	return nil
 }
 
-func (d *db) DeleteEntry(id int) error {
+func (d *Database) DeleteCheckIn(id int) error {
 
 	d.logger.Debug("Deleting entry", "id", id)
 
@@ -134,9 +131,9 @@ func (d *db) DeleteEntry(id int) error {
 	return nil
 }
 
-func (d *db) UpdateEntry(e Entry) error {
+func (d *Database) UpdateCheckIn(e CheckIn) error {
 
-	d.logger.Debug("Updating entry", "id", e.ID)
+	d.logger.Debug("Updating check-in", "id", e.ID)
 
 	q := `
 	UPDATE entries
