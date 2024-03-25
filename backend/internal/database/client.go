@@ -40,10 +40,14 @@ func New(logger *slog.Logger) (*db, error){
 		return nil, err
 	}
 
-	return &db{
+	// Insert some data
+	database := &db{
 		d,
 		logger,
-	}, nil
+	}
+	database.InsertEntry(Entry{ID: 1, Weight: 100})
+
+	return database, nil
 }
 
 func parseRowsToEntries(r *sql.Rows) ([]Entry, error){
