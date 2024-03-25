@@ -2,14 +2,17 @@ package database
 
 import (
 	"log/slog"
+	"time"
 
 	"database/sql"
+
 	_ "modernc.org/sqlite"
 )
 
 type CheckIn struct {
-	ID     int     `json:"id"`
-	Weight float64 `json:"weight"`
+	UUID      string     `json:"uuid,omitempty"`
+	CreatedAt time.Time `json:"created_at"`
+	Weight    float64   `json:"weight"`
 }
 
 type Database struct {
@@ -17,7 +20,7 @@ type Database struct {
 	logger *slog.Logger
 }
 
-func New(logger *slog.Logger) (*Database, error){
+func New(logger *slog.Logger) (*Database, error) {
 
 	logger.Debug("Intializing database...")
 
@@ -32,7 +35,7 @@ func New(logger *slog.Logger) (*Database, error){
 
 	createTableQuery := `
 	CREATE TABLE IF NOT EXISTS entries (
-	id INTEGER NOT NULL PRIMARY KEY,
+	uuid STRING NOT NULL PRIMARY KEY,
 	weight FLOAT NOT NULL
 	);`
 	_, err = d.Exec(createTableQuery)
@@ -47,11 +50,11 @@ func New(logger *slog.Logger) (*Database, error){
 	}, nil
 }
 
-func parseRowsToEntries(r *sql.Rows) ([]CheckIn, error){
+func parseRowsToEntries(r *sql.Rows) ([]CheckIn, error) {
 	entries := []CheckIn{}
 	for r.Next() {
 		var e CheckIn
-		err := r.Scan(&e.ID, &e.Weight)
+		err := r.Scan(&e.UUID, &e.Weight)
 		if err != nil {
 			return []CheckIn{}, err
 		}
@@ -60,16 +63,16 @@ func parseRowsToEntries(r *sql.Rows) ([]CheckIn, error){
 	return entries, nil
 }
 
-func (d *Database) GetCheckIn(id int) (CheckIn, error) {
+func (d *Database) GetCheckIn(UUID string) (CheckIn, error) {
 
-	d.logger.Debug("Get entry", "id", id)
+	d.logger.Debug("Get entry", "UUID", UUID)
 
 	q := `
-	SELECT id, weight
+	SELECT uuid, weight
 	FROM entries
-	WHERE id=?`
+	WHERE uuid=?`
 
-	r, err := d.Query(q, id)
+	r, err := d.Query(q, UUID)
 	if err != nil {
 		return CheckIn{}, err
 	}
@@ -87,7 +90,7 @@ func (d *Database) GetCheckIns() ([]CheckIn, error) {
 	d.logger.Debug("Get all the entries")
 
 	q := `
-	SELECT id, weight
+	SELECT uuid, weight
 	FROM entries
 	`
 	r, err := d.Query(q)
@@ -98,49 +101,49 @@ func (d *Database) GetCheckIns() ([]CheckIn, error) {
 	return parseRowsToEntries(r)
 }
 
-func (d *Database) InsertCheckIn(e CheckIn) error {
+func (d *Database) InsertCheckIn(checkIn CheckIn) error {
 
-	d.logger.Debug("Insert check-in", "check-in", e)
+	d.logger.Debug("Insert check-in", "check-in", checkIn)
 
 	q := `
 	INSERT INTO entries
-	(id, weight)
+	(uuid, weight)
 	VALUES
 	(?, ?);
 	`
-	_, err := d.Exec(q, e.ID, e.Weight)
+	_, err := d.Exec(q, checkIn.UUID, checkIn.Weight)
 	if err != nil {
 		return err
 	}
 	return nil
 }
 
-func (d *Database) DeleteCheckIn(id int) error {
+func (d *Database) DeleteCheckIn(UUID int) error {
 
-	d.logger.Debug("Deleting entry", "id", id)
+	d.logger.Debug("Deleting entry", "UUID", UUID)
 
 	q := `
 	DELETE FROM entries
 	WHERE
 	id=?
 	`
-	_, err := d.Exec(q, id)
+	_, err := d.Exec(q, UUID)
 	if err != nil {
 		return err
 	}
 	return nil
 }
 
-func (d *Database) UpdateCheckIn(e CheckIn) error {
+func (d *Database) UpdateCheckIn(checkIn CheckIn) error {
 
-	d.logger.Debug("Updating check-in", "id", e.ID)
+	d.logger.Debug("Updating check-in", "UUID", checkIn.UUID)
 
 	q := `
 	UPDATE entries
 	SET weight=?
-	WHERE id=?
+	WHERE uuid=?
 	`
-	_, err := d.Exec(q, e.Weight, e.ID)
+	_, err := d.Exec(q, checkIn.Weight, checkIn.UUID)
 	if err != nil {
 		return err
 	}

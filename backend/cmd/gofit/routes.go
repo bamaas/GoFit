@@ -9,9 +9,9 @@ func (app *application) routes() *http.ServeMux {
 
 	mux.HandleFunc("GET /v1/healthcheck", app.healthcheckHandler)
 	mux.HandleFunc("GET /v1/check-ins", app.getCheckInsHandler)
-	mux.HandleFunc("GET /v1/check-ins/{id}", app.getCheckInHandler)
+	mux.HandleFunc("GET /v1/check-ins/{uuid}", app.getCheckInHandler)
 	mux.HandleFunc("POST /v1/check-ins", app.createCheckIn)
-	mux.HandleFunc("DELETE /entry/{id}/", app.deleteCheckIn)
+	mux.HandleFunc("DELETE /entry/{uuid}/", app.deleteCheckIn)
 	mux.HandleFunc("PUT /entry/", app.updateCheckIn)
 
 	return mux
