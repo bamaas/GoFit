@@ -6,11 +6,12 @@ import (
 
 	"database/sql"
 
+	"github.com/google/uuid"
 	_ "modernc.org/sqlite"
 )
 
 type CheckIn struct {
-	UUID      string     `json:"uuid,omitempty"`
+	UUID      string    `json:"uuid,omitempty"`
 	CreatedAt time.Time `json:"created_at"`
 	Weight    float64   `json:"weight"`
 }
@@ -48,6 +49,32 @@ func New(logger *slog.Logger) (*Database, error) {
 		d,
 		logger,
 	}, nil
+}
+
+func (d *Database) InjectSampleData() error {
+
+	var checkIns []CheckIn
+
+	for i := 1; i <= 30; i++ {
+		uuid, err := uuid.NewRandom()
+		if err != nil {
+			return err
+		}
+		checkIn := CheckIn{
+			UUID:      uuid.String(),
+			Weight:   float64(i),
+		}
+		checkIns = append(checkIns, checkIn)
+	}
+
+	for _, c := range checkIns {
+		err := d.InsertCheckIn(c)
+		if err != nil {
+			return err
+		}
+	}
+	return nil
+
 }
 
 func parseRowsToEntries(r *sql.Rows) ([]CheckIn, error) {

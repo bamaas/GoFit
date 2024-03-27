@@ -39,6 +39,11 @@ func main() {
 	}
 	defer db.Close()
 
+	err = db.InjectSampleData()
+	if err != nil {
+		panic(err)
+	}
+
 	// Init application
 	app := &application{
 		config: *cfg,
