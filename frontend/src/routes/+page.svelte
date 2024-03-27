@@ -18,10 +18,10 @@ onMount(async () => {
 
 <Table.Root>
 	<Table.Header>
-	  <Table.Row>
-      <Table.Head class="w-[100px]">ID</Table.Head>
-      <Table.Head class="text-right">Weight</Table.Head>
-	  </Table.Row>
+      <Table.Row>
+        <Table.Head class="w-[100px]">ID</Table.Head>
+        <Table.Head class="text-right">Weight</Table.Head>
+      </Table.Row>  
 	</Table.Header>
 	<Table.Body>
     {#each $entries as entry}
