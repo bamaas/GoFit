@@ -20,14 +20,15 @@
    
   <form method="POST" use:enhance>
     <Form.Field {form} name="weight">
-        <Form.Control let:attrs>
+        <!-- <Form.Control let:attrs>
             <Form.Label>Date</Form.Label>
             <Input {...attrs} bind:value={$formData.date} />
-        </Form.Control>
+        </Form.Control> -->
         <Form.Control let:attrs>
             <Form.Label>Weight</Form.Label>
             <Input {...attrs} bind:value={$formData.weight} />
         </Form.Control>
+        <Form.Description>How much did you weight</Form.Description>
       <Form.FieldErrors />
     </Form.Field>
     <Form.Button>Submit</Form.Button>
