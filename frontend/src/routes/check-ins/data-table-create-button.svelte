@@ -2,6 +2,6 @@
   import { Button } from "$lib/components/ui/button/index.js";
 </script>
  
-<Button>
-  Create
-</Button>
+<a href="/create">
+  <Button>Create</Button>
+</a>
