@@ -10,11 +10,11 @@ import (
 	"github.com/bamaas/gofit/internal/logger"
 )
 
-const version = "0.0.1"
+const version = "0.0.2"
 
 type application struct {
-	config config.Config
-	logger *slog.Logger
+	config   config.Config
+	logger   *slog.Logger
 	database *database.Database
 }
 
@@ -34,7 +34,7 @@ func main() {
 
 	// Database
 	db, err := database.New(logger)
-	if err != nil{
+	if err != nil {
 		panic(err)
 	}
 	defer db.Close()
@@ -46,18 +46,18 @@ func main() {
 
 	// Init application
 	app := &application{
-		config: *cfg,
-		logger: logger,
+		config:   *cfg,
+		logger:   logger,
 		database: db,
 	}
 
 	srv := &http.Server{
-		Addr:    "0.0.0.0:8080",
-		Handler: app.routes(),
-		IdleTimeout: time.Minute,
-		ReadTimeout: 5 * time.Second,
+		Addr:         "0.0.0.0:8080",
+		Handler:      app.routes(),
+		IdleTimeout:  time.Minute,
+		ReadTimeout:  5 * time.Second,
 		WriteTimeout: 10 * time.Second,
-		ErrorLog: slog.NewLogLogger(logger.Handler(), slog.LevelError),
+		ErrorLog:     slog.NewLogLogger(logger.Handler(), slog.LevelError),
 	}
 
 	logger.Info("Starting server")
