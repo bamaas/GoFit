@@ -10,9 +10,10 @@
     import { zodClient } from "sveltekit-superforms/adapters";
     import { PUBLIC_BACKEND_BASE_URL } from '$env/static/public';
     import { goto } from '$app/navigation';
+    import { dateProxy } from "sveltekit-superforms";
    
     export let data: SuperValidated<Infer<FormSchema>>;
-   
+    
     const form = superForm(data, {
       SPA: true,
       validators: zodClient(formSchema),
@@ -41,6 +42,8 @@
 
     });
    
+    const proxyDate = dateProxy(form, 'date', { format: 'date' }); 
+
     const { form: formData, enhance } = form;
   </script>
    
@@ -48,7 +51,7 @@
     <Form.Field {form} name="date" class="pb-5">
       <Form.Control let:attrs>
         <Form.Label>Date</Form.Label>
-        <Input {...attrs} bind:value={$formData.date} />
+        <Input {...attrs} bind:value={$proxyDate} />
         <Form.Description>When did you measure?</Form.Description>
         <Form.FieldErrors />
       </Form.Control>
