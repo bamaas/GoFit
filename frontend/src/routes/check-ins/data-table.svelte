@@ -5,13 +5,13 @@
     import DataTableCreateButton from "./data-table-create-button.svelte";
     import { onMount } from "svelte";
     import { writable, derived } from 'svelte/store';
-    // imoprt {  }
+    import { PUBLIC_BASE_URL } from "$env/static/public";
 
     onMount(async () => {
-    fetch("http://localhost:8080/v1/check-ins")
+    fetch(`${PUBLIC_BASE_URL}/v1/check-ins`)
     .then(response => response.json())
     .then(data => {
-            console.log(data);
+        console.log(data);
         apiData.set(data);
     }).catch(error => {
         console.log(error);
