@@ -8,6 +8,7 @@
       superForm,
     } from "sveltekit-superforms";
     import { zodClient } from "sveltekit-superforms/adapters";
+    import { PUBLIC_BASE_URL } from '$env/static/public'
    
     export let data: SuperValidated<Infer<FormSchema>>;
    
@@ -16,7 +17,7 @@
       validators: zodClient(formSchema),
       onUpdate: async ({ form }) => {
         if (form.valid) {
-          fetch("http://localhost:8080/v1/check-ins", 
+          fetch(`${PUBLIC_BASE_URL}/v1/check-ins`, 
           {
             method: 'POST',
             headers: {
@@ -50,7 +51,7 @@
             <Form.Label>Weight</Form.Label>
             <Input {...attrs} bind:value={$formData.weight} />
         </Form.Control>
-        <Form.Description>How much did you weight</Form.Description>
+        <Form.Description>How much did you weight this morning?</Form.Description>
       <Form.FieldErrors />
     </Form.Field>
     <Form.Button>Submit</Form.Button>

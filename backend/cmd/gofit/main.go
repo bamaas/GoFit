@@ -52,7 +52,7 @@ func main() {
 	}
 
 	srv := &http.Server{
-		Addr:    ":8080",
+		Addr:    "0.0.0.0:8080",
 		Handler: app.routes(),
 		IdleTimeout: time.Minute,
 		ReadTimeout: 5 * time.Second,

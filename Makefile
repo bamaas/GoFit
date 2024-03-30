@@ -24,7 +24,7 @@ get_backend_image:
 	@echo ${IMAGE}
 
 run_backend:
-	go run ./backend/cmd/${APP_NAME}/main.go
+	cd ./backend && go run ./cmd/${APP_NAME}/
 
 backend:																						## Build an application container image
 	docker build -f ./backend/build/Dockerfile -t ${IMAGE} ./backend
