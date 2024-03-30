@@ -2,7 +2,6 @@
     import { createTable, Render, Subscribe } from "svelte-headless-table";
     import { readable } from "svelte/store";
     import * as Table from "$lib/components/ui/table";
-    import DataTableCreateButton from "./data-table-create-button.svelte";
     import { onMount } from "svelte";
     import { writable, derived } from 'svelte/store';
     import { PUBLIC_BACKEND_BASE_URL } from "$env/static/public";
@@ -52,11 +51,7 @@
     table.createViewModel(columns);
 </script>
 
-<div>
-    <div class="py-4">
-        <DataTableCreateButton/>
-    </div>
-    <div class="rounded-md border">
+<div class="rounded-md border">
     <Table.Root {...$tableAttrs}>
         <Table.Header>
         {#each $headerRows as headerRow}
@@ -101,5 +96,4 @@
         {/each}
         </Table.Body>
     </Table.Root>
-    </div>
 </div>

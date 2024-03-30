@@ -7,7 +7,9 @@
 </script>
 
 
-<BackButton />
+<div class="pb-3 pt-4">
+    <BackButton />
+</div>
 <Card.Root>
     <Card.Header>
       <Card.Title>Add check-in</Card.Title>
