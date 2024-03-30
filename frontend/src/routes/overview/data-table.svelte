@@ -1,49 +1,33 @@
 <script lang="ts">
     import { createTable, Render, Subscribe } from "svelte-headless-table";
-    import { readable } from "svelte/store";
     import * as Table from "$lib/components/ui/table";
     import { onMount } from "svelte";
-    import { writable, derived } from 'svelte/store';
     import { PUBLIC_BACKEND_BASE_URL } from "$env/static/public";
+    import { apiData, checkIns } from "./store";
 
     onMount(async () => {
     fetch(`${PUBLIC_BACKEND_BASE_URL}/v1/check-ins`)
     .then(response => response.json())
     .then(data => {
-        console.log(data);
         apiData.set(data);
     }).catch(error => {
+        // TODO: error handling
         console.log(error);
         return [];
     });
     });
 
-    // type CheckIn = {
-    //   id: string;
-    //   created_at: string;
-    //   weight: number;
-    // };
-
-    export const apiData = writable([]);
-
-    export const entries = derived(apiData, ($apiData) => {
-    if ($apiData.length > 0){
-        return $apiData;
-    }
-    return [];
-    });
-
-    const table = createTable(apiData);
+    const table = createTable(checkIns);
 
     const columns = table.createColumns([
         table.column({
-        accessor: "created_at",
-        header: "Date",
+            accessor: "created_at",
+            header: "Date",
         }),
         table.column({
-        accessor: "weight",
-        header: "Weight",
-        cell: ({ value }) => {return value + " kg"},
+            accessor: "weight",
+            header: "Weight",
+            cell: ({ value }) => {return value + " kg"},
         })
     ]);
 
