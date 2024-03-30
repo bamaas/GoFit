@@ -12,7 +12,29 @@
     export let data: SuperValidated<Infer<FormSchema>>;
    
     const form = superForm(data, {
+      SPA: true,
       validators: zodClient(formSchema),
+      onUpdate: async ({ form }) => {
+        if (form.valid) {
+          fetch("http://localhost:8080/v1/check-ins", 
+          {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              "Weight": form.data.weight,
+            })
+          })
+          .then(response => response.json())
+          .then((data) => {
+            console.log("success");
+          }).catch(error => {
+            console.log("error");
+          });
+        }
+      }
+
     });
    
     const { form: formData, enhance } = form;
