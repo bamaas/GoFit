@@ -3,10 +3,8 @@
   import { Plus } from "lucide-svelte"
 </script>
  
-<div>
-  <a href="/create">
-    <Button>
-      <Plus />
-    </Button>
-  </a>
-</div>
+<a href="/create">
+  <Button>
+    <Plus />
+  </Button>
+</a>

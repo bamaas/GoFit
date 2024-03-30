@@ -4,7 +4,7 @@
 </script>
   
   
-<div class="pb-3 pt-4">
+<div class="pb-3 pt-4 text-right">
   <CreateButton/>
 </div>
 <DataTable />

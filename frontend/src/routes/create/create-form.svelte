@@ -11,6 +11,7 @@
     import { PUBLIC_BACKEND_BASE_URL } from '$env/static/public';
     import { goto } from '$app/navigation';
     import { dateProxy } from "sveltekit-superforms";
+    import { toast } from "svelte-sonner";
    
     export let data: SuperValidated<Infer<FormSchema>>;
     
@@ -31,6 +32,7 @@
           })
           .then(response => {
             if (response.ok) {
+              toast.success("Check-in added");
               goto("/")
             }
           })
