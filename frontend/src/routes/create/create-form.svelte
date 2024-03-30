@@ -8,7 +8,8 @@
       superForm,
     } from "sveltekit-superforms";
     import { zodClient } from "sveltekit-superforms/adapters";
-    import { PUBLIC_BASE_URL } from '$env/static/public'
+    import { PUBLIC_BASE_URL } from '$env/static/public';
+    import { goto } from '$app/navigation';
    
     export let data: SuperValidated<Infer<FormSchema>>;
    
@@ -27,10 +28,12 @@
               "Weight": form.data.weight,
             })
           })
-          .then(response => response.json())
-          .then((data) => {
-            console.log("success");
-          }).catch(error => {
+          .then(response => {
+            if (response.ok) {
+              goto("/")
+            }
+          })
+          .catch(error => {
             console.log("error");
           });
         }
