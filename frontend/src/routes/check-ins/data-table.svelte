@@ -5,10 +5,10 @@
     import DataTableCreateButton from "./data-table-create-button.svelte";
     import { onMount } from "svelte";
     import { writable, derived } from 'svelte/store';
-    import { PUBLIC_BASE_URL } from "$env/static/public";
+    import { PUBLIC_BACKEND_BASE_URL } from "$env/static/public";
 
     onMount(async () => {
-    fetch(`${PUBLIC_BASE_URL}/v1/check-ins`)
+    fetch(`${PUBLIC_BACKEND_BASE_URL}/v1/check-ins`)
     .then(response => response.json())
     .then(data => {
         console.log(data);

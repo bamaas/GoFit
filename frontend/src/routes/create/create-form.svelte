@@ -8,7 +8,7 @@
       superForm,
     } from "sveltekit-superforms";
     import { zodClient } from "sveltekit-superforms/adapters";
-    import { PUBLIC_BASE_URL } from '$env/static/public';
+    import { PUBLIC_BACKEND_BASE_URL } from '$env/static/public';
     import { goto } from '$app/navigation';
    
     export let data: SuperValidated<Infer<FormSchema>>;
@@ -18,7 +18,7 @@
       validators: zodClient(formSchema),
       onUpdate: async ({ form }) => {
         if (form.valid) {
-          fetch(`${PUBLIC_BASE_URL}/v1/check-ins`, 
+          fetch(`${PUBLIC_BACKEND_BASE_URL}/v1/check-ins`, 
           {
             method: 'POST',
             headers: {
@@ -45,17 +45,21 @@
   </script>
    
   <form method="POST" use:enhance>
-    <Form.Field {form} name="weight">
-        <!-- <Form.Control let:attrs>
-            <Form.Label>Date</Form.Label>
-            <Input {...attrs} bind:value={$formData.date} />
-        </Form.Control> -->
+    <Form.Field {form} name="date" class="pb-5">
+      <Form.Control let:attrs>
+        <Form.Label>Date</Form.Label>
+        <Input {...attrs} bind:value={$formData.date} />
+        <Form.Description>When did you measure?</Form.Description>
+        <Form.FieldErrors />
+      </Form.Control>
+    </Form.Field>
+    <Form.Field {form} name="weight" class="pb-5">
         <Form.Control let:attrs>
             <Form.Label>Weight</Form.Label>
             <Input {...attrs} bind:value={$formData.weight} />
         </Form.Control>
         <Form.Description>How much did you weight this morning?</Form.Description>
-      <Form.FieldErrors />
+        <Form.FieldErrors />
     </Form.Field>
     <Form.Button>Submit</Form.Button>
   </form>
