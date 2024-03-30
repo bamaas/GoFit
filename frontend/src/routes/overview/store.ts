@@ -2,17 +2,17 @@ import { writable, derived } from 'svelte/store';
 
 type CheckIn = {
   id: string;
-  created_at: string;
+  date: string;
   weight: number;
 };
 
 // Store for your data.
 export const apiData = writable(Array<CheckIn>());
 
-// Data transformation.
+// Data transformation - sorting the data by date.
 export const checkIns = derived(apiData, ($apiData) => {
-  if ($apiData.length > 0){
+    $apiData.sort(function(a,b){
+        return new Date(b.date).valueOf() - new Date(a.date).valueOf();
+      });
     return $apiData;
-  }
-  return [];
 });

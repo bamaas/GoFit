@@ -27,7 +27,8 @@
               'Content-Type': 'application/json',
             },
             body: JSON.stringify({
-              "Weight": form.data.weight,
+              "date": form.data.date,
+              "weight": form.data.weight,
             })
           })
           .then(response => {
@@ -37,7 +38,8 @@
             }
           })
           .catch(error => {
-            console.log("error");
+            toast.error("Oops! Something went wrong.");
+            console.log(error);
           });
         }
       }
