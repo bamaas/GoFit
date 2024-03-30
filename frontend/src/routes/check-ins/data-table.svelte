@@ -37,10 +37,6 @@
     const table = createTable(apiData);
 
     const columns = table.createColumns([
-        // table.column({
-        // accessor: "id",
-        // header: "ID",
-        // }),
         table.column({
         accessor: "created_at",
         header: "Date",
@@ -49,11 +45,7 @@
         accessor: "weight",
         header: "Weight",
         cell: ({ value }) => {return value + " kg"},
-        }),
-        // table.column({
-        // accessor: ({ id }) => id,
-        // header: "",
-        // }),
+        })
     ]);
 
     const { headerRows, pageRows, tableAttrs, tableBodyAttrs } =
