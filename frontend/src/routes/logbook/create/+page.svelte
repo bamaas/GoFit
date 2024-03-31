@@ -2,7 +2,7 @@
     import type { PageData } from "./$types.js";
     import CreateForm from "./create-form.svelte";
     import * as Card from "$lib/components/ui/card/index.js";
-    import BackButton from "./back-button.svelte"
+    import BackButton from "../back-button.svelte"
     export let data: PageData;
 </script>
 

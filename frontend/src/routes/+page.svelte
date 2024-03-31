@@ -1,6 +1,6 @@
 <script lang="ts">
-  import DataTable from "./overview/data-table.svelte";
-  import CreateButton from "./overview/create-button.svelte";
+  import DataTable from "./logbook/data-table.svelte";
+  import CreateButton from "./logbook/create-button.svelte";
 </script>
   
   

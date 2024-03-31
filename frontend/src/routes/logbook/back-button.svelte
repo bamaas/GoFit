@@ -3,7 +3,7 @@
     import { ChevronLeft } from "lucide-svelte"
 </script>
    
-<a href="/">
+<a href="/logbook">
     <Button variant="outline">
         <ChevronLeft />
     </Button>

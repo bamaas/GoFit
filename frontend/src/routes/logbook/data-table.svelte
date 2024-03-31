@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { createTable, Render, Subscribe } from "svelte-headless-table";
+    import { createTable, Render, Subscribe} from "svelte-headless-table";
     import * as Table from "$lib/components/ui/table";
     import { onMount } from "svelte";
     import { PUBLIC_BACKEND_BASE_URL } from "$env/static/public";
@@ -7,6 +7,8 @@
     import { addSortBy } from "svelte-headless-table/plugins";
     import { Button } from "$lib/components/ui/button/index.js";
 	import { ArrowUpDown } from "lucide-svelte";
+	import { toast } from "svelte-sonner";
+	import { goto } from "$app/navigation";
 
     onMount(async () => {
     fetch(`${PUBLIC_BACKEND_BASE_URL}/v1/check-ins`)
@@ -14,7 +16,7 @@
     .then(data => {
         apiData.set(data);
     }).catch(error => {
-        // TODO: error handling
+        toast.error("Oops! Failed fetching data from server.");
         console.log(error);
         return [];
     });
@@ -39,6 +41,11 @@
 
     const { headerRows, pageRows, tableAttrs, tableBodyAttrs } =
     table.createViewModel(columns);
+
+    function handleClick(value: string){
+        goto(`/logbook/${value}`);
+        
+    }
 </script>
 
 <div class="rounded-md border">
@@ -72,7 +79,7 @@
         <Table.Body {...$tableBodyAttrs}>
         {#each $pageRows as row (row.id)}
             <Subscribe rowAttrs={row.attrs()} let:rowAttrs>
-            <Table.Row {...rowAttrs}>
+            <Table.Row {...rowAttrs} on:click={() => handleClick(row.original['uuid'])}>
                 {#each row.cells as cell (cell.id)}
                 <Subscribe attrs={cell.attrs()} let:attrs>
                     <Table.Cell {...attrs}>

@@ -3,7 +3,7 @@
   import { Plus } from "lucide-svelte"
 </script>
  
-<a href="/create">
+<a href="/logbook/create">
   <Button>
     <Plus />
   </Button>

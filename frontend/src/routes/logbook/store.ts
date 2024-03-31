@@ -1,6 +1,6 @@
 import { writable, derived } from 'svelte/store';
 
-type CheckIn = {
+export type CheckIn = {
   id: string;
   date: string;
   weight: number;
