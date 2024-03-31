@@ -147,14 +147,14 @@ func (d *Database) InsertCheckIn(checkIn CheckIn) error {
 	return nil
 }
 
-func (d *Database) DeleteCheckIn(UUID int) error {
+func (d *Database) DeleteCheckIn(UUID string) error {
 
-	d.logger.Debug("Deleting entry", "UUID", UUID)
+	d.logger.Debug("Deleting", "UUID", UUID)
 
 	q := `
 	DELETE FROM entries
 	WHERE
-	id=?
+	uuid=?
 	`
 	_, err := d.Exec(q, UUID)
 	if err != nil {
@@ -165,7 +165,7 @@ func (d *Database) DeleteCheckIn(UUID int) error {
 
 func (d *Database) UpdateCheckIn(checkIn CheckIn) error {
 
-	d.logger.Debug("Updating check-in", "UUID", checkIn.UUID)
+	d.logger.Debug("Updating", "UUID", checkIn.UUID)
 
 	q := `
 	UPDATE entries

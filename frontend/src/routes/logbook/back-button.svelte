@@ -5,6 +5,6 @@
    
 <a href="/logbook">
     <Button variant="outline">
-        <ChevronLeft />
+        <ChevronLeft class="size-4"/>
     </Button>
 </a>

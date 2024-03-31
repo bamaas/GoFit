@@ -5,6 +5,6 @@
  
 <a href="/logbook/create">
   <Button>
-    <Plus />
+    <Plus class="size-4"/>
   </Button>
 </a>

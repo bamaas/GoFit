@@ -2,7 +2,21 @@
     import BackButton from "../back-button.svelte"
     import DeleteButton from "./delete-button.svelte"
     import * as Card from "$lib/components/ui/card/index.js";
-    let uuid;
+	// import { onMount } from "svelte";
+    
+
+    // onMount(async () => {        
+    // fetch(`${PUBLIC_BACKEND_BASE_URL}/v1/check-ins`)
+    // .then(response => response.json())
+    // .then(data => {
+    //     apiData.set(data);
+    // }).catch(error => {
+    //     toast.error("Oops! Failed fetching data from server.");
+    //     console.log(error);
+    //     return [];
+    // });
+    // });
+
 </script>
 
 <div class="pb-3 pt-4 justify-between flex">

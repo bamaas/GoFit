@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"io"
 	"net/http"
-	"strconv"
 
 	"github.com/bamaas/gofit/internal/database"
 
@@ -57,14 +56,9 @@ func (app *application) createCheckIn(w http.ResponseWriter, r *http.Request) {
 }
 
 func (app *application) deleteCheckIn(w http.ResponseWriter, r *http.Request) {
-	id := r.PathValue("id")
-	app.logger.Info("Deleting check-in", "id", id)
-	idInt, err := strconv.Atoi(id)
-	if err != nil {
-		http.Error(w, "invalid id", http.StatusNotAcceptable)
-		return
-	}
-	if err = app.database.DeleteCheckIn(idInt); err != nil {
+	uuid := r.PathValue("uuid")
+	app.logger.Info("Deleting check-in", "uuid", uuid)
+	if err := app.database.DeleteCheckIn(uuid); err != nil {
 		app.logger.Error(err.Error())
 		http.Error(w, "error deleting", http.StatusInternalServerError)
 	}
