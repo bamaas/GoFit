@@ -96,8 +96,7 @@
               {value}
               bind:placeholder
               minValue={new CalendarDate(1900, 1, 1)}
-              maxValue={today(getLocalTimeZone())}
-              calendarLabel="Date of birth"
+              calendarLabel="Date of measurement"
               initialFocus
               onValueChange={(v) => {
                 if (v) {
@@ -109,7 +108,6 @@
             />
           </Popover.Content>
         </Popover.Root>
-        <!-- <Input {...attrs} value={$formData.date} /> -->
         <Form.Description>When did you measure?</Form.Description>
         <Form.FieldErrors />
       </Form.Control>

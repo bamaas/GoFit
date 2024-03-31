@@ -7,6 +7,7 @@
     import { addSortBy } from "svelte-headless-table/plugins";
     import { Button } from "$lib/components/ui/button/index.js";
 	import { ArrowUpDown } from "lucide-svelte";
+	import { toast } from "svelte-sonner";
 
     onMount(async () => {
     fetch(`${PUBLIC_BACKEND_BASE_URL}/v1/check-ins`)
@@ -14,7 +15,7 @@
     .then(data => {
         apiData.set(data);
     }).catch(error => {
-        // TODO: error handling
+        toast.error("Failed to fetch data.");
         console.log(error);
         return [];
     });
