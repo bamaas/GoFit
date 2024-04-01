@@ -112,9 +112,13 @@
   <Form.Field {form} name="weight" class="pb-5">
       <Form.Control let:attrs>
           <Form.Label>Weight</Form.Label>
-          <Input {...attrs} bind:value={$formData.weight} />
+          {#if data.data.uuid == ""}
+          <Input {...attrs} bind:value={$formData.weight} autofocus/>
+          {:else}
+          <Input {...attrs} bind:value={$formData.weight}/>
+          {/if}
       </Form.Control>
-      <Form.Description>How much did you weight this morning?</Form.Description>
+      <Form.Description>How much did you weight?</Form.Description>
       <Form.FieldErrors />
   </Form.Field>
   <Form.Button class="w-full">

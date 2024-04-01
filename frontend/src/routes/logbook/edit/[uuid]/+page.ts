@@ -7,7 +7,7 @@ import { toast } from "svelte-sonner";
 
 export const prerender = false;
 
-export const load: PageLoad = async ({params}) => {
+export const load: PageLoad = async ({fetch, params}) => {
     let response = await fetch(`${PUBLIC_BACKEND_BASE_URL}/v1/check-ins/${params.uuid}`)
     let data = await response.json()
     const form = await superValidate(data, zod(formSchema));
