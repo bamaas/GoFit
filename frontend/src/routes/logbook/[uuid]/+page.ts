@@ -10,7 +10,6 @@ export const prerender = false;
 export const load: PageLoad = async ({params}) => {
     let response = await fetch(`${PUBLIC_BACKEND_BASE_URL}/v1/check-ins/${params.uuid}`)
     let data = await response.json()
-    console.log(data)
     const form = await superValidate(data, zod(formSchema));
     return { form };
 };

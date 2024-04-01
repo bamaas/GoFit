@@ -14,33 +14,81 @@
   import { toast } from "svelte-sonner";
  
   export let data: SuperValidated<Infer<FormSchema>>;
-  
-  const form = superForm(data, {
-    SPA: true,
-    validators: zodClient(formSchema),
-    onUpdate: async ({ form }) => {
-      if (form.valid) {
-        fetch(`${PUBLIC_BACKEND_BASE_URL}/v1/check-ins`, 
+
+  let uuid = "";
+
+  type CheckIn = {
+    id: string;
+    date: string;
+    weight: number;
+  };
+
+  function postCheckIn(data: checkIn){
+    fetch(`${PUBLIC_BACKEND_BASE_URL}/v1/check-ins`, 
         {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
           },
           body: JSON.stringify({
-            "date": form.data.date,
-            "weight": form.data.weight,
+            "date": data.date,
+            "weight": data.weight,
           })
         })
         .then(response => {
           if (response.ok) {
-            toast.success("Check-in added");
+            toast.success("Check-in added.");
             goto("/")
           }
         })
         .catch(error => {
           toast.error("Oops! Something went wrong.");
           console.log(error);
-        });
+        }
+    );
+  }
+
+  function updateCheckIn(data: checkIn){
+    fetch(`${PUBLIC_BACKEND_BASE_URL}/v1/check-ins`, 
+        {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            "uuid": data.uuid,
+            "date": data.date,
+            "weight": data.weight,
+          })
+        })
+        .then(response => {
+          if (response.ok) {
+            toast.success("Check-in updated.");
+            goto("/")
+          }
+        })
+        .catch(error => {
+          toast.error("Oops! Something went wrong.");
+          console.log(error);
+        }
+    );
+  }
+  
+  const form = superForm(data, {
+    SPA: true,
+    validators: zodClient(formSchema),
+    onUpdate: async ({ form }) => {
+      if (form.valid) {
+        const data: CheckIn = {
+          uuid: form.data.uuid,
+          date: form.data.date,
+          weight: form.data.weight,
+        }
+        if (form.data.uuid == "") {
+          postCheckIn(data);
+        } else {
+          updateCheckIn(data);
+        }
       }
     }
 
@@ -49,6 +97,7 @@
   const proxyDate = dateProxy(form, 'date', { format: 'date' }); 
 
   const { form: formData, enhance } = form;
+
 </script>
  
 <form method="POST" use:enhance>
@@ -68,5 +117,11 @@
       <Form.Description>How much did you weight this morning?</Form.Description>
       <Form.FieldErrors />
   </Form.Field>
-  <Form.Button class="w-full">Submit</Form.Button>
+  <Form.Button class="w-full">
+    {#if data.data.uuid == ""}
+      Add
+    {:else}
+      Update
+    {/if}
+  </Form.Button>
 </form>

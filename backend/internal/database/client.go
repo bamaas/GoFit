@@ -64,7 +64,7 @@ func (d *Database) InjectSampleData() error {
 		checkIn := CheckIn{
 			UUID:   uuid.String(),
 			Date:   time.Now().AddDate(0, 0, -i),
-			Weight: float64(i),
+			Weight: float64(i + 29),
 		}
 		checkIns = append(checkIns, checkIn)
 	}
