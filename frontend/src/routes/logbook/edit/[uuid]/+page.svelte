@@ -1,8 +1,8 @@
 <script lang="ts">
-    import BackButton from "../back-button.svelte"
+    import BackButton from "../../back-button.svelte"
     import DeleteButton from "./delete-button.svelte"
     import * as Card from "$lib/components/ui/card/index.js";
-    import CreateForm from "../create/create-form.svelte";
+    import CreateForm from "../../create/create-form.svelte";
     import type { PageData } from "./$types.js";
     export let data: PageData;
 	import { onMount } from "svelte";
@@ -11,7 +11,7 @@
     import { page } from '$app/stores';
 	import { superForm, superValidate } from "sveltekit-superforms";
 	import { zod } from "sveltekit-superforms/adapters";
-	import { formSchema } from "../create/schema";
+	import { formSchema } from "../../create/schema";
     
     let uuid = "";
     $: uuid = $page.params.uuid;

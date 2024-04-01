@@ -43,7 +43,7 @@
     table.createViewModel(columns);
 
     function handleClick(value: string){
-        goto(`/logbook/${value}`);
+        goto(`/logbook/edit/${value}`);
         
     }
 </script>
