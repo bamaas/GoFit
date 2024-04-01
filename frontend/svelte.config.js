@@ -13,9 +13,9 @@ const config = {
 			// these options are set automatically — see below
 			pages: 'build',
 			assets: 'build',
-			fallback: undefined,
 			precompress: false,
-			strict: true
+			strict: false,
+			fallback: '404.html'
 		}),
 		paths: {
 			relative: false
