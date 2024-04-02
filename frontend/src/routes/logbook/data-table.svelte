@@ -9,18 +9,19 @@
 	import { ArrowUpDown } from "lucide-svelte";
 	import { toast } from "svelte-sonner";
 	import { goto } from "$app/navigation";
+    import { Skeleton } from "$lib/components/ui/skeleton/index.js";
 
-    onMount(async () => {
-    fetch(`${PUBLIC_BACKEND_BASE_URL}/v1/check-ins`)
-    .then(response => response.json())
-    .then(data => {
-        apiData.set(data);
-    }).catch(error => {
-        toast.error("Oops! Failed fetching data from server.");
-        console.log(error);
-        return [];
-    });
-    });
+    const dummyData = [
+        {id: "1", date: "2021-10-01T00:00:00Z", weight: 70},
+        {id: "2", date: "2021-10-02T00:00:00Z", weight: 70},
+        {id: "3", date: "2021-10-03T00:00:00Z", weight: 70},
+        {id: "4", date: "2021-10-03T00:00:00Z", weight: 72},
+        {id: "5", date: "2021-10-03T00:00:00Z", weight: 72},
+        {id: "6", date: "2021-10-03T00:00:00Z", weight: 72},
+        {id: "7", date: "2021-10-03T00:00:00Z", weight: 72},
+    ]
+
+    let promise: Promise = new Promise(() => {});
 
     const table = createTable(checkIns, {
         sort: addSortBy(),
@@ -43,9 +44,29 @@
     table.createViewModel(columns);
 
     function handleClick(value: string){
-        goto(`/logbook/edit/${value}`);
-        
+        if (value != undefined) {
+            goto(`/logbook/edit/${value}`);
+        }
     }
+
+    onMount(() => {
+        apiData.set(dummyData);
+
+        promise = (async () => {
+            const res = await fetch(`${PUBLIC_BACKEND_BASE_URL}/v1/check-ins`);
+            const data = await res.json();
+            return data; 
+        })();
+
+        promise.then(data => {
+            apiData.set(data);
+        }).catch(error => {
+            toast.error("Oops! Failed fetching data from server.");
+            console.log(error);
+            return [];
+        });
+    });
+
 </script>
 
 <div class="rounded-md border">
@@ -79,17 +100,23 @@
         <Table.Body {...$tableBodyAttrs}>
         {#each $pageRows as row (row.id)}
             <Subscribe rowAttrs={row.attrs()} let:rowAttrs>
-            <Table.Row {...rowAttrs} on:click={() => handleClick(row.original['uuid'])}>
+            <Table.Row {...rowAttrs} on:click={() => handleClick(row.original['uuid'])} class="cursor-pointer">
                 {#each row.cells as cell (cell.id)}
                 <Subscribe attrs={cell.attrs()} let:attrs>
                     <Table.Cell {...attrs}>
-                        {#if cell.id === "weight"}
-                            <div class="text-right">
+                        {#await promise}
+                            <Skeleton class="h-4 w-full" />
+                        {:then}
+                            {#if cell.id === "weight"}
+                                <div class="text-right">
+                                    <Render of={cell.render()} />
+                                </div>
+                            {:else}
                                 <Render of={cell.render()} />
-                            </div>
-                        {:else}
-                            <Render of={cell.render()} />
-                        {/if}
+                            {/if}
+                        {:catch}
+                            <Skeleton class="h-4 w-full" />
+                        {/await}
                     </Table.Cell>
                 </Subscribe>
                 {/each}
