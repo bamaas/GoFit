@@ -3,7 +3,6 @@ import { superValidate } from "sveltekit-superforms";
 import { formSchema } from "../../create/schema.js";
 import { zod } from "sveltekit-superforms/adapters";
 import { PUBLIC_BACKEND_BASE_URL } from "$env/static/public";
-import { toast } from "svelte-sonner";
 
 export const prerender = false;
 
