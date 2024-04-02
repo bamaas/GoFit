@@ -40,7 +40,7 @@
 <Card.Root>
     <Card.Header>
       <Card.Title>Your check-in</Card.Title>
-      <Card.Description>Lorem ipsum dolar sit amet</Card.Description>
+      <Card.Description>Every new day is another chance to change your life</Card.Description>
     </Card.Header>
     <Card.Content>
         <CreateForm data={data.form} />

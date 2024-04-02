@@ -105,7 +105,11 @@
     <Form.Control let:attrs>
       <Form.Label>Date</Form.Label>
       <Input {...attrs} bind:value={$proxyDate} />
-      <Form.Description>When did you measure?</Form.Description>
+      {#if data.data.uuid == ""}
+        <Form.Description>When did you measure?</Form.Description>
+      {:else}
+        <Form.Description>This is the date you measured</Form.Description>
+      {/if}
       <Form.FieldErrors />
     </Form.Control>
   </Form.Field>
@@ -113,12 +117,16 @@
       <Form.Control let:attrs>
           <Form.Label>Weight</Form.Label>
           {#if data.data.uuid == ""}
-          <Input {...attrs} bind:value={$formData.weight} autofocus/>
+            <Input {...attrs} bind:value={$formData.weight} autofocus/>
           {:else}
-          <Input {...attrs} bind:value={$formData.weight}/>
+            <Input {...attrs} bind:value={$formData.weight}/>
           {/if}
       </Form.Control>
-      <Form.Description>How much did you weight?</Form.Description>
+      {#if data.data.uuid == ""}
+        <Form.Description>How much did you weight?</Form.Description>
+      {:else}
+        <Form.Description>That's how much you weighed that day</Form.Description>
+      {/if}
       <Form.FieldErrors />
   </Form.Field>
   <Form.Button class="w-full">
