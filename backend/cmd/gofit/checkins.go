@@ -43,6 +43,10 @@ func (app *application) createCheckIn(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "error parsing body", http.StatusInternalServerError)
 		return
 	}
+	if checkIn.Weight < 20 {
+		http.Error(w, "weight must be greater than 20", http.StatusBadRequest)
+		return
+	}
 	uuid, err := uuid.NewRandom()
 	if err != nil {
 		http.Error(w, "error generating UUID", http.StatusInternalServerError)

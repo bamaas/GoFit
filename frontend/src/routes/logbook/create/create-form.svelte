@@ -39,6 +39,8 @@
           if (response.ok) {
             toast.success("Check-in added.");
             goto("/")
+          } else {
+            toast.error("Oops! Something went wrong.");
           }
         })
         .catch(error => {
@@ -73,7 +75,7 @@
         }
     );
   }
-  
+
   const form = superForm(data, {
     SPA: true,
     validators: zodClient(formSchema),
