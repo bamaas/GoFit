@@ -6,6 +6,4 @@ export const formSchema = z.object({
     weight: z.coerce.number().min(20).max(200).default('' as unknown as number)
 });
 
-
- 
 export type FormSchema = typeof formSchema;

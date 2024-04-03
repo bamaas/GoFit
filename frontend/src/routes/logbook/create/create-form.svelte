@@ -12,10 +12,11 @@
   import { goto } from '$app/navigation';
   import { dateProxy } from "sveltekit-superforms";
   import { toast } from "svelte-sonner";
- 
+  
   export let data: SuperValidated<Infer<FormSchema>>;
 
-  let uuid = "";
+  let uuid: string = "";
+  let submitButtonDisabled: boolean = true;
 
   type CheckIn = {
     id: string;
@@ -79,6 +80,21 @@
   const form = superForm(data, {
     SPA: true,
     validators: zodClient(formSchema),
+    onChange(event) {
+      if (event.target){
+        const d: CheckIn = {
+          uuid: $formData.uuid,
+          date: $formData.date,
+          weight: $formData.weight,
+        }
+        try {
+          formSchema.parse(d)
+          submitButtonDisabled = false;
+        } catch (error) {
+          submitButtonDisabled = true;
+        }
+      }
+    },
     onUpdate: async ({ form }) => {
       if (form.valid) {
         const data: CheckIn = {
@@ -131,7 +147,7 @@
       {/if}
       <Form.FieldErrors />
   </Form.Field>
-  <Form.Button class="w-full">
+  <Form.Button class="w-full" disabled={submitButtonDisabled}>
     {#if data.data.uuid == ""}
       Add
     {:else}
