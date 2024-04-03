@@ -41,8 +41,9 @@
 	},
 	"type": "module",
 	"dependencies": {
+		"@internationalized/date": "^3.5.2",
 		"@sveltejs/adapter-static": "^3.0.1",
-		"bits-ui": "^0.21.1",
+		"bits-ui": "^0.21.2",
 		"clsx": "^2.1.0",
 		"formsnap": "^1.0.0",
 		"lucide-svelte": "^0.363.0",

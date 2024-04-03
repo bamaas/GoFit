@@ -3,7 +3,7 @@
     import * as Table from "$lib/components/ui/table";
     import { onMount } from "svelte";
     import { PUBLIC_BACKEND_BASE_URL } from "$env/static/public";
-    import { apiData, checkIns } from "./store";
+    import { apiData, checkIns, type CheckIn } from "./store";
     import { addSortBy } from "svelte-headless-table/plugins";
     import { Button } from "$lib/components/ui/button/index.js";
 	import { ArrowUpDown } from "lucide-svelte";
@@ -21,7 +21,7 @@
         {id: "7", date: "2021-10-03T00:00:00Z", weight: 72},
     ]
 
-    let promise: Promise = new Promise(() => {});
+    let promise: Promise<CheckIn[]> = new Promise(() => {});
 
     const table = createTable(checkIns, {
         sort: addSortBy(),
