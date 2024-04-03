@@ -12,6 +12,26 @@
   import { goto } from '$app/navigation';
   import { dateProxy } from "sveltekit-superforms";
   import { toast } from "svelte-sonner";
+
+  import { Calendar } from "$lib/components/ui/calendar/index.js";
+  import * as Popover from "$lib/components/ui/popover/index.js";
+  import { Button } from "$lib/components/ui/button/index.js";
+  import CalendarIcon from "lucide-svelte/icons/calendar";
+  import {
+    DateFormatter,
+    type DateValue,
+    getLocalTimeZone,
+
+	CalendarDate,
+
+	today,
+
+	parseDate
+
+
+
+  } from "@internationalized/date";
+  import { cn } from "$lib/utils.js";
   
   export let data: SuperValidated<Infer<FormSchema>>;
 
@@ -19,12 +39,13 @@
   let submitButtonDisabled: boolean = true;
 
   type CheckIn = {
-    id: string;
+    uuid: string;
     date: string;
     weight: number;
   };
 
-  function postCheckIn(data: checkIn){
+  function postCheckIn(data: CheckIn){
+    if (data.date.split('T').length == 1) data.date = data.date + "T17:34:02.666Z";
     fetch(`${PUBLIC_BACKEND_BASE_URL}/v1/check-ins`, 
         {
           method: 'POST',
@@ -51,7 +72,8 @@
     );
   }
 
-  function updateCheckIn(data: checkIn){
+  function updateCheckIn(data: CheckIn){
+    if (data.date.split('T').length == 1) data.date = data.date + "T17:34:02.666Z";
     fetch(`${PUBLIC_BACKEND_BASE_URL}/v1/check-ins`, 
         {
           method: 'PUT',
@@ -68,6 +90,8 @@
           if (response.ok) {
             toast.success("Check-in updated.");
             goto("/")
+          } else {
+            toast.error("Oops! Something went wrong.");
           }
         })
         .catch(error => {
@@ -80,19 +104,17 @@
   const form = superForm(data, {
     SPA: true,
     validators: zodClient(formSchema),
-    onChange(event) {
-      if (event.target){
-        const d: CheckIn = {
-          uuid: $formData.uuid,
-          date: $formData.date,
-          weight: $formData.weight,
-        }
-        try {
-          formSchema.parse(d)
-          submitButtonDisabled = false;
-        } catch (error) {
-          submitButtonDisabled = true;
-        }
+    onChange() {
+      const d: CheckIn = {
+        uuid: $formData.uuid,
+        date: $formData.date,
+        weight: $formData.weight,
+      }
+      try {
+        formSchema.parse(d)
+        submitButtonDisabled = false;
+      } catch (error) {
+        submitButtonDisabled = true;
       }
     },
     onUpdate: async ({ form }) => {
@@ -111,18 +133,58 @@
     }
 
   });
- 
-  const proxyDate = dateProxy(form, 'date', { format: 'date' }); 
 
   const { form: formData, enhance } = form;
 
-</script>
+  const df = new DateFormatter("en-US", {
+    dateStyle: "long"
+  });
  
+  let dateValue: DateValue | undefined = undefined;
+  $: dateValue = $formData.date ? parseDate($formData.date.split('T')[0]) : undefined;
+  let datePlaceholder: DateValue = today(getLocalTimeZone());
+
+  let popOverOpen: boolean = false;
+
+</script>
+
 <form method="POST" use:enhance>
   <Form.Field {form} name="date" class="pb-5">
     <Form.Control let:attrs>
       <Form.Label>Date</Form.Label>
-      <Input {...attrs} bind:value={$proxyDate} />
+      <!-- <Input {...attrs} bind:value={$formData.date} /> -->
+      <Popover.Root bind:open={popOverOpen}>
+        <Popover.Trigger asChild let:builder>
+          <Button
+            variant="outline"
+            class={cn(
+              "w-full justify-start text-left font-normal",
+              !dateValue && "text-muted-foreground"
+            )}
+            builders={[builder]}
+          >
+            <CalendarIcon class="mr-2 h-4 w-4" />
+            {dateValue ? df.format(dateValue.toDate(getLocalTimeZone())) : "Pick a date"}
+          </Button>
+        </Popover.Trigger>
+        <Popover.Content class="w-auto p-0">
+          <Calendar 
+            bind:value={dateValue}
+            bind:placeholder={datePlaceholder}
+            minValue={new CalendarDate(1900, 1, 1)}
+            maxValue={today(getLocalTimeZone())}
+            initialFocus
+            onValueChange={(v) => {
+              if (v) {
+                $formData.date = v.toString();
+              } else {
+                $formData.date = "";
+              }
+              popOverOpen = false;
+            }}
+            />
+        </Popover.Content>
+      </Popover.Root>
       {#if data.data.uuid == ""}
         <Form.Description>When did you measure?</Form.Description>
       {:else}

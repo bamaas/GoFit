@@ -35,3 +35,6 @@ push_backend:
 # Frontend
 frontend:
 	cd frontend && npm run build
+
+run_frontend:
+	cd frontend && npm run dev -- --open

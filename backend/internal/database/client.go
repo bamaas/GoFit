@@ -169,10 +169,10 @@ func (d *Database) UpdateCheckIn(checkIn CheckIn) error {
 
 	q := `
 	UPDATE entries
-	SET weight=?
+	SET weight=?, date=?
 	WHERE uuid=?
 	`
-	_, err := d.Exec(q, checkIn.Weight, checkIn.UUID)
+	_, err := d.Exec(q, checkIn.Weight, checkIn.Date, checkIn.UUID)
 	if err != nil {
 		return err
 	}
