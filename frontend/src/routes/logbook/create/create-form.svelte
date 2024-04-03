@@ -143,7 +143,7 @@
       {#if data.data.uuid == ""}
         <Form.Description>How much did you weight?</Form.Description>
       {:else}
-        <Form.Description>That's how much you weighed that day</Form.Description>
+        <Form.Description>That's how much you weighted that day</Form.Description>
       {/if}
       <Form.FieldErrors />
   </Form.Field>
