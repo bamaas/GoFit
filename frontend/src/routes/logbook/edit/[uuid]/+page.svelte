@@ -19,7 +19,6 @@
 
 </script>
 
-<HeaderComponent />
 <div class="container items-center py-4 max-w-screen-2xl">
     <div class="pb-3 pt-4 justify-between flex">
         <BackButton />

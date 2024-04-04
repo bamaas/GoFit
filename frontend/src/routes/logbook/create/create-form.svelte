@@ -102,6 +102,7 @@
   }
 
   const form = superForm(data, {
+    clearOnSubmit: "none",
     SPA: true,
     validators: zodClient(formSchema),
     onChange() {

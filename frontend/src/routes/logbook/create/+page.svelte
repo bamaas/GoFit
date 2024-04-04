@@ -8,7 +8,6 @@
     export let data: PageData;
 </script>
 
-<HeaderComponent />
 <div class="container items-center py-4 max-w-screen-2xl">
     <div class="pb-3 pt-4">
         <BackButton />
