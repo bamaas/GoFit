@@ -10,7 +10,6 @@
   import { zodClient } from "sveltekit-superforms/adapters";
   import { PUBLIC_BACKEND_BASE_URL } from '$env/static/public';
   import { goto } from '$app/navigation';
-  import { dateProxy } from "sveltekit-superforms";
   import { toast } from "svelte-sonner";
 
   import { Calendar } from "$lib/components/ui/calendar/index.js";
@@ -102,7 +101,6 @@
   }
 
   const form = superForm(data, {
-    clearOnSubmit: "none",
     SPA: true,
     validators: zodClient(formSchema),
     onChange() {

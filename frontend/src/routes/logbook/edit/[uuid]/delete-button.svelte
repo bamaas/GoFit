@@ -3,8 +3,8 @@
     import { Trash2Icon } from "lucide-svelte"
     import { PUBLIC_BACKEND_BASE_URL } from "$env/static/public";
     import { page } from '$app/stores';
-	import { toast } from "svelte-sonner";
-	import { goto } from "$app/navigation";
+	  import { toast } from "svelte-sonner";
+	  import { goto } from "$app/navigation";
     import * as AlertDialog from "$lib/components/ui/alert-dialog";
 
     let uuid = "";
@@ -22,6 +22,8 @@
           if (response.ok) {
             toast.success("Check-in deleted");
             goto("/logbook")
+          } else {
+            toast.error("Oops! Something went wrong.");
           }
         })
         .catch(error => {

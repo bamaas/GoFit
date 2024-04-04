@@ -10,5 +10,8 @@ export const load: PageLoad = async ({fetch, params}) => {
     let response = await fetch(`${PUBLIC_BACKEND_BASE_URL}/v1/check-ins/${params.uuid}`)
     let data = await response.json()
     const form = await superValidate(data, zod(formSchema));
-    return { form };
+    return {
+        title: "Edit check-in", 
+        form
+    };
 };

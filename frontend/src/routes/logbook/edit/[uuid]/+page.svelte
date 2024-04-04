@@ -4,18 +4,8 @@
     import * as Card from "$lib/components/ui/card/index.js";
     import CreateForm from "../../create/create-form.svelte";
     import type { PageData } from "./$types.js";
+
     export let data: PageData;
-	import { onMount } from "svelte";
-	import { PUBLIC_BACKEND_BASE_URL } from "$env/static/public";
-	import { toast } from "svelte-sonner";
-    import { page } from '$app/stores';
-	import { superForm, superValidate } from "sveltekit-superforms";
-	import { zod } from "sveltekit-superforms/adapters";
-	import { formSchema } from "../../create/schema";
-    import HeaderComponent from "../../../header.svelte"
-    
-    let uuid: string = "";
-    $: uuid = $page.params.uuid;
 
 </script>
 
