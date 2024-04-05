@@ -4,21 +4,25 @@
 	import HeaderComponent from "./header.svelte";
 	import { page } from '$app/stores';
 
-	let navigationTitle = getNavigationTitleFromPathname($page.url.pathname);
-
 	function getNavigationTitleFromPathname(pathname: string) {
-		let title: string = $page.url.pathname.split('/')[1];
+		let title: string = pathname.split('/')[1];
 		// Capitalize first letter
 		title =  title.charAt(0).toUpperCase() + title.slice(1); 
+		if (title === "") {
+			title = "GoFit"
+		}
 		return title
 	}
+
+	$: navigationTitle = getNavigationTitleFromPathname($page.url.pathname)
+
 </script>
 
 <svelte:head>
 	<title>{$page.data.title} • GoFit</title>
 </svelte:head>
 
-<HeaderComponent title={navigationTitle}/>
+<HeaderComponent title={navigationTitle || ""}/>
 <Toaster />
 
 <slot />
