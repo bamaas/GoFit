@@ -17,6 +17,7 @@
   import CalendarIcon from "lucide-svelte/icons/calendar";
   import {DateFormatter, type DateValue, getLocalTimeZone, CalendarDate, today, parseDate } from "@internationalized/date";
   import { cn } from "$lib/utils.js";
+  import LoaderCircleIcon from "lucide-svelte/icons/loader-circle";
   
   export let data: SuperValidated<Infer<FormSchema>>;
 
@@ -31,6 +32,7 @@
 
   function postCheckIn(data: CheckIn){
     if (data.date.split('T').length == 1) data.date = data.date + "T17:34:02.666Z";
+    showLoaderIcon = true;
     fetch(`${PUBLIC_BACKEND_BASE_URL}/v1/check-ins`, 
         {
           method: 'POST',
@@ -55,9 +57,11 @@
           console.log(error);
         }
     );
+    showLoaderIcon = false;
   }
 
   function updateCheckIn(data: CheckIn){
+    showLoaderIcon = true;
     if (data.date.split('T').length == 1) data.date = data.date + "T17:34:02.666Z";
     fetch(`${PUBLIC_BACKEND_BASE_URL}/v1/check-ins`, 
         {
@@ -84,6 +88,7 @@
           console.log(error);
         }
     );
+    showLoaderIcon = false;
   }
 
   const form = superForm(data, {
@@ -132,7 +137,23 @@
 
   let popOverOpen: boolean = false;
 
+  let showLoaderIcon: boolean = false;
+
 </script>
+
+<style>
+  :global(.spinner) {
+		animation: spinner-frames 3s infinite linear;
+	}
+  @keyframes spinner-frames {
+    0% {
+      transform: rotate(0deg);
+    }
+    100% {
+      transform: rotate(360deg);
+    }
+  }
+</style>
 
 <form method="POST" use:enhance>
   <Form.Field {form} name="date" class="pb-5">
@@ -196,7 +217,9 @@
       <Form.FieldErrors />
   </Form.Field>
   <Form.Button class="w-full" disabled={submitButtonDisabled}>
-    {#if data.data.uuid == ""}
+    {#if showLoaderIcon == true}
+      <LoaderCircleIcon class="spinner"/>
+    {:else if data.data.uuid == ""}
       Add
     {:else}
       Update
