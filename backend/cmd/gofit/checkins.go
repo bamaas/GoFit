@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"io"
 	"net/http"
+	"time"
 
 	"github.com/bamaas/gofit/internal/database"
 
@@ -32,6 +33,7 @@ func (app *application) getCheckInHandler(w http.ResponseWriter, r *http.Request
 }
 
 func (app *application) createCheckIn(w http.ResponseWriter, r *http.Request) {
+	time.Sleep(5 * time.Second)
 	body, err := io.ReadAll(r.Body)
 	var checkIn database.CheckIn
 	if err != nil {

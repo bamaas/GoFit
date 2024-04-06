@@ -23,6 +23,7 @@
 
   let uuid: string = "";
   let submitButtonDisabled: boolean = true;
+  let showLoaderIcon: boolean = false;
 
   type CheckIn = {
     uuid: string;
@@ -33,6 +34,7 @@
   function postCheckIn(data: CheckIn){
     if (data.date.split('T').length == 1) data.date = data.date + "T17:34:02.666Z";
     showLoaderIcon = true;
+    submitButtonDisabled = true;
     fetch(`${PUBLIC_BACKEND_BASE_URL}/v1/check-ins`, 
         {
           method: 'POST',
@@ -50,18 +52,21 @@
             goto("/logbook")
           } else {
             toast.error("Oops! Something went wrong.");
+            showLoaderIcon = false;
+            submitButtonDisabled = false;
           }
         })
-        .catch(error => {
+        .catch(() => {
           toast.error("Oops! Something went wrong.");
-          console.log(error);
+          showLoaderIcon = false;
+          submitButtonDisabled = false;
         }
     );
-    showLoaderIcon = false;
   }
 
   function updateCheckIn(data: CheckIn){
     showLoaderIcon = true;
+    submitButtonDisabled = true;
     if (data.date.split('T').length == 1) data.date = data.date + "T17:34:02.666Z";
     fetch(`${PUBLIC_BACKEND_BASE_URL}/v1/check-ins`, 
         {
@@ -81,14 +86,16 @@
             goto("/logbook")
           } else {
             toast.error("Oops! Something went wrong.");
+            showLoaderIcon = false;
+            submitButtonDisabled = false;
           }
         })
-        .catch(error => {
+        .catch(() => {
           toast.error("Oops! Something went wrong.");
-          console.log(error);
+          showLoaderIcon = false;
+          submitButtonDisabled = false;
         }
     );
-    showLoaderIcon = false;
   }
 
   const form = superForm(data, {
@@ -136,8 +143,6 @@
   let datePlaceholder: DateValue = today(getLocalTimeZone());
 
   let popOverOpen: boolean = false;
-
-  let showLoaderIcon: boolean = false;
 
 </script>
 
