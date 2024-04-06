@@ -11,25 +11,11 @@
   import { PUBLIC_BACKEND_BASE_URL } from '$env/static/public';
   import { goto } from '$app/navigation';
   import { toast } from "svelte-sonner";
-
   import { Calendar } from "$lib/components/ui/calendar/index.js";
   import * as Popover from "$lib/components/ui/popover/index.js";
   import { Button } from "$lib/components/ui/button/index.js";
   import CalendarIcon from "lucide-svelte/icons/calendar";
-  import {
-    DateFormatter,
-    type DateValue,
-    getLocalTimeZone,
-
-	CalendarDate,
-
-	today,
-
-	parseDate
-
-
-
-  } from "@internationalized/date";
+  import {DateFormatter, type DateValue, getLocalTimeZone, CalendarDate, today, parseDate } from "@internationalized/date";
   import { cn } from "$lib/utils.js";
   
   export let data: SuperValidated<Infer<FormSchema>>;
@@ -59,7 +45,7 @@
         .then(response => {
           if (response.ok) {
             toast.success("Check-in added.");
-            goto("/")
+            goto("/logbook")
           } else {
             toast.error("Oops! Something went wrong.");
           }
@@ -88,7 +74,7 @@
         .then(response => {
           if (response.ok) {
             toast.success("Check-in updated.");
-            goto("/")
+            goto("/logbook")
           } else {
             toast.error("Oops! Something went wrong.");
           }
@@ -101,6 +87,7 @@
   }
 
   const form = superForm(data, {
+    resetForm: false,
     SPA: true,
     validators: zodClient(formSchema),
     onChange() {
