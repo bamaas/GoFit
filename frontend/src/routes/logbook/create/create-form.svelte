@@ -18,6 +18,7 @@
   import {DateFormatter, type DateValue, getLocalTimeZone, CalendarDate, today, parseDate } from "@internationalized/date";
   import { cn } from "$lib/utils.js";
   import LoaderCircleIcon from "lucide-svelte/icons/loader-circle";
+	import { ZodError } from "zod";
   
   export let data: SuperValidated<Infer<FormSchema>>;
 
@@ -111,7 +112,14 @@
       try {
         formSchema.parse(d)
         submitButtonDisabled = false;
-      } catch (error) {
+      } catch (error: any) {
+        if (error instanceof ZodError){
+          error.errors.map((e) => {
+            if (String(e.path) == "weight") {
+              form.errors.set({"weight": [e.message]})
+            }
+          })
+        }
         submitButtonDisabled = true;
       }
     },
@@ -164,7 +172,6 @@
   <Form.Field {form} name="date" class="pb-5">
     <Form.Control let:attrs>
       <Form.Label>Date</Form.Label>
-      <!-- <Input {...attrs} bind:value={$formData.date} /> -->
       <Popover.Root bind:open={popOverOpen}>
         <Popover.Trigger asChild let:builder>
           <Button
