@@ -19,6 +19,15 @@
         {id: "5", date: "2021-10-03T00:00:00Z", weight: 72},
         {id: "6", date: "2021-10-03T00:00:00Z", weight: 72},
         {id: "7", date: "2021-10-03T00:00:00Z", weight: 72},
+        {id: "8", date: "2021-10-01T00:00:00Z", weight: 70},
+        {id: "11", date: "2021-10-02T00:00:00Z", weight: 70},
+        {id: "12", date: "2021-10-03T00:00:00Z", weight: 70},
+        {id: "13", date: "2021-10-03T00:00:00Z", weight: 72},
+        {id: "14", date: "2021-10-03T00:00:00Z", weight: 72},
+        {id: "15", date: "2021-10-03T00:00:00Z", weight: 72},
+        {id: "16", date: "2021-10-03T00:00:00Z", weight: 72},
+        {id: "17", date: "2021-10-03T00:00:00Z", weight: 72},
+        {id: "18", date: "2021-10-03T00:00:00Z", weight: 72},
     ]
 
     let promise: Promise<CheckIn[]> = new Promise(() => {});
@@ -60,10 +69,8 @@
 
         promise.then(data => {
             apiData.set(data);
-        }).catch(error => {
+        }).catch(() => {
             toast.error("Oops! Failed fetching data from server.");
-            console.log(error);
-            return [];
         });
     });
 
