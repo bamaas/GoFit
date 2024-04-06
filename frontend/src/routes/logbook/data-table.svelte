@@ -11,25 +11,6 @@
 	import { goto } from "$app/navigation";
     import { Skeleton } from "$lib/components/ui/skeleton/index.js";
 
-    const dummyData = [
-        {id: "1", date: "2021-10-01T00:00:00Z", weight: 70},
-        {id: "2", date: "2021-10-02T00:00:00Z", weight: 70},
-        {id: "3", date: "2021-10-03T00:00:00Z", weight: 70},
-        {id: "4", date: "2021-10-03T00:00:00Z", weight: 72},
-        {id: "5", date: "2021-10-03T00:00:00Z", weight: 72},
-        {id: "6", date: "2021-10-03T00:00:00Z", weight: 72},
-        {id: "7", date: "2021-10-03T00:00:00Z", weight: 72},
-        {id: "8", date: "2021-10-01T00:00:00Z", weight: 70},
-        {id: "11", date: "2021-10-02T00:00:00Z", weight: 70},
-        {id: "12", date: "2021-10-03T00:00:00Z", weight: 70},
-        {id: "13", date: "2021-10-03T00:00:00Z", weight: 72},
-        {id: "14", date: "2021-10-03T00:00:00Z", weight: 72},
-        {id: "15", date: "2021-10-03T00:00:00Z", weight: 72},
-        {id: "16", date: "2021-10-03T00:00:00Z", weight: 72},
-        {id: "17", date: "2021-10-03T00:00:00Z", weight: 72},
-        {id: "18", date: "2021-10-03T00:00:00Z", weight: 72},
-    ]
-
     let promise: Promise<CheckIn[]> = new Promise(() => {});
 
     const table = createTable(checkIns, {
@@ -59,6 +40,14 @@
     }
 
     onMount(() => {
+        let dummyData: CheckIn[] = []
+        for (let i = 0; i < 18; i++) {
+            dummyData.push({
+                uuid: String(i),
+                date: "2021-10-01T00:00:00Z",
+                weight: 70
+            });
+        }
         apiData.set(dummyData);
 
         promise = (async () => {

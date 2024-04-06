@@ -1,7 +1,7 @@
 <script lang="ts">
   import * as Form from "$lib/components/ui/form";
   import { Input } from "$lib/components/ui/input";
-  import { formSchema, type FormSchema } from "./schema";
+  import { formSchema, type FormSchema } from "../../../../routes/logbook/create/schema";
   import {
     type SuperValidated,
     type Infer,
@@ -19,18 +19,13 @@
   import { cn } from "$lib/utils.js";
   import LoaderCircleIcon from "lucide-svelte/icons/loader-circle";
 	import { ZodError } from "zod";
+  import { type CheckIn } from "../../../../routes/logbook/store"
   
   export let data: SuperValidated<Infer<FormSchema>>;
 
   let uuid: string = "";
   let submitButtonDisabled: boolean = true;
   let showLoaderIcon: boolean = false;
-
-  type CheckIn = {
-    uuid: string;
-    date: string;
-    weight: number;
-  };
 
   function postCheckIn(data: CheckIn){
     if (data.date.split('T').length == 1) data.date = data.date + "T17:34:02.666Z";

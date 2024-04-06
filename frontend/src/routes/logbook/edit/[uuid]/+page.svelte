@@ -1,8 +1,8 @@
 <script lang="ts">
-    import BackButton from "../../back-button.svelte"
+    import BackButton from "../../../../lib/components/gofit/buttons/PreviousPageButton.svelte"
     import DeleteButton from "./delete-button.svelte"
     import * as Card from "$lib/components/ui/card/index.js";
-    import CreateForm from "../../create/create-form.svelte";
+    import Form from "$lib/components/gofit/forms/LogbookForm.svelte";
     import type { PageData } from "./$types.js";
 
     export let data: PageData;
@@ -20,7 +20,7 @@
         <Card.Description>Every new day is another chance to change your life</Card.Description>
         </Card.Header>
         <Card.Content>
-            <CreateForm data={data.form} />
+            <Form data={data.form} />
         </Card.Content>
     </Card.Root>
 </div>

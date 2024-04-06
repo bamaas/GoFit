@@ -1,9 +1,8 @@
 <script lang="ts">
     import type { PageData } from "./$types.js";
-    import CreateForm from "./create-form.svelte";
+    import Form from "$lib/components/gofit/forms/LogbookForm.svelte";
     import * as Card from "$lib/components/ui/card/index.js";
-    import BackButton from "../back-button.svelte"
-    import HeaderComponent from "../../header.svelte"
+    import BackButton from "../../../lib/components/gofit/buttons/PreviousPageButton.svelte"
 
     export let data: PageData;
 </script>
@@ -18,7 +17,7 @@
         <Card.Description>Try to check-in daily to get the best results</Card.Description>
         </Card.Header>
         <Card.Content>
-            <CreateForm data={data.form} />
+            <Form data={data.form} />
         </Card.Content>
     </Card.Root>
 </div>

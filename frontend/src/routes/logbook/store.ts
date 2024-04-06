@@ -1,7 +1,7 @@
 import { writable, derived } from 'svelte/store';
 
 export type CheckIn = {
-  id: string;
+  uuid: string;
   date: string;
   weight: number;
 };
