@@ -11,7 +11,16 @@ import (
 )
 
 func (app *application) getCheckInsHandler(w http.ResponseWriter, r *http.Request) {
-	checkIns, err := app.database.GetCheckIns()
+
+	var input struct {
+		database.Filters
+	}
+
+	qs := r.URL.Query()
+	input.Filters.Page = app.readInt(qs, "page", 1)
+	input.Filters.PageSize = app.readInt(qs, "page_size", 30)
+
+	checkIns, err := app.database.GetCheckIns(input.Filters)
 	if err != nil {
 		app.logger.Error(err.Error())
 		http.Error(w, "error getting check-ins", http.StatusInternalServerError)

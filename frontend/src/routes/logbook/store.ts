@@ -11,8 +11,8 @@ export const apiData = writable(Array<CheckIn>());
 
 // Data transformation - sorting the data by date.
 export const checkIns = derived(apiData, ($apiData) => {
-    $apiData.sort(function(a,b){
-        return new Date(b.datetime).valueOf() - new Date(a.datetime).valueOf();
-      });
+    // $apiData.sort(function(a,b){
+    //     return new Date(b.datetime).valueOf() - new Date(a.datetime).valueOf();
+    //   });
     return $apiData;
 });

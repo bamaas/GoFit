@@ -131,15 +131,18 @@ func (d *Database) GetCheckIn(UUID string) (CheckIn, error) {
 	return entries[0], nil
 }
 
-func (d *Database) GetCheckIns() ([]CheckIn, error) {
+func (d *Database) GetCheckIns(filters Filters) ([]CheckIn, error) {
 
 	d.logger.Debug("Get all the entries")
 
 	q := `
 	SELECT uuid, datetime, weight
 	FROM entries
+	ORDER BY datetime DESC
+	LIMIT ?
+	OFFSET ?;
 	`
-	r, err := d.Query(q)
+	r, err := d.Query(q, filters.limit(), filters.offset())
 	if err != nil {
 		return nil, err
 	}
