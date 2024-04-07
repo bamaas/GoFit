@@ -2,7 +2,7 @@ import { writable, derived } from 'svelte/store';
 
 export type CheckIn = {
   uuid: string;
-  date: string;
+  datetime: string;
   weight: number;
 };
 
@@ -12,7 +12,7 @@ export const apiData = writable(Array<CheckIn>());
 // Data transformation - sorting the data by date.
 export const checkIns = derived(apiData, ($apiData) => {
     $apiData.sort(function(a,b){
-        return new Date(b.date).valueOf() - new Date(a.date).valueOf();
+        return new Date(b.datetime).valueOf() - new Date(a.datetime).valueOf();
       });
     return $apiData;
 });

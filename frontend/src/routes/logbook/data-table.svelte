@@ -19,7 +19,7 @@
 
     const columns = table.createColumns([
         table.column({
-            accessor: "date",
+            accessor: "datetime",
             header: "Date",
             cell: ({ value }) => {return value.split("T")[0]},
         }),
@@ -44,7 +44,7 @@
         for (let i = 0; i < 18; i++) {
             dummyData.push({
                 uuid: String(i),
-                date: "2021-10-01T00:00:00Z",
+                datetime: "2021-10-01T00:00:00Z",
                 weight: 70
             });
         }
@@ -78,7 +78,7 @@
                             <div class="text-right">
                             <Render of={cell.render()} />
                             </div>
-                        {:else if cell.id === "date"}
+                        {:else if cell.id === "datetime"}
                             <Button variant="ghost" on:click={props.sort.toggle}>
                                 <Render of={cell.render()} />
                                 <ArrowUpDown class={"ml-2 h-4 w-4"} />

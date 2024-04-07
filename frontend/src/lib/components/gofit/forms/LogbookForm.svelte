@@ -28,7 +28,7 @@
   let showLoaderIcon: boolean = false;
 
   function postCheckIn(data: CheckIn){
-    if (data.date.split('T').length == 1) data.date = data.date + "T17:34:02.666Z";
+    if (data.datetime.split('T').length == 1) data.datetime = data.datetime + "T17:34:02.666Z";
     showLoaderIcon = true;
     submitButtonDisabled = true;
     fetch(`${PUBLIC_BACKEND_BASE_URL}/v1/check-ins`, 
@@ -38,7 +38,7 @@
             'Content-Type': 'application/json',
           },
           body: JSON.stringify({
-            "date": data.date,
+            "datetime": data.datetime,
             "weight": data.weight,
           })
         })
@@ -63,7 +63,7 @@
   function updateCheckIn(data: CheckIn){
     showLoaderIcon = true;
     submitButtonDisabled = true;
-    if (data.date.split('T').length == 1) data.date = data.date + "T17:34:02.666Z";
+    if (data.datetime.split('T').length == 1) data.datetime = data.datetime + "T17:34:02.666Z";
     fetch(`${PUBLIC_BACKEND_BASE_URL}/v1/check-ins`, 
         {
           method: 'PUT',
@@ -72,7 +72,7 @@
           },
           body: JSON.stringify({
             "uuid": data.uuid,
-            "date": data.date,
+            "datetime": data.datetime,
             "weight": data.weight,
           })
         })
@@ -101,7 +101,7 @@
     onChange() {
       const d: CheckIn = {
         uuid: $formData.uuid,
-        date: $formData.date,
+        datetime: $formData.date,
         weight: $formData.weight,
       }
       try {
@@ -122,7 +122,7 @@
       if (form.valid) {
         const data: CheckIn = {
           uuid: form.data.uuid,
-          date: form.data.date,
+          datetime: form.data.date,
           weight: form.data.weight,
         }
         if (form.data.uuid == "") {
