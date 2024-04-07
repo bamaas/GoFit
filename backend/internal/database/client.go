@@ -11,9 +11,9 @@ import (
 )
 
 type CheckIn struct {
-	UUID   string    	`json:"uuid,omitempty"`
-	Date   time.Time	`json:"date"`
-	Weight float64   	`json:"weight"`
+	UUID   string    `json:"uuid,omitempty"`
+	Date   time.Time `json:"date"`
+	Weight float64   `json:"weight"`
 }
 
 type Database struct {
@@ -37,7 +37,7 @@ func New(logger *slog.Logger) (*Database, error) {
 	createTableQuery := `
 	CREATE TABLE IF NOT EXISTS entries (
 	uuid STRING NOT NULL PRIMARY KEY,
-	date DATE NOT NULL,
+	date INTEGER NOT NULL,
 	weight FLOAT NOT NULL
 	);`
 	_, err = d.Exec(createTableQuery)
@@ -80,15 +80,32 @@ func (d *Database) InjectSampleData() error {
 }
 
 func parseRowsToEntries(r *sql.Rows) ([]CheckIn, error) {
-	entries := []CheckIn{}
+
+	// Parse db sql rows
+	type dbRow struct {
+		UUID   string
+		Date   int64
+		Weight float64
+	}
+	dbData := []dbRow{};
 	for r.Next() {
-		var e CheckIn
-		err := r.Scan(&e.UUID, &e.Date, &e.Weight)
+		var dbr dbRow
+		err := r.Scan(&dbr.UUID, &dbr.Date, &dbr.Weight)
 		if err != nil {
 			return []CheckIn{}, err
 		}
-		entries = append(entries, e)
+		dbData = append(dbData, dbr)
 	}
+
+	// Parse db data to CheckIn's/entries
+	entries := []CheckIn{}
+	for i := range dbData {
+		entries = append(entries, CheckIn{
+			UUID:   dbData[i].UUID,
+			Date:   time.Unix(dbData[i].Date, 0),
+			Weight: dbData[i].Weight})
+	}
+
 	return entries, nil
 }
 
@@ -140,7 +157,7 @@ func (d *Database) InsertCheckIn(checkIn CheckIn) error {
 	VALUES
 	(?, ?, ?);
 	`
-	_, err := d.Exec(q, checkIn.UUID, checkIn.Date, checkIn.Weight)
+	_, err := d.Exec(q, checkIn.UUID, checkIn.Date.Unix(), checkIn.Weight)
 	if err != nil {
 		return err
 	}
@@ -172,7 +189,7 @@ func (d *Database) UpdateCheckIn(checkIn CheckIn) error {
 	SET weight=?, date=?
 	WHERE uuid=?
 	`
-	_, err := d.Exec(q, checkIn.Weight, checkIn.Date, checkIn.UUID)
+	_, err := d.Exec(q, checkIn.Weight, checkIn.Date.Unix(), checkIn.UUID)
 	if err != nil {
 		return err
 	}
