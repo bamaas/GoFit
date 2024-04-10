@@ -1,4 +1,4 @@
-package database
+package data
 
 type Filters struct {
 	Page int

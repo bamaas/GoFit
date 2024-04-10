@@ -4,9 +4,10 @@ import (
 	"log/slog"
 	"net/http"
 	"time"
+	"database/sql"
 
 	"github.com/bamaas/gofit/internal/config"
-	"github.com/bamaas/gofit/internal/database"
+	"github.com/bamaas/gofit/internal/data"
 	"github.com/bamaas/gofit/internal/logger"
 )
 
@@ -15,7 +16,33 @@ const version = "0.0.2"
 type application struct {
 	config   config.Config
 	logger   *slog.Logger
-	database *database.Database
+	models   data.Models
+}
+
+func setupDB(logger *slog.Logger) (*sql.DB, error) {
+	logger.Debug("Initializing database...")
+
+	db, err := sql.Open("sqlite", ":memory:")
+	if err != nil {
+		return nil, err
+	}
+	err = db.Ping()
+	if err != nil {
+		return nil, err
+	}
+
+	createTableQuery := `
+	CREATE TABLE IF NOT EXISTS entries (
+	uuid STRING NOT NULL PRIMARY KEY,
+	datetime INTEGER NOT NULL,
+	weight FLOAT NOT NULL
+	);`
+	_, err = db.Exec(createTableQuery)
+	if err != nil {
+		return nil, err
+	}
+
+	return db, nil
 }
 
 func main() {
@@ -33,22 +60,21 @@ func main() {
 	}
 
 	// Database
-	db, err := database.New(logger)
+	db, err := setupDB(logger)
 	if err != nil {
 		panic(err)
 	}
 	defer db.Close()
 
-	err = db.InjectSampleData()
-	if err != nil {
-		panic(err)
-	}
-
 	// Init application
 	app := &application{
 		config:   *cfg,
 		logger:   logger,
-		database: db,
+		models:   data.NewModels(db, logger),
+	}
+	err = app.models.CheckIns.InjectSampleData()
+	if err != nil {
+		panic(err)
 	}
 
 	srv := &http.Server{

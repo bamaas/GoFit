@@ -5,7 +5,7 @@ import (
 	"io"
 	"net/http"
 
-	"github.com/bamaas/gofit/internal/database"
+	"github.com/bamaas/gofit/internal/data"
 
 	"github.com/google/uuid"
 )
@@ -13,14 +13,14 @@ import (
 func (app *application) getCheckInsHandler(w http.ResponseWriter, r *http.Request) {
 
 	var input struct {
-		database.Filters
+		data.Filters
 	}
 
 	qs := r.URL.Query()
 	input.Filters.Page = app.readInt(qs, "page", 1)
 	input.Filters.PageSize = app.readInt(qs, "page_size", 30)
 
-	checkIns, err := app.database.GetCheckIns(input.Filters)
+	checkIns, err := app.models.CheckIns.List(input.Filters)
 	if err != nil {
 		app.logger.Error(err.Error())
 		http.Error(w, "error getting check-ins", http.StatusInternalServerError)
@@ -32,7 +32,7 @@ func (app *application) getCheckInsHandler(w http.ResponseWriter, r *http.Reques
 func (app *application) getCheckInHandler(w http.ResponseWriter, r *http.Request) {
 	uuid := r.PathValue("uuid")
 	app.logger.Info("Getting check-in", "UUID", uuid)
-	checkIn, err := app.database.GetCheckIn(uuid)
+	checkIn, err := app.models.CheckIns.Get(uuid)
 	if err != nil {
 		http.Error(w, "check-in not found", http.StatusNotFound)
 		return
@@ -42,7 +42,7 @@ func (app *application) getCheckInHandler(w http.ResponseWriter, r *http.Request
 
 func (app *application) createCheckIn(w http.ResponseWriter, r *http.Request) {
 	body, err := io.ReadAll(r.Body)
-	var checkIn database.CheckIn
+	var checkIn data.CheckIn
 	if err != nil {
 		http.Error(w, "error reading body", http.StatusInternalServerError)
 		return
@@ -63,7 +63,7 @@ func (app *application) createCheckIn(w http.ResponseWriter, r *http.Request) {
 	}
 	checkIn.UUID = uuid.String()
 	app.logger.Debug("Creating check-in", "check-in", checkIn)
-	if err = app.database.InsertCheckIn(checkIn); err != nil {
+	if err = app.models.CheckIns.Insert(checkIn); err != nil {
 		http.Error(w, "error inserting record into database", http.StatusInternalServerError)
 	}
 }
@@ -71,7 +71,7 @@ func (app *application) createCheckIn(w http.ResponseWriter, r *http.Request) {
 func (app *application) deleteCheckIn(w http.ResponseWriter, r *http.Request) {
 	uuid := r.PathValue("uuid")
 	app.logger.Info("Deleting check-in", "uuid", uuid)
-	if err := app.database.DeleteCheckIn(uuid); err != nil {
+	if err := app.models.CheckIns.Delete(uuid); err != nil {
 		app.logger.Error(err.Error())
 		http.Error(w, "error deleting", http.StatusInternalServerError)
 	}
@@ -80,7 +80,7 @@ func (app *application) deleteCheckIn(w http.ResponseWriter, r *http.Request) {
 func (app *application) updateCheckIn(w http.ResponseWriter, r *http.Request) {
 	app.logger.Info("Updating check-in")
 	body, err := io.ReadAll(r.Body)
-	var e database.CheckIn
+	var e data.CheckIn
 	if err != nil {
 		http.Error(w, "error reading body", http.StatusInternalServerError)
 		return
@@ -90,7 +90,7 @@ func (app *application) updateCheckIn(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "error parsing body", http.StatusInternalServerError)
 		return
 	}
-	if err = app.database.UpdateCheckIn(e); err != nil {
+	if err = app.models.CheckIns.Update(e); err != nil {
 		app.logger.Error(err.Error())
 		http.Error(w, "error updating", http.StatusInternalServerError)
 	}
