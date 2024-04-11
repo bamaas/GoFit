@@ -5,14 +5,31 @@ import (
 	"net/http"
 	"net/url"
 	"strconv"
+	"errors"
+	"io"
 )
 
 func (app *application) readJSON(w http.ResponseWriter, r *http.Request, v interface{}) error {
-	err := json.NewDecoder(r.Body).Decode(v)
+	// Limit the size of the request body to 1MB
+	var maxBytes int64 = 1_048_576
+	r.Body = http.MaxBytesReader(w, r.Body, maxBytes)
+
+	// Initialize the json decoder
+	decoder := json.NewDecoder(r.Body)
+	decoder.DisallowUnknownFields()
+
+	// Decode the request body to the provided interface
+	err := decoder.Decode(v)
 	if err != nil {
-		app.logger.Error(err.Error())
 		return err
 	}
+
+	// Ensure that there are no additional fields in the request body
+	err = decoder.Decode(&struct{}{})
+	if err != io.EOF {
+		return errors.New("request body must only contain a single JSON object")
+	}
+
 	return nil
 }
 

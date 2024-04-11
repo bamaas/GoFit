@@ -51,7 +51,7 @@ func (app *application) createCheckIn(w http.ResponseWriter, r *http.Request) {
 
 	err := app.readJSON(w, r, &input)
 	if err != nil {
-		http.Error(w, "error reading body", http.StatusBadRequest)
+		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 
