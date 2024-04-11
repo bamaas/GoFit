@@ -3,7 +3,6 @@
     import { ChevronLeft } from "lucide-svelte"
     import { afterNavigate } from '$app/navigation';
     import { base } from '$app/paths'
-	import { onMount } from "svelte";
     import { page } from '$app/stores';
 
     let previousPage : string = base ;
