@@ -80,7 +80,7 @@ func parseRowsToEntries(r *sql.Rows) ([]CheckIn, error) {
 
 func (m *CheckInModel) Get(UUID string) (CheckIn, error) {
 
-	m.logger.Debug("Get entry", "UUID", UUID)
+	m.logger.Debug("Get check-in", "UUID", UUID)
 
 	q := `
 	SELECT uuid, datetime, weight
@@ -95,6 +95,10 @@ func (m *CheckInModel) Get(UUID string) (CheckIn, error) {
 	entries, err := parseRowsToEntries(r)
 	if err != nil {
 		return CheckIn{}, err
+	}
+
+	if len(entries) == 0 {
+		return CheckIn{}, ErrRecordNotFound
 	}
 
 	return entries[0], nil
