@@ -18,6 +18,14 @@ IMAGE_REPOSITORY=bamaas/${APP_NAME}
 IMAGE_TAG?=${APP_VERSION}
 IMAGE?=${IMAGE_REPOSITORY}:${IMAGE_TAG}
 
+
+# Development
+
+setup: direnv_allow
+
+direnv_allow:
+	direnv allow .
+
 # Backend
 
 get_backend_image:

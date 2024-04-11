@@ -41,18 +41,21 @@ func (app *application) getCheckInHandler(w http.ResponseWriter, r *http.Request
 }
 
 func (app *application) createCheckIn(w http.ResponseWriter, r *http.Request) {
-	body, err := io.ReadAll(r.Body)
-	var checkIn data.CheckIn
+
+	// var input struct {
+	// 	Datetime time.Time `json:"datetime"`
+	// 	Weight float64 		`json:"weight"`
+	// }
+
+	var input data.CheckIn
+
+	err := app.readJSON(w, r, &input)
 	if err != nil {
-		http.Error(w, "error reading body", http.StatusInternalServerError)
+		http.Error(w, "error reading body", http.StatusBadRequest)
 		return
 	}
-	err = json.Unmarshal(body, &checkIn)
-	if err != nil {
-		http.Error(w, "error parsing body", http.StatusInternalServerError)
-		return
-	}
-	if checkIn.Weight < 20 {
+
+	if input.Weight < 20 {
 		http.Error(w, "weight must be greater than 20", http.StatusBadRequest)
 		return
 	}
@@ -61,9 +64,9 @@ func (app *application) createCheckIn(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "error generating UUID", http.StatusInternalServerError)
 		return
 	}
-	checkIn.UUID = uuid.String()
-	app.logger.Debug("Creating check-in", "check-in", checkIn)
-	if err = app.models.CheckIns.Insert(checkIn); err != nil {
+	input.UUID = uuid.String()
+	app.logger.Debug("Creating check-in", "check-in", input)
+	if err = app.models.CheckIns.Insert(input); err != nil {
 		http.Error(w, "error inserting record into database", http.StatusInternalServerError)
 	}
 }

@@ -7,6 +7,15 @@ import (
 	"strconv"
 )
 
+func (app *application) readJSON(w http.ResponseWriter, r *http.Request, v interface{}) error {
+	err := json.NewDecoder(r.Body).Decode(v)
+	if err != nil {
+		app.logger.Error(err.Error())
+		return err
+	}
+	return nil
+}
+
 func (app *application) writeJSON(w http.ResponseWriter, status int, v interface{}) {
 	js, err := json.Marshal(v)
 	if err != nil {
