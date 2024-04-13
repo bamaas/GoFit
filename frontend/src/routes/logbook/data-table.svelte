@@ -18,6 +18,9 @@
     $: hasNextPage = false;
     $: hasPrevPage = false;
 
+    let lastPage: number = 1;
+    $: lastPage;
+
     let promise: Promise<ApiResponse> = new Promise(() => {});
 
     onMount(() => {
@@ -59,6 +62,7 @@
             } else {
                 hasPrevPage = false;
             }
+            lastPage = data.metadata.last_page;
         });
     });
 
@@ -181,7 +185,9 @@
         <Button variant="outline" size="lg" disabled={!hasPrevPage} on:click={goToPreviousPage}>
             <ArrowLeft class="size-4"/>
         </Button>
-
+        <span class="text-sm text-muted-foreground">
+            Page {pageNumber} of {lastPage}
+        </span>
         <Button variant="outline" size="lg" disabled={!hasNextPage} on:click={gotoNextPage}>
             <ArrowRight class="size-4"/>
         </Button>
