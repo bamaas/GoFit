@@ -13,7 +13,7 @@ export const load: PageLoad = async ({fetch, params}) => {
     // Need to transform the datetime to a format that the form data field 'date' can understand
     const formData = {
         uuid: apiData.uuid,
-        date: apiData.datetime.split("T")[0],
+        date: new Date(apiData.datetime*1000).toISOString().split('T')[0],
         weight: apiData.weight
     }
     const form = await superValidate(formData, zod(formSchema));

@@ -12,7 +12,7 @@ import (
 
 type CheckIn struct {
 	UUID     string    `json:"uuid,omitempty"`
-	Datetime time.Time `json:"datetime"`
+	Datetime int64 	   `json:"datetime"`
 	Weight   float64   `json:"weight"`
 }
 
@@ -32,7 +32,7 @@ func (m *CheckInModel) InjectSampleData() error {
 		}
 		checkIn := CheckIn{
 			UUID:     uuid.String(),
-			Datetime: time.Now().AddDate(0, 0, -i),
+			Datetime: time.Now().AddDate(0, 0, -i).Unix(),
 			Weight:   float64(i + 29),
 		}
 		checkIns = append(checkIns, checkIn)
@@ -46,36 +46,6 @@ func (m *CheckInModel) InjectSampleData() error {
 	}
 	return nil
 
-}
-
-func parseRowsToEntries(r *sql.Rows) ([]CheckIn, error) {
-
-	// Parse db sql rows
-	type dbRow struct {
-		UUID     string
-		Datetime int64
-		Weight   float64
-	}
-	dbData := []dbRow{}
-	for r.Next() {
-		var dbr dbRow
-		err := r.Scan(&dbr.UUID, &dbr.Datetime, &dbr.Weight)
-		if err != nil {
-			return []CheckIn{}, err
-		}
-		dbData = append(dbData, dbr)
-	}
-
-	// Parse db data to CheckIn's/entries
-	entries := []CheckIn{}
-	for i := range dbData {
-		entries = append(entries, CheckIn{
-			UUID:     dbData[i].UUID,
-			Datetime: time.Unix(dbData[i].Datetime, 0),
-			Weight:   dbData[i].Weight})
-	}
-
-	return entries, nil
 }
 
 func (m *CheckInModel) Get(UUID string) (CheckIn, error) {
@@ -92,8 +62,18 @@ func (m *CheckInModel) Get(UUID string) (CheckIn, error) {
 		return CheckIn{}, err
 	}
 
-	entries, err := parseRowsToEntries(r)
-	if err != nil {
+	entries := []CheckIn{}
+	for r.Next() {
+		var e CheckIn
+		err := r.Scan(&e.UUID, &e.Datetime, &e.Weight)
+		if err != nil {
+			return CheckIn{}, err
+		}
+		entries = append(entries, e)
+	}
+
+	// Verify the loop did not exit due to an error
+	if err = r.Err(); err != nil {
 		return CheckIn{}, err
 	}
 
@@ -104,12 +84,12 @@ func (m *CheckInModel) Get(UUID string) (CheckIn, error) {
 	return entries[0], nil
 }
 
-func (m *CheckInModel) List(filters Filters) ([]CheckIn, error) {
+func (m *CheckInModel) List(filters Filters) ([]CheckIn, Metadata, error) {
 
 	m.logger.Debug("Get all the entries")
 
 	q := `
-	SELECT uuid, datetime, weight
+	SELECT count(*) OVER(), uuid, datetime, weight
 	FROM entries
 	ORDER BY datetime DESC
 	LIMIT ?
@@ -117,10 +97,28 @@ func (m *CheckInModel) List(filters Filters) ([]CheckIn, error) {
 	`
 	r, err := m.DB.Query(q, filters.limit(), filters.offset())
 	if err != nil {
-		return nil, err
+		return nil, Metadata{}, err
 	}
 
-	return parseRowsToEntries(r)
+	totalRecords := 0
+	entries := []CheckIn{}
+	for r.Next() {
+		var e CheckIn
+		err := r.Scan(&totalRecords, &e.UUID, &e.Datetime, &e.Weight)
+		if err != nil {
+			return nil, Metadata{}, err
+		}
+		entries = append(entries, e)
+	}
+
+	// Verify the loop did not exit due to an error
+	if err = r.Err(); err != nil {
+		return nil, Metadata{}, err
+	}
+
+	metadata := calculateMetadata(totalRecords, filters.Page, filters.PageSize)
+
+	return entries, metadata, nil
 }
 
 func (m *CheckInModel) Insert(checkIn CheckIn) error {
@@ -133,7 +131,7 @@ func (m *CheckInModel) Insert(checkIn CheckIn) error {
 	VALUES
 	(?, ?, ?);
 	`
-	_, err := m.DB.Exec(q, checkIn.UUID, checkIn.Datetime.Unix(), checkIn.Weight)
+	_, err := m.DB.Exec(q, checkIn.UUID, checkIn.Datetime, checkIn.Weight)
 	if err != nil {
 		return err
 	}
@@ -165,7 +163,7 @@ func (m *CheckInModel) Update(checkIn CheckIn) error {
 	SET weight=?, datetime=?
 	WHERE uuid=?
 	`
-	_, err := m.DB.Exec(q, checkIn.Weight, checkIn.Datetime.Unix(), checkIn.UUID)
+	_, err := m.DB.Exec(q, checkIn.Weight, checkIn.Datetime, checkIn.UUID)
 	if err != nil {
 		return err
 	}

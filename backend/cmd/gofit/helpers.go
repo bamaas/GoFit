@@ -9,6 +9,8 @@ import (
 	"io"
 )
 
+type envelope map[string]any
+
 func (app *application) readJSON(w http.ResponseWriter, r *http.Request, v interface{}) error {
 	// Limit the size of the request body to 1MB
 	var maxBytes int64 = 1_048_576

@@ -19,13 +19,14 @@ func (app *application) getCheckInsHandler(w http.ResponseWriter, r *http.Reques
 	input.Filters.PageSize = app.readInt(qs, "page_size", 30)
 
 	app.logger.Info("Getting check-ins")
-	checkIns, err := app.models.CheckIns.List(input.Filters)
+	checkIns, metadata, err := app.models.CheckIns.List(input.Filters)
 	if err != nil {
 		app.logger.Error(err.Error())
 		http.Error(w, "error retrieving records", http.StatusInternalServerError)
 		return
 	}
-	app.writeJSON(w, http.StatusOK, checkIns)
+
+	app.writeJSON(w, http.StatusOK, envelope{"metadata": metadata, "data": checkIns})
 }
 
 func (app *application) getCheckInHandler(w http.ResponseWriter, r *http.Request) {

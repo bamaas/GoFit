@@ -1,10 +1,9 @@
-<!-- https://stackoverflow.com/questions/69606222/how-to-update-the-page-and-query-parameters-in-sveltekit -->
 <script lang="ts">
     import { createTable, Render, Subscribe} from "svelte-headless-table";
     import * as Table from "$lib/components/ui/table";
     import { onMount } from "svelte";
     import { PUBLIC_BACKEND_BASE_URL } from "$env/static/public";
-    import { apiData, checkIns, type CheckIn } from "./store";
+    import { apiData, checkIns, type CheckIn, type Metadata, type ApiResponse } from "./store";
     import { addSortBy } from "svelte-headless-table/plugins";
     import { Button } from "$lib/components/ui/button/index.js";
 	import { ArrowUpDown, ArrowLeft, ArrowRight } from "lucide-svelte";
@@ -16,38 +15,61 @@
     let pageNumber: number = Number($page.url.searchParams.get('page') || 1);
     let pageSize: number = 30;
     $: pageNumber;
+    $: hasNextPage = false;
+    $: hasPrevPage = false;
 
-    let promise: Promise<CheckIn[]> = new Promise(() => {});
+    let promise: Promise<ApiResponse> = new Promise(() => {});
 
     onMount(() => {
 
         // Load dummy data
-        let dummyData: CheckIn[] = []
+        let data: CheckIn[] = []
         for (let i = 0; i < 18; i++) {
-            dummyData.push({
+            data.push({
                 uuid: String(i),
-                datetime: "2021-10-01T00:00:00Z",
+                datetime: 1713034819,
                 weight: 70
             });
         }
+        let metadata: Metadata = {
+            total_records: 30,
+            current_page: 1,
+            page_size: pageSize,
+            first_page: 1,
+            last_page: 1,
+        }
+        let dummyData = {
+            data: data,
+            metadata: metadata
+        }
+
         apiData.set(dummyData);
 
         fetchData(pageNumber);
 
         apiData.subscribe((data) => {
-            data.length == pageSize ? hasNextPage = true : hasNextPage = false;
+            console.log(data.metadata.last_page)
+            if (data.metadata.current_page < data.metadata.last_page) {
+                hasNextPage = true;
+            } else {
+                hasNextPage = false;
+            }
+            if (data.metadata.current_page > data.metadata.first_page) {
+                hasPrevPage = true;
+            } else {
+                hasPrevPage = false;
+            }
         });
     });
 
     function fetchData(pageNumber: number): void{
         promise = (async () => {
-            const res = await fetch(`${PUBLIC_BACKEND_BASE_URL}/v1/check-ins?page=${pageNumber}`);
-            // const res = await fetch(`${PUBLIC_BACKEND_BASE_URL}/v1/check-ins?page=${pageNumber}?page_size=${pageSize}`);
-            const data = await res.json();
-            return data; 
+            const res = await fetch(`${PUBLIC_BACKEND_BASE_URL}/v1/check-ins?page=${pageNumber}&page_size=${pageSize}`);
+            const response = await res.json();
+            return response; 
         })();
-        promise.then(data => {
-            apiData.set(data);
+        promise.then(response => {
+            apiData.set(response);
         }).catch(() => {
             toast.error("Oops! Failed fetching data from server.");
         });
@@ -61,7 +83,7 @@
         table.column({
             accessor: "datetime",
             header: "Date",
-            cell: ({ value }) => {return value.split("T")[0]},
+            cell: ({ value }) => {return new Date(value*1000).toISOString().split('T')[0]},
         }),
         table.column({
             accessor: "weight",
@@ -78,22 +100,13 @@
 
     const { headerRows, pageRows, tableAttrs, tableBodyAttrs } = table.createViewModel(columns);
 
-    $: hasNextPage = false;
-
-    $: hasPrevPage = false;
-
     function gotoNextPage(): void {
         pageNumber = pageNumber + 1;
-        hasPrevPage = true;
         setQueryParam('page', String(pageNumber));
         fetchData(pageNumber);
     }
 
     function goToPreviousPage(): void {
-        if ((pageNumber - 1) <= 0) {
-            hasPrevPage = false;
-            return;
-        };
         pageNumber = pageNumber - 1;
         setQueryParam('page', String(pageNumber));
         fetchData(pageNumber);

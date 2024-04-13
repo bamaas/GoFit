@@ -28,7 +28,6 @@
   let showLoaderIcon: boolean = false;
 
   function postCheckIn(data: CheckIn){
-    if (data.datetime.split('T').length == 1) data.datetime = data.datetime + "T17:34:02.666Z";
     showLoaderIcon = true;
     submitButtonDisabled = true;
     fetch(`${PUBLIC_BACKEND_BASE_URL}/v1/check-ins`, 
@@ -63,7 +62,6 @@
   function updateCheckIn(data: CheckIn){
     showLoaderIcon = true;
     submitButtonDisabled = true;
-    if (data.datetime.split('T').length == 1) data.datetime = data.datetime + "T17:34:02.666Z";
     fetch(`${PUBLIC_BACKEND_BASE_URL}/v1/check-ins`, 
         {
           method: 'PUT',
@@ -101,7 +99,7 @@
     onChange() {
       const d: CheckIn = {
         uuid: $formData.uuid,
-        datetime: $formData.date,
+        datetime: Date.parse($formData.date)/1000,
         weight: $formData.weight,
       }
       try {
@@ -122,7 +120,7 @@
       if (form.valid) {
         const data: CheckIn = {
           uuid: form.data.uuid,
-          datetime: form.data.date,
+          datetime: Date.parse(form.data.date)/1000,
           weight: form.data.weight,
         }
         if (form.data.uuid == "") {

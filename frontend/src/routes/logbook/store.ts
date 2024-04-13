@@ -1,18 +1,31 @@
 import { writable, derived } from 'svelte/store';
 
+export type Metadata = {
+  total_records: number,
+  current_page: number,
+  page_size: number,
+  first_page: number,
+  last_page: number
+}
+
 export type CheckIn = {
   uuid: string;
-  datetime: string;
+  datetime: number;
   weight: number;
 };
 
-// Store for your data.
-export const apiData = writable(Array<CheckIn>());
+export type ApiResponse = {
+  data: CheckIn[];
+  metadata: Metadata;
+}
 
-// Data transformation - sorting the data by date.
+// Store for your data.
+export const apiData = writable({} as ApiResponse);
+
+// Data transformation
 export const checkIns = derived(apiData, ($apiData) => {
-    // $apiData.sort(function(a,b){
-    //     return new Date(b.datetime).valueOf() - new Date(a.datetime).valueOf();
-    //   });
-    return $apiData;
+    if ($apiData.data == undefined) {
+        return [];
+    }
+    return $apiData.data;
 });
