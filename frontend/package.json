@@ -48,6 +48,7 @@
 		"formsnap": "^1.0.0",
 		"lucide-svelte": "^0.363.0",
 		"mode-watcher": "^0.3.0",
+		"moment": "^2.30.1",
 		"svelte-sonner": "^0.3.20",
 		"sveltekit-superforms": "^2.12.0",
 		"tailwind-merge": "^2.2.2",

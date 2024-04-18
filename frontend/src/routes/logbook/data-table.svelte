@@ -12,6 +12,7 @@
     import { Skeleton } from "$lib/components/ui/skeleton/index.js";
     import { page } from '$app/stores';
     import WeightDifference from "./weight-diff-column.svelte";
+    import moment from "moment";
 
     let pageNumber: number = Number($page.url.searchParams.get('page') || 1);
     let pageSize: number = 30;
@@ -90,7 +91,10 @@
         table.column({
             accessor: "datetime",
             header: "Date",
-            cell: ({ value }) => {return new Date(value*1000).toISOString().split('T')[0]},
+            cell: ({ value }) => {
+                let date = new Date(value*1000).toISOString().split('T')[0];
+                return moment(date).format("Do MMM YY");
+            },
         }),
         table.column({
             accessor: "weight",
