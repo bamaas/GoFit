@@ -16,9 +16,10 @@ type CheckIn struct {
 	Weight   float64   `json:"weight"`
 }
 
-type CheckInWithMovingAverage struct {
+type CheckInWithStats struct {
 	CheckIn
 	MovingAverage float64 `json:"moving_average"`
+	WeightDifference float64 `json:"weight_difference"`
 }
 
 type CheckInModel struct {
@@ -89,7 +90,7 @@ func (m *CheckInModel) Get(UUID string) (CheckIn, error) {
 	return entries[0], nil
 }
 
-func (m *CheckInModel) List(filters Filters) ([]CheckInWithMovingAverage, Metadata, error) {
+func (m *CheckInModel) List(filters Filters) ([]CheckInWithStats, Metadata, error) {
 
 	m.logger.Debug("Get all the entries")
 
@@ -99,7 +100,8 @@ func (m *CheckInModel) List(filters Filters) ([]CheckInWithMovingAverage, Metada
 		ORDER BY datetime DESC
 		RANGE BETWEEN 0 PRECEDING
 		AND 6 * 24 * 60 * 60 FOLLOWING
-	) AS MovingAverageWindow7
+	) AS MovingAverageWindow7,
+	IFNULL(weight - LAG(weight, 1) OVER (ORDER BY datetime), 0.0) as weight_difference
 	FROM entries 
 	ORDER BY datetime DESC
 	LIMIT ?
@@ -111,10 +113,10 @@ func (m *CheckInModel) List(filters Filters) ([]CheckInWithMovingAverage, Metada
 	}
 
 	totalRecords := 0
-	entries := []CheckInWithMovingAverage{}
+	entries := []CheckInWithStats{}
 	for r.Next() {
-		var e CheckInWithMovingAverage
-		err := r.Scan(&totalRecords, &e.UUID, &e.Datetime, &e.Weight, &e.MovingAverage)
+		var e CheckInWithStats
+		err := r.Scan(&totalRecords, &e.UUID, &e.Datetime, &e.Weight, &e.MovingAverage, &e.WeightDifference)
 		if err != nil {
 			return nil, Metadata{}, err
 		}

@@ -13,6 +13,7 @@ export type CheckIn = {
   datetime: number;
   weight: number;
   moving_average: number;
+  weight_difference: number;
 };
 
 export type ApiResponse = {

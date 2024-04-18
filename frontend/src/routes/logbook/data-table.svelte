@@ -11,7 +11,6 @@
 	import { goto } from "$app/navigation";
     import { Skeleton } from "$lib/components/ui/skeleton/index.js";
     import { page } from '$app/stores';
-	import { readable } from "svelte/store";
 
     let pageNumber: number = Number($page.url.searchParams.get('page') || 1);
     let pageSize: number = 30;
@@ -33,7 +32,8 @@
                 uuid: String(i),
                 datetime: 1713034819,
                 weight: 70,
-                moving_average: 5
+                moving_average: 5,
+                weight_difference: 0.5
             });
         }
         let metadata: Metadata = {
@@ -97,6 +97,11 @@
             cell: ({ value }) => {return value + " kg"},
         }),
         table.column({
+            accessor: "weight_difference",
+            header: "Difference",
+            cell: ({ value }) => {return value.toFixed(1) + " kg"},
+        }),
+        table.column({
             id: "movingAvg",
             accessor: "moving_average",
             header: "M. Avg",
@@ -141,17 +146,15 @@
                     {#each headerRow.cells as cell (cell.id)}
                     <Subscribe attrs={cell.attrs()} let:attrs props={cell.props()} let:props >
                         <Table.Head {...attrs}>
-                            {#if cell.id === "weight" || cell.id === "movingAvg"}
-                                <div class="text-right">
-                                    <Render of={cell.render()} />
-                                </div>
-                            {:else if cell.id === "datetime"}
+                            {#if cell.id === "datetime"}
                                 <Button variant="ghost" on:click={props.sort.toggle}>
                                     <Render of={cell.render()} />
                                     <ArrowUpDown class={"ml-2 h-4 w-4"} />
                                 </Button>
                             {:else}
-                                <Render of={cell.render()} />
+                                <div class="text-right">
+                                    <Render of={cell.render()} />
+                                </div>
                             {/if}
                         </Table.Head>
                     </Subscribe>
@@ -170,12 +173,12 @@
                             {#await promise}
                                 <Skeleton class="h-4 w-full" />
                             {:then}
-                                {#if cell.id === "weight" || cell.id === "movingAvg"}
+                                {#if cell.id === "datetime"}
+                                    <Render of={cell.render()} />
+                                {:else}
                                     <div class="text-right">
                                         <Render of={cell.render()} />
                                     </div>
-                                {:else}
-                                    <Render of={cell.render()} />
                                 {/if}
                             {:catch}
                                 <Skeleton class="h-4 w-full" />
