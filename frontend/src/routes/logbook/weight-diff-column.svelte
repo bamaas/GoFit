@@ -4,15 +4,15 @@
     import MinusIcon from "lucide-svelte/icons/minus";
     export let weightDiff: number;
 </script>
-<div class="flex flex-row-reverse">
-    {#if weightDiff != 0}
-        <span>{Math.abs(weightDiff)} kg</span>
-    {/if}
+<div class="flex items-center justify-center">
     {#if weightDiff > 0}
         <MoveUpIcon class="h-4 w-4"/>
     {:else if weightDiff < 0}
         <MoveDownIcon class="h-4 w-4"/>
     {:else}
         <MinusIcon class="h-4 w-4"/>
+    {/if}
+    {#if weightDiff != 0}
+        <span>{Math.abs(weightDiff).toFixed(1)} kg</span>
     {/if}
 </div>

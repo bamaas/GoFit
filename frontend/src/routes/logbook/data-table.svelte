@@ -33,8 +33,9 @@
                 uuid: String(i),
                 datetime: 1713034819,
                 weight: 70,
+                notes: "This is a note.",
                 moving_average: 5,
-                weight_difference: 0.5
+                weight_difference: 0.5,
             });
         }
         let metadata: Metadata = {
@@ -94,7 +95,7 @@
         table.column({
             accessor: "weight",
             header: "Weight",
-            cell: ({ value }) => {return value + " kg"},
+            cell: ({ value }) => {return value.toFixed(1) + " kg"},
         }),
         table.column({
             accessor: "weight_difference",
@@ -105,8 +106,18 @@
             id: "movingAvg",
             accessor: "moving_average",
             header: "M. Avg",
-            cell: ({ value }) => {return (value * 1.5).toFixed(1).replace(/[.,]0$/, "") + " kg"},
-        })
+            cell: ({ value }) => {return value.toFixed(1) + " kg"},
+        }),
+        // table.column({
+        //     accessor: "notes",
+        //     header: "Notes",
+        //     cell: ({ value }) => {
+        //         if (value.length > 50) {
+        //             return value.substring(0, 80) + "...";
+        //         }
+        //         return value
+        //     },
+        // }),
     ]);
 
     function handleClick(value: string){
@@ -147,12 +158,18 @@
                     <Subscribe attrs={cell.attrs()} let:attrs props={cell.props()} let:props >
                         <Table.Head {...attrs}>
                             {#if cell.id === "datetime"}
-                                <Button variant="ghost" on:click={props.sort.toggle}>
+                                <div class="text-center">
+                                    <Button variant="ghost" on:click={props.sort.toggle}>
+                                            <Render of={cell.render()} />
+                                            <ArrowUpDown class={"ml-2 h-4 w-4"} />
+                                    </Button>
+                                </div>
+                            {:else if cell.id =="notes"}
+                                <div class="invisible lg:visible">
                                     <Render of={cell.render()} />
-                                    <ArrowUpDown class={"ml-2 h-4 w-4"} />
-                                </Button>
+                                </div>
                             {:else}
-                                <div class="text-right">
+                                <div class="text-center">
                                     <Render of={cell.render()} />
                                 </div>
                             {/if}
@@ -173,10 +190,12 @@
                             {#await promise}
                                 <Skeleton class="h-4 w-full" />
                             {:then}
-                                {#if cell.id === "datetime"}
-                                    <Render of={cell.render()} />
+                                {#if cell.id =="notes"}
+                                    <div class="invisible lg:visible">
+                                        <Render of={cell.render()} />
+                                    </div>
                                 {:else}
-                                    <div class="text-right">
+                                    <div class="text-center">
                                         <Render of={cell.render()} />
                                     </div>
                                 {/if}
