@@ -35,7 +35,8 @@ func setupDB(logger *slog.Logger) (*sql.DB, error) {
 	CREATE TABLE IF NOT EXISTS entries (
 	uuid STRING NOT NULL PRIMARY KEY,
 	datetime INTEGER NOT NULL,
-	weight FLOAT NOT NULL
+	weight FLOAT NOT NULL,
+	notes STRING
 	);`
 	_, err = db.Exec(createTableQuery)
 	if err != nil {

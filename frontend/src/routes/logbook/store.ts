@@ -12,6 +12,7 @@ export type CheckIn = {
   uuid: string;
   datetime: number;
   weight: number;
+  notes: string;
   moving_average: number;
   weight_difference: number;
 };

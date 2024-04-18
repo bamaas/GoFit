@@ -14,6 +14,7 @@ type CheckIn struct {
 	UUID     string    `json:"uuid,omitempty"`
 	Datetime int64 	   `json:"datetime"`
 	Weight   float64   `json:"weight"`
+	Notes	 string    `json:"notes,omitempty"`
 }
 
 type CheckInWithStats struct {
@@ -40,6 +41,7 @@ func (m *CheckInModel) InjectSampleData() error {
 			UUID:     uuid.String(),
 			Datetime: time.Now().AddDate(0, 0, -i).Unix(),
 			Weight:   float64(i + 29),
+			Notes:    "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Etiam nulla sem, facilisis consequat iaculis a, tristique quis ipsum.",
 		}
 		checkIns = append(checkIns, checkIn)
 	}
@@ -59,7 +61,7 @@ func (m *CheckInModel) Get(UUID string) (CheckIn, error) {
 	m.logger.Debug("Get check-in", "UUID", UUID)
 
 	q := `
-	SELECT uuid, datetime, weight
+	SELECT uuid, datetime, weight, notes
 	FROM entries
 	WHERE uuid=?`
 
@@ -71,7 +73,7 @@ func (m *CheckInModel) Get(UUID string) (CheckIn, error) {
 	entries := []CheckIn{}
 	for r.Next() {
 		var e CheckIn
-		err := r.Scan(&e.UUID, &e.Datetime, &e.Weight)
+		err := r.Scan(&e.UUID, &e.Datetime, &e.Weight, &e.Notes)
 		if err != nil {
 			return CheckIn{}, err
 		}
@@ -95,7 +97,7 @@ func (m *CheckInModel) List(filters Filters) ([]CheckInWithStats, Metadata, erro
 	m.logger.Debug("Get all the entries")
 
 	q := `
-	SELECT count(*) OVER(), uuid, datetime, weight, 
+	SELECT count(*) OVER(), uuid, datetime, weight, notes, 
 	avg(weight) OVER (
 		ORDER BY datetime DESC
 		RANGE BETWEEN 0 PRECEDING
@@ -116,7 +118,7 @@ func (m *CheckInModel) List(filters Filters) ([]CheckInWithStats, Metadata, erro
 	entries := []CheckInWithStats{}
 	for r.Next() {
 		var e CheckInWithStats
-		err := r.Scan(&totalRecords, &e.UUID, &e.Datetime, &e.Weight, &e.MovingAverage, &e.WeightDifference)
+		err := r.Scan(&totalRecords, &e.UUID, &e.Datetime, &e.Weight, &e.Notes, &e.MovingAverage, &e.WeightDifference)
 		if err != nil {
 			return nil, Metadata{}, err
 		}
@@ -139,11 +141,11 @@ func (m *CheckInModel) Insert(checkIn CheckIn) error {
 
 	q := `
 	INSERT INTO entries
-	(uuid, datetime, weight)
+	(uuid, datetime, weight, notes)
 	VALUES
-	(?, ?, ?);
+	(?, ?, ?, ?);
 	`
-	_, err := m.DB.Exec(q, checkIn.UUID, checkIn.Datetime, checkIn.Weight)
+	_, err := m.DB.Exec(q, checkIn.UUID, checkIn.Datetime, checkIn.Weight, checkIn.Notes)
 	if err != nil {
 		return err
 	}
@@ -172,10 +174,10 @@ func (m *CheckInModel) Update(checkIn CheckIn) error {
 
 	q := `
 	UPDATE entries
-	SET weight=?, datetime=?
+	SET weight=?, datetime=?, notes=?
 	WHERE uuid=?
 	`
-	_, err := m.DB.Exec(q, checkIn.Weight, checkIn.Datetime, checkIn.UUID)
+	_, err := m.DB.Exec(q, checkIn.Weight, checkIn.Datetime, checkIn.Notes, checkIn.UUID)
 	if err != nil {
 		return err
 	}

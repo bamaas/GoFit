@@ -14,7 +14,8 @@ export const load: PageLoad = async ({fetch, params}) => {
     const formData = {
         uuid: apiData.uuid,
         date: new Date(apiData.datetime*1000).toISOString().split('T')[0],
-        weight: apiData.weight
+        weight: apiData.weight,
+        notes: apiData.notes
     }
     const form = await superValidate(formData, zod(formSchema));
     return {

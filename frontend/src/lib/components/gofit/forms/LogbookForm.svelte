@@ -39,6 +39,7 @@
           body: JSON.stringify({
             "datetime": data.datetime,
             "weight": data.weight,
+            "notes": data.notes
           })
         })
         .then(response => {
@@ -72,6 +73,7 @@
             "uuid": data.uuid,
             "datetime": data.datetime,
             "weight": data.weight,
+            "notes": data.notes
           })
         })
         .then(response => {
@@ -101,6 +103,7 @@
         uuid: $formData.uuid,
         datetime: Date.parse($formData.date)/1000,
         weight: $formData.weight,
+        notes: $formData.notes
       }
       try {
         formSchema.parse(d)
@@ -122,6 +125,7 @@
           uuid: form.data.uuid,
           datetime: Date.parse(form.data.date)/1000,
           weight: form.data.weight,
+          notes: form.data.notes
         }
         if (form.data.uuid == "") {
           postCheckIn(data);
@@ -221,6 +225,18 @@
       {/if}
       <Form.FieldErrors />
   </Form.Field>
+  <Form.Field {form} name="notes" class="pb-5">
+    <Form.Control let:attrs>
+        <Form.Label>Notes</Form.Label>
+          <Input {...attrs} bind:value={$formData.notes}/>
+    </Form.Control>
+    {#if data.data.uuid == ""}
+      <Form.Description>Anything to add?</Form.Description>
+    {:else}
+      <Form.Description>Your notes during that day.</Form.Description>
+    {/if}
+    <Form.FieldErrors />
+</Form.Field>
   <Form.Button class="w-full" disabled={submitButtonDisabled}>
     {#if showLoaderIcon == true}
       <LoaderCircleIcon class="spinner"/>
