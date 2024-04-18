@@ -101,7 +101,7 @@ func (m *CheckInModel) List(filters Filters) ([]CheckInWithStats, Metadata, erro
 		RANGE BETWEEN 0 PRECEDING
 		AND 6 * 24 * 60 * 60 FOLLOWING
 	) AS MovingAverageWindow7,
-	IFNULL(weight - LAG(weight, 1) OVER (ORDER BY datetime), 0.0) as weight_difference
+	IFNULL(weight - LAG(weight, 1) OVER (ORDER BY datetime), 0.0) as weightDifference
 	FROM entries 
 	ORDER BY datetime DESC
 	LIMIT ?

@@ -26,11 +26,6 @@ func (app *application) getCheckInsHandler(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
-	// Calculate the average weight
-	// for _, v := range checkIns {
-	// 	v.Datetime
-	// }
-
 	app.writeJSON(w, http.StatusOK, envelope{"metadata": metadata, "data": checkIns})
 }
 
@@ -53,11 +48,6 @@ func (app *application) getCheckInHandler(w http.ResponseWriter, r *http.Request
 }
 
 func (app *application) createCheckIn(w http.ResponseWriter, r *http.Request) {
-
-	// var input struct {
-	// 	Datetime time.Time `json:"datetime"`
-	// 	Weight float64 		`json:"weight"`
-	// }
 
 	var input data.CheckIn
 

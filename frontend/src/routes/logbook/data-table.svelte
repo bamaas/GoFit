@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { createTable, Render, Subscribe} from "svelte-headless-table";
+    import { createTable, Render, Subscribe, createRender} from "svelte-headless-table";
     import * as Table from "$lib/components/ui/table";
     import { onMount } from "svelte";
     import { PUBLIC_BACKEND_BASE_URL } from "$env/static/public";
@@ -11,6 +11,7 @@
 	import { goto } from "$app/navigation";
     import { Skeleton } from "$lib/components/ui/skeleton/index.js";
     import { page } from '$app/stores';
+    import WeightDifference from "./weight-diff-column.svelte";
 
     let pageNumber: number = Number($page.url.searchParams.get('page') || 1);
     let pageSize: number = 30;
@@ -53,7 +54,6 @@
         fetchData(pageNumber);
 
         apiData.subscribe((data) => {
-            console.log(data.metadata.last_page)
             if (data.metadata.current_page < data.metadata.last_page) {
                 hasNextPage = true;
             } else {
@@ -99,13 +99,13 @@
         table.column({
             accessor: "weight_difference",
             header: "Difference",
-            cell: ({ value }) => {return value.toFixed(1) + " kg"},
+            cell: ({ value }) => createRender(WeightDifference, { weightDiff: value }),
         }),
         table.column({
             id: "movingAvg",
             accessor: "moving_average",
             header: "M. Avg",
-            cell: ({ value }) => {return value.toFixed(1) + " kg"},
+            cell: ({ value }) => {return (value * 1.5).toFixed(1).replace(/[.,]0$/, "") + " kg"},
         })
     ]);
 
