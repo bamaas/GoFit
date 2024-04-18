@@ -26,6 +26,11 @@ func (app *application) getCheckInsHandler(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
+	// Calculate the average weight
+	// for _, v := range checkIns {
+	// 	v.Datetime
+	// }
+
 	app.writeJSON(w, http.StatusOK, envelope{"metadata": metadata, "data": checkIns})
 }
 

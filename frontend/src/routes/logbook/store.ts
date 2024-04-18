@@ -12,6 +12,7 @@ export type CheckIn = {
   uuid: string;
   datetime: number;
   weight: number;
+  moving_average: number;
 };
 
 export type ApiResponse = {

@@ -11,6 +11,7 @@
 	import { goto } from "$app/navigation";
     import { Skeleton } from "$lib/components/ui/skeleton/index.js";
     import { page } from '$app/stores';
+	import { readable } from "svelte/store";
 
     let pageNumber: number = Number($page.url.searchParams.get('page') || 1);
     let pageSize: number = 30;
@@ -31,7 +32,8 @@
             data.push({
                 uuid: String(i),
                 datetime: 1713034819,
-                weight: 70
+                weight: 70,
+                moving_average: 5
             });
         }
         let metadata: Metadata = {
@@ -93,6 +95,12 @@
             accessor: "weight",
             header: "Weight",
             cell: ({ value }) => {return value + " kg"},
+        }),
+        table.column({
+            id: "movingAvg",
+            accessor: "moving_average",
+            header: "M. Avg",
+            cell: ({ value }) => {return value + " kg"},
         })
     ]);
 
@@ -133,9 +141,9 @@
                     {#each headerRow.cells as cell (cell.id)}
                     <Subscribe attrs={cell.attrs()} let:attrs props={cell.props()} let:props >
                         <Table.Head {...attrs}>
-                            {#if cell.id === "weight"}
+                            {#if cell.id === "weight" || cell.id === "movingAvg"}
                                 <div class="text-right">
-                                <Render of={cell.render()} />
+                                    <Render of={cell.render()} />
                                 </div>
                             {:else if cell.id === "datetime"}
                                 <Button variant="ghost" on:click={props.sort.toggle}>
@@ -162,7 +170,7 @@
                             {#await promise}
                                 <Skeleton class="h-4 w-full" />
                             {:then}
-                                {#if cell.id === "weight"}
+                                {#if cell.id === "weight" || cell.id === "movingAvg"}
                                     <div class="text-right">
                                         <Render of={cell.render()} />
                                     </div>

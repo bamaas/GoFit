@@ -16,6 +16,11 @@ type CheckIn struct {
 	Weight   float64   `json:"weight"`
 }
 
+type CheckInWithMovingAverage struct {
+	CheckIn
+	MovingAverage float64 `json:"moving_average"`
+}
+
 type CheckInModel struct {
 	DB *sql.DB
 	logger *slog.Logger
@@ -84,13 +89,18 @@ func (m *CheckInModel) Get(UUID string) (CheckIn, error) {
 	return entries[0], nil
 }
 
-func (m *CheckInModel) List(filters Filters) ([]CheckIn, Metadata, error) {
+func (m *CheckInModel) List(filters Filters) ([]CheckInWithMovingAverage, Metadata, error) {
 
 	m.logger.Debug("Get all the entries")
 
 	q := `
-	SELECT count(*) OVER(), uuid, datetime, weight
-	FROM entries
+	SELECT count(*) OVER(), uuid, datetime, weight, 
+	avg(weight) OVER (
+		ORDER BY datetime DESC
+		RANGE BETWEEN 0 PRECEDING
+		AND 6 * 24 * 60 * 60 FOLLOWING
+	) AS MovingAverageWindow7
+	FROM entries 
 	ORDER BY datetime DESC
 	LIMIT ?
 	OFFSET ?;
@@ -101,10 +111,10 @@ func (m *CheckInModel) List(filters Filters) ([]CheckIn, Metadata, error) {
 	}
 
 	totalRecords := 0
-	entries := []CheckIn{}
+	entries := []CheckInWithMovingAverage{}
 	for r.Next() {
-		var e CheckIn
-		err := r.Scan(&totalRecords, &e.UUID, &e.Datetime, &e.Weight)
+		var e CheckInWithMovingAverage
+		err := r.Scan(&totalRecords, &e.UUID, &e.Datetime, &e.Weight, &e.MovingAverage)
 		if err != nil {
 			return nil, Metadata{}, err
 		}
