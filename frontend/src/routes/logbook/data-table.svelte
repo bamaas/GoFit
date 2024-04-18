@@ -100,7 +100,7 @@
             id: "movingAvg",
             accessor: "moving_average",
             header: "M. Avg",
-            cell: ({ value }) => {return value + " kg"},
+            cell: ({ value }) => {return value.toFixed(1) + " kg"},
         })
     ]);
 
