@@ -62,7 +62,7 @@ func (m *CheckInModel) Get(UUID string) (CheckIn, error) {
 
 	q := `
 	SELECT uuid, datetime, weight, notes
-	FROM entries
+	FROM checkins
 	WHERE uuid=?`
 
 	r, err := m.DB.Query(q, UUID)
@@ -94,7 +94,7 @@ func (m *CheckInModel) Get(UUID string) (CheckIn, error) {
 
 func (m *CheckInModel) List(filters Filters) ([]CheckInWithStats, Metadata, error) {
 
-	m.logger.Debug("Get all the entries")
+	m.logger.Debug("Get all the check-ins")
 
 	q := `
 	SELECT count(*) OVER(), uuid, datetime, weight, notes, 
@@ -104,7 +104,7 @@ func (m *CheckInModel) List(filters Filters) ([]CheckInWithStats, Metadata, erro
 		AND 6 * 24 * 60 * 60 FOLLOWING
 	) AS MovingAverageWindow7,
 	IFNULL(weight - LAG(weight, 1) OVER (ORDER BY datetime), 0.0) as weightDifference
-	FROM entries 
+	FROM checkins 
 	ORDER BY datetime DESC
 	LIMIT ?
 	OFFSET ?;
@@ -140,7 +140,7 @@ func (m *CheckInModel) Insert(checkIn CheckIn) error {
 	m.logger.Debug("Insert check-in", "check-in", checkIn)
 
 	q := `
-	INSERT INTO entries
+	INSERT INTO checkins
 	(uuid, datetime, weight, notes)
 	VALUES
 	(?, ?, ?, ?);
@@ -157,7 +157,7 @@ func (m *CheckInModel) Delete(UUID string) error {
 	m.logger.Debug("Deleting", "UUID", UUID)
 
 	q := `
-	DELETE FROM entries
+	DELETE FROM checkins
 	WHERE
 	uuid=?
 	`
@@ -173,7 +173,7 @@ func (m *CheckInModel) Update(checkIn CheckIn) error {
 	m.logger.Debug("Updating", "UUID", checkIn.UUID)
 
 	q := `
-	UPDATE entries
+	UPDATE checkins
 	SET weight=?, datetime=?, notes=?
 	WHERE uuid=?
 	`

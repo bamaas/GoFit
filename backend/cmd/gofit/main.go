@@ -32,7 +32,7 @@ func setupDB(logger *slog.Logger) (*sql.DB, error) {
 	}
 
 	createTableQuery := `
-	CREATE TABLE IF NOT EXISTS entries (
+	CREATE TABLE IF NOT EXISTS checkins (
 	uuid STRING NOT NULL PRIMARY KEY,
 	datetime INTEGER NOT NULL,
 	weight FLOAT NOT NULL,
