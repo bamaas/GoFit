@@ -1,7 +1,7 @@
 <script lang="ts">
     import { Button } from "$lib/components/ui/button/index.js";
     import { ChevronLeft } from "lucide-svelte"
-    import { afterNavigate, beforeNavigate } from '$app/navigation';
+    import { afterNavigate } from '$app/navigation';
     import { base } from '$app/paths'
     import { page } from '$app/stores';
 
