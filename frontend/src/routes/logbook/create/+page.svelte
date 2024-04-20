@@ -13,8 +13,8 @@
     </div>
     <Card.Root>
         <Card.Header>
-        <Card.Title>Add check-in</Card.Title>
-        <Card.Description>Try to check-in daily to get the best results</Card.Description>
+            <Card.Title>Add check-in</Card.Title>
+            <Card.Description>Try to check-in daily to get the best results</Card.Description>
         </Card.Header>
         <Card.Content>
             <Form data={data.form} />
