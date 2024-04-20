@@ -121,9 +121,10 @@
     },
     onUpdate: async ({ form }) => {
       if (form.valid) {
+        const currentTime = new Date().toISOString().split("T")[1];
         const data: CheckIn = {
           uuid: form.data.uuid,
-          datetime: Date.parse(form.data.date)/1000,
+          datetime: Math.round(Date.parse(form.data.date + "T" + currentTime)/1000),
           weight: form.data.weight,
           notes: form.data.notes
         }
