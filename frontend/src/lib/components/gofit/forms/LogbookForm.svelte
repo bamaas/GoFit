@@ -111,14 +111,8 @@
       } catch (error: any) {
         if (error instanceof ZodError){
           error.errors.map((e) => {
-            if (String(e.path) == "weight") {
-              form.errors.set({"weight": [e.message]})
-            }
-            if (String(e.path) == "datetime") {
-              form.errors.set({"date": [e.message]})
-            }
-            if (String(e.path) == "notes") {
-              form.errors.set({"notes": [e.message]})
+            if (String(e.path) != null) {
+              form.errors.set({[String(e.path)]: [e.message]})
             }
           })
         }
