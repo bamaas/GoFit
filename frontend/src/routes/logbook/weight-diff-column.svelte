@@ -6,9 +6,9 @@
 </script>
 <div class="flex items-center justify-center">
     {#if weightDiff > 0}
-        <MoveUpIcon class="h-4 w-4"/>
+        <MoveUpIcon style="color: #7f1d1d;" class="h-4 w-4"/>
     {:else if weightDiff < 0}
-        <MoveDownIcon class="h-4 w-4"/>
+        <MoveDownIcon style="color: #1d7f3f;" class="h-4 w-4"/>
     {:else}
         <MinusIcon class="h-4 w-4"/>
     {/if}
