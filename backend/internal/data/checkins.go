@@ -41,7 +41,7 @@ func (m *CheckInModel) InjectSampleData() error {
 			UUID:     uuid.String(),
 			Datetime: time.Now().AddDate(0, 0, -i).Unix(),
 			Weight:   float64(i + 29),
-			Notes:    "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Etiam nulla sem, facilisis consequat iaculis a, tristique quis ipsum.",
+			Notes:    "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Etiam nulla sem.",
 		}
 		checkIns = append(checkIns, checkIn)
 	}

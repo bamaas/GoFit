@@ -2,14 +2,17 @@ package main
 
 import (
 	"net/http"
+	"strconv"
 
 	"github.com/bamaas/gofit/internal/data"
+	"github.com/bamaas/gofit/internal/validator"
 
 	"github.com/google/uuid"
 )
 
 func (app *application) getCheckInsHandler(w http.ResponseWriter, r *http.Request) {
 
+	// Get the input
 	var input struct {
 		data.Filters
 	}
@@ -18,6 +21,19 @@ func (app *application) getCheckInsHandler(w http.ResponseWriter, r *http.Reques
 	input.Filters.Page = app.readInt(qs, "page", 1)
 	input.Filters.PageSize = app.readInt(qs, "page_size", 30)
 
+	// Validate the input
+	v := validator.New()
+	app.logger.Info(strconv.Itoa(input.Filters.Page))
+	app.logger.Info(strconv.Itoa(input.Filters.PageSize))
+	v.Check(input.Filters.Page >= 1, "page", "can't be less than 1")
+	v.Check(input.Filters.PageSize >= 1, "pageSize", "can't be less than 1")
+	v.Check(input.Filters.PageSize <= 100, "pageSize", "can't be greater than 100")
+	if !v.Valid() {
+		app.writeJSON(w, http.StatusBadRequest, envelope{"invalid_query_parameters": v.Errors})
+		return
+	}
+
+	// Retrieve data
 	app.logger.Info("Getting check-ins")
 	checkIns, metadata, err := app.models.CheckIns.List(input.Filters)
 	if err != nil {
@@ -26,17 +42,20 @@ func (app *application) getCheckInsHandler(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
+	// Write the response
 	app.writeJSON(w, http.StatusOK, envelope{"metadata": metadata, "data": checkIns})
 }
 
 func (app *application) getCheckInHandler(w http.ResponseWriter, r *http.Request) {
 	
+	// Get the input
 	input := r.PathValue("uuid")
 	if input == "" {
 		http.Error(w, "uuid is required", http.StatusBadRequest)
 		return
 	}
 
+	// Retrieve data
 	app.logger.Info("Getting check-in", "UUID", input)
 	checkIn, err := app.models.CheckIns.Get(input)
 	if err != nil {
@@ -44,33 +63,49 @@ func (app *application) getCheckInHandler(w http.ResponseWriter, r *http.Request
 		http.Error(w, "record not found", http.StatusNotFound)
 		return
 	}
+
+	// Write the response
 	app.writeJSON(w, http.StatusOK, checkIn)
 }
 
 func (app *application) createCheckIn(w http.ResponseWriter, r *http.Request) {
 
-	var input data.CheckIn
-
-	err := app.readJSON(w, r, &input)
+	// Get the input
+	var input struct {
+		Datetime int64   `json:"datetime"`
+		Weight   float64 `json:"weight"`
+		Notes    string  `json:"notes"`
+	}
+	err := app.readJSON(w, r, &input)	// first decode into input struct to prevent decoding of i.e. uuid field
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 
-	if input.Weight < 20 {
-		http.Error(w, "weight must be greater than 20", http.StatusBadRequest)
+	// Validate the input
+	c := &data.CheckIn{
+		Datetime: input.Datetime,
+		Weight: input.Weight,
+		Notes: input.Notes,
+	}
+	v := validator.New()
+	v.ValidateCheckIn(c)
+	if !v.Valid() {
+		app.writeJSON(w, http.StatusUnprocessableEntity, envelope{"invalid_fields": v.Errors})
 		return
 	}
+
+	// Insert the record
 	uuid, err := uuid.NewRandom()
 	if err != nil {
 		app.logger.Error(err.Error())
 		http.Error(w, "error inserting record", http.StatusInternalServerError)
 		return
 	}
-	input.UUID = uuid.String()
+	c.UUID = uuid.String()
 
-	app.logger.Info("Creating check-in", "UUID", input.UUID)
-	if err = app.models.CheckIns.Insert(input); err != nil {
+	app.logger.Info("Creating check-in", "UUID", c.UUID)
+	if err = app.models.CheckIns.Insert(*c); err != nil {
 		app.logger.Error(err.Error())
 		http.Error(w, "error inserting record", http.StatusInternalServerError)
 		return
@@ -95,6 +130,7 @@ func (app *application) deleteCheckIn(w http.ResponseWriter, r *http.Request) {
 
 func (app *application) updateCheckIn(w http.ResponseWriter, r *http.Request) {
 
+	// Get the input
 	var input data.CheckIn
 	err := app.readJSON(w, r, &input)
 	if err != nil {
@@ -102,6 +138,15 @@ func (app *application) updateCheckIn(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// Validate the input
+	v := validator.New()
+	v.ValidateCheckIn(&input)
+	if !v.Valid() {
+		app.writeJSON(w, http.StatusUnprocessableEntity, envelope{"invalid_fields": v.Errors})
+		return
+	}
+
+	// Update the record
 	app.logger.Info("Updating check-in")
 	if err = app.models.CheckIns.Update(input); err != nil {
 		app.logger.Error(err.Error())
