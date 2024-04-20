@@ -114,6 +114,12 @@
             if (String(e.path) == "weight") {
               form.errors.set({"weight": [e.message]})
             }
+            if (String(e.path) == "datetime") {
+              form.errors.set({"date": [e.message]})
+            }
+            if (String(e.path) == "notes") {
+              form.errors.set({"notes": [e.message]})
+            }
           })
         }
         submitButtonDisabled = true;
