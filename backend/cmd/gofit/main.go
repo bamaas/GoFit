@@ -22,8 +22,8 @@ type application struct {
 func setupDB(logger *slog.Logger) (*sql.DB, error) {
 	logger.Debug("Initializing database...")
 
-	// db, err := sql.Open("sqlite", ":memory:")
-	db, err := sql.Open("sqlite", "gofit.db")
+	db, err := sql.Open("sqlite", ":memory:")
+	// db, err := sql.Open("sqlite", "gofit.db")
 	if err != nil {
 		return nil, err
 	}
