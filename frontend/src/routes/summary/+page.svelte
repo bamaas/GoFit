@@ -4,6 +4,8 @@
     import TrendingDownIcon from "lucide-svelte/icons/trending-down";
     import AwardIcon from "lucide-svelte/icons/award";
     import RocketIcon from "lucide-svelte/icons/rocket";
+
+    export let data;
 </script>
 <div class="container items-center py-14 max-w-screen-2xl">
     <div class="grid gap-3 md:grid-cols-2 lg:grid-cols-3">
@@ -14,7 +16,7 @@
                 <TrendingDownIcon class="h-4 w-4 text-muted-foreground" />
             </Card.Header>
             <Card.Content>
-                <div class="text-2xl font-bold">0.3 kg</div>
+                <div class="text-2xl font-bold">{data.stats.stats.weight_diff.week_ago} kg</div>
                 <p class="text-xs text-muted-foreground">Keep going!</p>
             </Card.Content>
         </Card.Root>
@@ -25,7 +27,7 @@
                 <RocketIcon class="h-4 w-4 text-muted-foreground" />
             </Card.Header>
             <Card.Content>
-                <div class="text-2xl font-bold">4 kg</div>
+                <div class="text-2xl font-bold">{data.stats.stats.weight_diff["90_days_ago"]} kg</div>
                 <p class="text-xs text-muted-foreground">Good work!</p>
             </Card.Content>
         </Card.Root>
@@ -36,7 +38,7 @@
                 <AwardIcon class="h-4 w-4 text-muted-foreground" />
             </Card.Header>
             <Card.Content>
-                <div class="text-2xl font-bold">14 kg</div>
+                <div class="text-2xl font-bold">{data.stats.stats.weight_diff.all_time} kg</div>
                 <p class="text-xs text-muted-foreground">Amazing!</p>
             </Card.Content>
         </Card.Root>

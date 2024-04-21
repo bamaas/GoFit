@@ -2,7 +2,6 @@ package main
 
 import (
 	"net/http"
-	"strconv"
 
 	"github.com/bamaas/gofit/internal/data"
 	"github.com/bamaas/gofit/internal/validator"
@@ -23,8 +22,6 @@ func (app *application) getCheckInsHandler(w http.ResponseWriter, r *http.Reques
 
 	// Validate the input
 	v := validator.New()
-	app.logger.Info(strconv.Itoa(input.Filters.Page))
-	app.logger.Info(strconv.Itoa(input.Filters.PageSize))
 	v.Check(input.Filters.Page >= 1, "page", "can't be less than 1")
 	v.Check(input.Filters.PageSize >= 1, "pageSize", "can't be less than 1")
 	v.Check(input.Filters.PageSize <= 100, "pageSize", "can't be greater than 100")
