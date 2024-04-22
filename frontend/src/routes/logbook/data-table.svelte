@@ -4,9 +4,8 @@
     import { onMount } from "svelte";
     import { PUBLIC_BACKEND_BASE_URL } from "$env/static/public";
     import { apiData, checkIns, type CheckIn, type Metadata, type ApiResponse } from "./store";
-    import { addSortBy } from "svelte-headless-table/plugins";
     import { Button } from "$lib/components/ui/button/index.js";
-	import { ArrowUpDown, ArrowLeft, ArrowRight } from "lucide-svelte";
+	import { ArrowLeft, ArrowRight } from "lucide-svelte";
 	import { toast } from "svelte-sonner";
 	import { goto } from "$app/navigation";
     import { Skeleton } from "$lib/components/ui/skeleton/index.js";
@@ -83,9 +82,7 @@
         });
     }
 
-    const table = createTable(checkIns, {
-        sort: addSortBy()
-    });
+    const table = createTable(checkIns, {});
 
     const columns = table.createColumns([
         table.column({
@@ -161,14 +158,7 @@
                     {#each headerRow.cells as cell (cell.id)}
                     <Subscribe attrs={cell.attrs()} let:attrs props={cell.props()} let:props >
                         <Table.Head {...attrs}>
-                            {#if cell.id === "datetime"}
-                                <div class="text-center">
-                                    <Button variant="ghost" on:click={props.sort.toggle}>
-                                            <Render of={cell.render()} />
-                                            <ArrowUpDown class={"ml-2 h-4 w-4"} />
-                                    </Button>
-                                </div>
-                            {:else if cell.id =="notes"}
+                            {#if cell.id =="notes"}
                                 <div class="invisible lg:visible">
                                     <Render of={cell.render()} />
                                 </div>
@@ -215,6 +205,9 @@
             </Table.Body>
         </Table.Root>
     </div>
+    <!-- svelte-ignore empty-block -->
+    {#await promise}
+    {:then}
     <div class="flex items-center justify-between space-x-4 py-4">
         <Button variant="outline" size="lg" disabled={!hasPrevPage} on:click={goToPreviousPage}>
             <ArrowLeft class="size-4"/>
@@ -226,4 +219,5 @@
             <ArrowRight class="size-4"/>
         </Button>
     </div>
+    {/await}
 </div>
