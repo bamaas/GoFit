@@ -5,8 +5,8 @@
 
     
 <div class="container items-center py-4 max-w-screen-2xl">
-    <div class="pb-3 pt-4 text-right">
+    <!-- <div class="pb-3 pt-4 text-right">
         <CreateButton/>
-    </div>
+    </div> -->
     <DataTable />
 </div>
