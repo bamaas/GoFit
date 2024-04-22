@@ -16,7 +16,7 @@
                 <TrendingDownIcon class="h-4 w-4 text-muted-foreground" />
             </Card.Header>
             <Card.Content>
-                <div class="text-2xl font-bold">{data.stats.stats.weight_diff.week_ago} kg</div>
+                <div style="color: rgba(23, 104, 51, 0.84);" class="text-2xl font-bold">{data.stats.stats.weight_diff.week_ago} kg</div>
                 <p class="text-xs text-muted-foreground">Keep going!</p>
             </Card.Content>
         </Card.Root>
@@ -27,7 +27,7 @@
                 <RocketIcon class="h-4 w-4 text-muted-foreground" />
             </Card.Header>
             <Card.Content>
-                <div class="text-2xl font-bold">{data.stats.stats.weight_diff["90_days_ago"]} kg</div>
+                <div style="color: #7f1d1d;" class="text-2xl font-bold">{data.stats.stats.weight_diff["90_days_ago"]} kg</div>
                 <p class="text-xs text-muted-foreground">Good work!</p>
             </Card.Content>
         </Card.Root>

@@ -8,7 +8,7 @@
     {#if weightDiff > 0}
         <MoveUpIcon style="color: #7f1d1d;" class="h-4 w-4"/>
     {:else if weightDiff < 0}
-        <MoveDownIcon style="color: #1d7f3f;" class="h-4 w-4"/>
+        <MoveDownIcon style="color: rgba(23, 104, 51, 0.84);" class="h-4 w-4"/>
     {:else}
         <MinusIcon class="h-4 w-4"/>
     {/if}
