@@ -7,6 +7,7 @@ export const load: PageLoad = async ({}) => {
 	const stats = await res.json();
     return { 
         stats: stats,
-        title: "Summary"
+        title: "Summary",
+        renderToolbar: true
     };
 };

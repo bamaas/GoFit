@@ -16,6 +16,7 @@
 	}
 
 	$: navigationTitle = getNavigationTitleFromPathname($page.url.pathname)
+
 </script>
 
 <svelte:head>
@@ -28,5 +29,7 @@
 	<div class="mb-auto">
 		<slot />
 	</div>
-	<ToolbarComponent />
+	{#if $page.data.renderToolbar}
+		<ToolbarComponent />
+	{/if}
 </div>

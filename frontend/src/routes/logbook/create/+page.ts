@@ -7,6 +7,6 @@ import { zod } from "sveltekit-superforms/adapters";
 export const load: PageLoad = async () => {
   return {
     title: "Add check-in",
-    form: await superValidate(zod(formSchema)),
+    form: await superValidate(zod(formSchema))
   };
 };

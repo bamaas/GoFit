@@ -2,6 +2,7 @@ import type { PageLoad } from "./$types.js";
 
 export const load: PageLoad = async ({}) => {
     return { 
-        title: "Logbook"
+        title: "Logbook",
+        renderToolbar: true
     };
 };
