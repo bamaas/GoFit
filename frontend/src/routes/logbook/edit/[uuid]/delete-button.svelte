@@ -20,14 +20,18 @@
         })
         .then(response => {
           if (response.ok) {
-            toast.success("Check-in deleted");
+            toast.success("Check-in deleted.",{
+                description: "Bye bye...",
+                cancel: { label: "X" }
+              }
+            );
             goto("/logbook")
           } else {
-            toast.error("Oops! Something went wrong.");
+            toast.error("Something went wrong.", {description: "Ouch...", cancel: { label: "X" }});
           }
         })
         .catch(error => {
-          toast.error("Oops! Something went wrong.");
+          toast.error("Something went wrong.", {description: "Ouch...", cancel: { label: "X" }});
           console.log(error);
         });
       }

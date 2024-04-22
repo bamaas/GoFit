@@ -78,7 +78,7 @@
         promise.then(response => {
             apiData.set(response);
         }).catch(() => {
-            toast.error("Oops! Failed fetching data from server.");
+            toast.error("Failed fetching data from server.", {description: "Oops!", cancel: { label: "X" }});
         });
     }
 

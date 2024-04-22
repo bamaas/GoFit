@@ -44,16 +44,21 @@
         })
         .then(response => {
           if (response.ok) {
-            toast.success("Check-in added.");
-            goto("/logbook")
+            response.json().then((data) => {
+              toast.success("Check-in added.", {
+                description: "Good work, keep it up!",
+                action: {label: "View", onClick: () => goto(`/logbook/edit/${data.data.uuid}`)}
+              });
+              goto("/logbook")
+            })
           } else {
-            toast.error("Oops! Something went wrong.");
+            toast.error("Oops! Something went wrong.", {cancel: { label: "X" }});
             showLoaderIcon = false;
             submitButtonDisabled = false;
           }
         })
         .catch(() => {
-          toast.error("Oops! Something went wrong.");
+          toast.error("Oops! Something went wrong.", {cancel: { label: "X" }});
           showLoaderIcon = false;
           submitButtonDisabled = false;
         }
@@ -78,16 +83,21 @@
         })
         .then(response => {
           if (response.ok) {
-            toast.success("Check-in updated.");
-            goto("/logbook")
+            response.json().then((data) => {
+              toast.success("Check-in updated.", {
+                description: "Let's get things right.",
+                action: {label: "View", onClick: () => goto(`/logbook/edit/${data.data.uuid}`)}
+              });
+              goto("/logbook")
+            })
           } else {
-            toast.error("Oops! Something went wrong.");
+            toast.error("Something went wrong.", {description: "Oops!", cancel: { label: "X" }});
             showLoaderIcon = false;
             submitButtonDisabled = false;
           }
         })
         .catch(() => {
-          toast.error("Oops! Something went wrong.");
+          toast.error("Something went wrong.", {description: "Oops!", cancel: { label: "X" }});
           showLoaderIcon = false;
           submitButtonDisabled = false;
         }

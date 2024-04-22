@@ -25,7 +25,7 @@
 
 <div class="flex flex-col h-screen">
 	<HeaderComponent title={navigationTitle || ""}/>
-	<Toaster />
+	<Toaster position="top-right" />
 	<div class="mb-auto">
 		<slot />
 	</div>

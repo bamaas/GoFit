@@ -92,7 +92,7 @@ func (app *application) createCheckIn(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Insert the record
+	// Generate uuid
 	uuid, err := uuid.NewRandom()
 	if err != nil {
 		app.logger.Error(err.Error())
@@ -101,12 +101,16 @@ func (app *application) createCheckIn(w http.ResponseWriter, r *http.Request) {
 	}
 	c.UUID = uuid.String()
 
+	// Insert the record
 	app.logger.Info("Creating check-in", "UUID", c.UUID)
 	if err = app.models.CheckIns.Insert(*c); err != nil {
 		app.logger.Error(err.Error())
 		http.Error(w, "error inserting record", http.StatusInternalServerError)
 		return
 	}
+
+	// Write the response
+	app.writeJSON(w, http.StatusCreated, envelope{"data": c})
 }
 
 func (app *application) deleteCheckIn(w http.ResponseWriter, r *http.Request) {
@@ -128,8 +132,8 @@ func (app *application) deleteCheckIn(w http.ResponseWriter, r *http.Request) {
 func (app *application) updateCheckIn(w http.ResponseWriter, r *http.Request) {
 
 	// Get the input
-	var input data.CheckIn
-	err := app.readJSON(w, r, &input)
+	var c data.CheckIn
+	err := app.readJSON(w, r, &c)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
@@ -137,7 +141,7 @@ func (app *application) updateCheckIn(w http.ResponseWriter, r *http.Request) {
 
 	// Validate the input
 	v := validator.New()
-	v.ValidateCheckIn(&input)
+	v.ValidateCheckIn(&c)
 	if !v.Valid() {
 		app.writeJSON(w, http.StatusUnprocessableEntity, envelope{"invalid_fields": v.Errors})
 		return
@@ -145,9 +149,12 @@ func (app *application) updateCheckIn(w http.ResponseWriter, r *http.Request) {
 
 	// Update the record
 	app.logger.Info("Updating check-in")
-	if err = app.models.CheckIns.Update(input); err != nil {
+	if err = app.models.CheckIns.Update(c); err != nil {
 		app.logger.Error(err.Error())
 		http.Error(w, "error updating", http.StatusInternalServerError)
 		return
 	}
+
+	// Write the response
+	app.writeJSON(w, http.StatusCreated, envelope{"data": c})
 }
