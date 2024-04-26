@@ -19,5 +19,8 @@ func (app *application) routes() *http.ServeMux {
 	// Stats
 	mux.HandleFunc("GET /v1/stats", app.getStatsHandler)
 
+	// Users
+	mux.HandleFunc("POST /v1/users", app.registerUserHandler)
+
 	return mux
 }

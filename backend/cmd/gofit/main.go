@@ -32,14 +32,29 @@ func setupDB(logger *slog.Logger) (*sql.DB, error) {
 		return nil, err
 	}
 
-	createTableQuery := `
+	createCheckinsTableQuery := `
 	CREATE TABLE IF NOT EXISTS checkins (
 	uuid STRING NOT NULL PRIMARY KEY,
 	datetime INTEGER NOT NULL,
 	weight FLOAT NOT NULL,
 	notes STRING
 	);`
-	_, err = db.Exec(createTableQuery)
+	_, err = db.Exec(createCheckinsTableQuery)
+	if err != nil {
+		return nil, err
+	}
+
+	createUsersTableQuery := `
+	CREATE TABLE IF NOT EXISTS users (
+		id INTEGER PRIMARY KEY AUTOINCREMENT,
+		created_at timestamp(0) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+		email CITEXT UNIQUE NOT NULL,
+		password_hash BYTEA NOT NULL,
+		activated BOOL NOT NULL,
+		version INTEGER NOT NULL DEFAULT 1
+	);
+	`
+	_, err = db.Exec(createUsersTableQuery)
 	if err != nil {
 		return nil, err
 	}
@@ -50,7 +65,7 @@ func setupDB(logger *slog.Logger) (*sql.DB, error) {
 func main() {
 
 	// Retrieve config
-	cfg, err := config.Get()
+	cfg, err := config.Retrieve()
 	if err != nil {
 		panic(err)
 	}

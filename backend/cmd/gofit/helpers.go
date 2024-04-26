@@ -43,7 +43,7 @@ func (app *application) writeJSON(w http.ResponseWriter, status int, v interface
 	}
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(status)
-	w.Write(js)
+	w.Write(js) // TODO check for error
 }
 
 func (app *application) readInt(qs url.Values, key string, defaultValue int) int {

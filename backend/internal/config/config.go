@@ -18,8 +18,7 @@ func getEnv(key, fallback string) string {
     return fallback
 }
 
-func Get() (*Config, error){
-
+func Retrieve() (*Config, error){
 	return &Config{
 		LogLevel: getEnv("LOG_LEVEL", defaultLogLevel),
 	}, nil

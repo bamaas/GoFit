@@ -65,7 +65,7 @@ func (m *CheckInModel) Get(UUID string) (CheckIn, error) {
 	FROM checkins
 	WHERE uuid=?`
 
-	r, err := m.DB.Query(q, UUID)
+	r, err := m.DB.Query(q, UUID)		// TODO: Use QueryRow
 	if err != nil {
 		return CheckIn{}, err
 	}
