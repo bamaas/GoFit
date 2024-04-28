@@ -36,7 +36,7 @@ func (m *UserModel) Insert(user *User) error {
 
 	err := m.DB.QueryRow(query, user.Email, user.Password.Hash, user.Activated, user.Version).Scan(&user.ID, &user.CreatedAt, &user.Version)
 	if err != nil {
-		// Check for duplicate email
+		// TODO: Check for duplicate email
 		return err
 	}
 

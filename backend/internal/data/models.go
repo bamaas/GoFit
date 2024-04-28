@@ -14,6 +14,7 @@ type Models struct {
 	CheckIns 	CheckInModel
 	Users		UserModel
 	Stats		StatsModel
+	Tokens		TokenModel
 }
 
 func NewModels(db *sql.DB, logger *slog.Logger) Models {
@@ -21,5 +22,6 @@ func NewModels(db *sql.DB, logger *slog.Logger) Models {
 		CheckIns: CheckInModel{db, logger},
 		Users: UserModel{db, logger},
 		Stats: StatsModel{db, logger},
+		Tokens: TokenModel{db, logger},
 	}
 }

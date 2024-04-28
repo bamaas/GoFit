@@ -22,5 +22,8 @@ func (app *application) routes() *http.ServeMux {
 	// Users
 	mux.HandleFunc("POST /v1/users", app.registerUserHandler)
 
+	// Authentication
+	mux.HandleFunc("POST /v1/tokens/authentication", app.createAuthenticationTokenHandler)
+
 	return mux
 }

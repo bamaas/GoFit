@@ -39,7 +39,6 @@ func (app * application) registerUserHandler(w http.ResponseWriter, r *http.Requ
 	v := validator.New()
 	v.ValidateUser(user)
 	if !v.Valid() {
-		app.logger.Error(v.Errors["email"])
 		http.Error(w, "failed validating user", http.StatusBadRequest)
 		return
 	}
