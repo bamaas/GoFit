@@ -13,11 +13,13 @@ var (
 type Models struct {
 	CheckIns 	CheckInModel
 	Users		UserModel
+	Stats		StatsModel
 }
 
 func NewModels(db *sql.DB, logger *slog.Logger) Models {
 	return Models{
 		CheckIns: CheckInModel{db, logger},
 		Users: UserModel{db, logger},
+		Stats: StatsModel{db, logger},
 	}
 }

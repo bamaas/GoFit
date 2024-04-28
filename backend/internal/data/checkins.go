@@ -32,7 +32,7 @@ func (m *CheckInModel) InjectSampleData() error {
 
 	var checkIns []CheckIn
 
-	for i := 1; i <= 58; i++ {
+	for i := 1; i <= 60; i++ {
 		uuid, err := uuid.NewRandom()
 		if err != nil {
 			return err

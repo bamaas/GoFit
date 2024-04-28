@@ -4,9 +4,31 @@
     import TrendingDownIcon from "lucide-svelte/icons/trending-down";
     import AwardIcon from "lucide-svelte/icons/award";
     import RocketIcon from "lucide-svelte/icons/rocket";
+    import { PUBLIC_BACKEND_BASE_URL } from "$env/static/public";
 
-    export let data;
+    type StatsResponse = {
+        stats: {
+            weight_difference: {
+                week_ago: number;
+                ninety_days_ago: number;
+                all_time: number;
+            }
+        }
+    }
+
+    const promise: Promise<StatsResponse> = fetch(`${PUBLIC_BACKEND_BASE_URL}/v1/stats`).then((response) => response.json());
 </script>
+
+<style>
+    .green {
+        color: rgba(23, 104, 51, 0.84)
+    }
+
+    .red {
+        color: #7f1d1d;
+    }
+</style>
+
 <div class="container items-center py-14 max-w-screen-2xl">
     <div class="grid gap-3 md:grid-cols-2 lg:grid-cols-3">
         <Card.Root>
@@ -16,8 +38,10 @@
                 <TrendingDownIcon class="h-4 w-4 text-muted-foreground" />
             </Card.Header>
             <Card.Content>
-                <div style="color: rgba(23, 104, 51, 0.84);" class="text-2xl font-bold">{data.stats.stats.weight_diff.week_ago} kg</div>
-                <p class="text-xs text-muted-foreground">Keep going!</p>
+                {#await promise then data}
+                    <div class="text-2xl font-bold green">{data.stats.weight_difference.week_ago} kg</div>
+                    <p class="text-xs text-muted-foreground">Keep going!</p>
+                {/await}
             </Card.Content>
         </Card.Root>
         <Card.Root>
@@ -27,8 +51,10 @@
                 <RocketIcon class="h-4 w-4 text-muted-foreground" />
             </Card.Header>
             <Card.Content>
-                <div style="color: #7f1d1d;" class="text-2xl font-bold">{data.stats.stats.weight_diff["90_days_ago"]} kg</div>
-                <p class="text-xs text-muted-foreground">Good work!</p>
+                {#await promise then data}
+                    <div class="text-2xl font-bold red">{data.stats.weight_difference["ninety_days_ago"]} kg</div>
+                    <p class="text-xs text-muted-foreground">Good work!</p>
+                {/await}
             </Card.Content>
         </Card.Root>
         <Card.Root>
@@ -38,8 +64,10 @@
                 <AwardIcon class="h-4 w-4 text-muted-foreground" />
             </Card.Header>
             <Card.Content>
-                <div class="text-2xl font-bold">{data.stats.stats.weight_diff.all_time} kg</div>
-                <p class="text-xs text-muted-foreground">Amazing!</p>
+                {#await promise then data}
+                    <div class="text-2xl font-bold">{data.stats.weight_difference.all_time} kg</div>
+                    <p class="text-xs text-muted-foreground">Amazing!</p>
+                {/await}
             </Card.Content>
         </Card.Root>
     </div>
