@@ -39,7 +39,7 @@
             </Card.Header>
             <Card.Content>
                 {#await promise then data}
-                    <div class="text-2xl font-bold green">{data.stats.weight_difference.week_ago} kg</div>
+                    <div class="text-2xl font-bold green">{Math.abs(data.stats.weight_difference.week_ago)} kg</div>
                     <p class="text-xs text-muted-foreground">Keep going!</p>
                 {/await}
             </Card.Content>
@@ -52,7 +52,7 @@
             </Card.Header>
             <Card.Content>
                 {#await promise then data}
-                    <div class="text-2xl font-bold red">{data.stats.weight_difference["ninety_days_ago"]} kg</div>
+                    <div class="text-2xl font-bold red">{Math.abs(data.stats.weight_difference["ninety_days_ago"])} kg</div>
                     <p class="text-xs text-muted-foreground">Good work!</p>
                 {/await}
             </Card.Content>
@@ -65,7 +65,7 @@
             </Card.Header>
             <Card.Content>
                 {#await promise then data}
-                    <div class="text-2xl font-bold">{data.stats.weight_difference.all_time} kg</div>
+                    <div class="text-2xl font-bold">{Math.abs(data.stats.weight_difference.all_time)} kg</div>
                     <p class="text-xs text-muted-foreground">Amazing!</p>
                 {/await}
             </Card.Content>
