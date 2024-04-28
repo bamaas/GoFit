@@ -4,6 +4,7 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/bamaas/gofit/internal/data"
 	"github.com/bamaas/gofit/internal/validator"
 )
 
@@ -50,7 +51,7 @@ func (app *application) createAuthenticationTokenHandler(w http.ResponseWriter, 
 	}
 
 	// Create the token
-	token, err := app.models.Tokens.New(user.ID, 24*time.Hour, "authentication")
+	token, err := app.models.Tokens.New(user.ID, 24*time.Hour, data.ScopeAuthentication)
 	if err != nil {
 		app.logger.Error(err.Error())
 		http.Error(w, "error creating token", http.StatusInternalServerError)

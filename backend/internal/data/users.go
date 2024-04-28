@@ -1,9 +1,11 @@
 package data
 
 import (
+	"crypto/sha256"
 	"database/sql"
 	"errors"
 	"log/slog"
+	"time"
 
 	"golang.org/x/crypto/bcrypt"
 )
@@ -118,4 +120,40 @@ func (p *password) Matches(plaintextPassword string) (bool, error){
 		}
 	}
 	return true, nil
+}
+
+func (m *UserModel) GetForToken(tokenScope, tokenPlaintext string) (*User, error) {
+
+	tokenHash := sha256.Sum256([]byte(tokenPlaintext))
+
+	query := `
+	SELECT users.id, users.created_at, users.email, users.password_hash, users.activated, users.version 
+	FROM users
+	INNER JOIN tokens
+	ON users.id = tokens.user_id
+	WHERE tokens.hash = $1 
+	AND tokens.scope = $2 
+	AND tokens.expiry > $3
+	`
+	args := []any{tokenHash[:], tokenScope, time.Now()}
+
+	var user User
+	err := m.DB.QueryRow(query, args...).Scan(
+		&user.ID, 
+		&user.CreatedAt, 
+		&user.Email, 
+		&user.Password.Hash, 
+		&user.Activated, 
+		&user.Version,
+	)
+	if err != nil {
+		switch {
+			case errors.Is(err, sql.ErrNoRows):
+				return nil, errors.New("no record found")
+			default:
+				return nil, err
+		}
+	}
+
+	return &user, nil
 }

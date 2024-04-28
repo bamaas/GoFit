@@ -17,6 +17,7 @@ func (app *application) routes() *http.ServeMux {
 	mux.HandleFunc("PUT /v1/check-ins/", app.updateCheckIn)
 
 	// Stats
+	// mux.Handle("GET /v1/stats", app.authenticate(http.HandlerFunc(app.getStatsHandler)))
 	mux.HandleFunc("GET /v1/stats", app.getStatsHandler)
 
 	// Users
