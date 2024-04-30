@@ -75,15 +75,6 @@ func setupDB(logger *slog.Logger) (*sql.DB, error) {
 	return db, nil
 }
 
-func injectDemoUser(app *application) error {
-	user := &data.User{
-		Email: "hi@gofit.nl",
-		Activated: true,
-	}
-	user.Password.Set("gofit123")
-	return app.models.Users.Insert(user)
-}
-
 func main() {
 
 	// Retrieve config
