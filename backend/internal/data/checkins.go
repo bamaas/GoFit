@@ -2,11 +2,8 @@ package data
 
 import (
 	"log/slog"
-	"time"
-
 	"database/sql"
 
-	"github.com/google/uuid"
 	_ "modernc.org/sqlite"
 )
 
@@ -26,34 +23,6 @@ type CheckInWithStats struct {
 type CheckInModel struct {
 	DB *sql.DB
 	logger *slog.Logger
-}
-
-func (m *CheckInModel) InjectSampleData() error {
-
-	var checkIns []CheckIn
-
-	for i := 1; i <= 60; i++ {
-		uuid, err := uuid.NewRandom()
-		if err != nil {
-			return err
-		}
-		checkIn := CheckIn{
-			UUID:     uuid.String(),
-			Datetime: time.Now().AddDate(0, 0, -i).Unix(),
-			Weight:   float64(i + 29),
-			Notes:    "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Etiam nulla sem.",
-		}
-		checkIns = append(checkIns, checkIn)
-	}
-
-	for _, c := range checkIns {
-		err := m.Insert(c)
-		if err != nil {
-			return err
-		}
-	}
-	return nil
-
 }
 
 func (m *CheckInModel) Get(UUID string) (CheckIn, error) {

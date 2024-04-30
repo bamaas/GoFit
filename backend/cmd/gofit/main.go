@@ -112,12 +112,8 @@ func main() {
 		models:   data.NewModels(db, logger),
 	}
 
-	// Inject demo data
-	err = app.models.CheckIns.InjectSampleData()
-	if err != nil {
-		panic(err)
-	}
-	err = injectDemoUser(app)
+	// Inject demo data)
+	err = app.Bootstrap()
 	if err != nil {
 		panic(err)
 	}
