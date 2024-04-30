@@ -22,6 +22,7 @@ type application struct {
 func setupDB(logger *slog.Logger) (*sql.DB, error) {
 	logger.Debug("Initializing database...")
 
+
 	db, err := sql.Open("sqlite", ":memory:")
 	if err != nil {
 		return nil, err
@@ -74,6 +75,15 @@ func setupDB(logger *slog.Logger) (*sql.DB, error) {
 	return db, nil
 }
 
+func injectDemoUser(app *application) error {
+	user := &data.User{
+		Email: "hi@gofit.nl",
+		Activated: true,
+	}
+	user.Password.Set("gofit123")
+	return app.models.Users.Insert(user)
+}
+
 func main() {
 
 	// Retrieve config
@@ -101,7 +111,13 @@ func main() {
 		logger:   logger,
 		models:   data.NewModels(db, logger),
 	}
+
+	// Inject demo data
 	err = app.models.CheckIns.InjectSampleData()
+	if err != nil {
+		panic(err)
+	}
+	err = injectDemoUser(app)
 	if err != nil {
 		panic(err)
 	}

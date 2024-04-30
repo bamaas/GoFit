@@ -20,6 +20,8 @@
   import LoaderCircleIcon from "lucide-svelte/icons/loader-circle";
 	import { ZodError } from "zod";
   import { type CheckIn } from "../../../../routes/logbook/store"
+
+  export let authToken: string;
   
   export let data: SuperValidated<Infer<FormSchema>>;
 
@@ -35,6 +37,7 @@
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
+            'Authorization': `Bearer ${authToken}`,
           },
           body: JSON.stringify({
             "datetime": data.datetime,
@@ -73,6 +76,7 @@
           method: 'PUT',
           headers: {
             'Content-Type': 'application/json',
+            'Authorization': `Bearer ${authToken}`,
           },
           body: JSON.stringify({
             "uuid": data.uuid,

@@ -71,7 +71,16 @@
 
     function fetchData(pageNumber: number): void{
         promise = (async () => {
-            const res = await fetch(`${PUBLIC_BACKEND_BASE_URL}/v1/check-ins?page=${pageNumber}&page_size=${pageSize}`);
+            if (document.cookie == "") {
+                goto("/login")
+            }
+            const authToken: string = document.cookie.split('=')[1];
+            const res = await fetch(`${PUBLIC_BACKEND_BASE_URL}/v1/check-ins?page=${pageNumber}&page_size=${pageSize}`, {
+                headers: {
+                    "Content-Type": "application/json",
+                    "Authorization": `Bearer ${authToken}`,
+                }
+            });
             const response = await res.json();
             return response; 
         })();

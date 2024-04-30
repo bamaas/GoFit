@@ -1,10 +1,14 @@
-<!-- https://github.com/huntabyte/shadcn-svelte/blob/main/apps/www/src/lib/components/docs/dashboard/dashboard-page.svelte -->
 <script lang="ts">
     import * as Card from "$lib/components/ui/card/index.js";
     import TrendingDownIcon from "lucide-svelte/icons/trending-down";
     import AwardIcon from "lucide-svelte/icons/award";
     import RocketIcon from "lucide-svelte/icons/rocket";
     import { PUBLIC_BACKEND_BASE_URL } from "$env/static/public";
+	import { onMount } from "svelte";
+	import { toast } from "svelte-sonner";
+    import type { PageData } from "./$types.js";
+
+    export let data: PageData;
 
     type StatsResponse = {
         stats: {
@@ -16,7 +20,25 @@
         }
     }
 
-    const promise: Promise<StatsResponse> = fetch(`${PUBLIC_BACKEND_BASE_URL}/v1/stats`).then((response) => response.json());
+    let promise: Promise<StatsResponse> = new Promise(() => {});
+
+    function fetchData(){
+        return fetch(`${PUBLIC_BACKEND_BASE_URL}/v1/stats`, {
+            headers: {
+                    "Content-Type": "application/json",
+                    "Authorization": `Bearer ${data.authToken}`,
+            }
+        })
+        .then((response) => response.json())
+        .catch(() => {
+            toast.error("Failed fetching data from server.", {description: "Oops!", cancel: { label: "X" }});
+        });
+    }
+
+    onMount(() => {
+        promise = fetchData();
+    });
+
 </script>
 
 <style>

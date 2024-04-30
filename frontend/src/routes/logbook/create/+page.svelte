@@ -17,7 +17,7 @@
             <Card.Description>Try to check-in daily to get the best results</Card.Description>
         </Card.Header>
         <Card.Content>
-            <Form data={data.form} />
+            <Form data={data.form} authToken={data.authToken} />
         </Card.Content>
     </Card.Root>
 </div>

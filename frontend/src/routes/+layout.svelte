@@ -4,8 +4,16 @@
 	import HeaderComponent from "./header.svelte";
 	import ToolbarComponent from "./toolbar.svelte";
 	import { page } from '$app/stores';
+	import { onMount } from "svelte";
 
-	function getNavigationTitleFromPathname(pathname: string) {
+	// function getHeaderTitle(): string {
+	// 	if ($page.data.headerTitle != undefined) {
+	// 		return $page.data.headerTitle
+	// 	}
+	// 	return getHeaderTitleFromPathname($page.url.pathname)
+	// }
+
+	function getHeaderTitleFromPathname(pathname: string): string {
 		let title: string = pathname.split('/')[1];
 		// Capitalize first letter
 		title =  title.charAt(0).toUpperCase() + title.slice(1); 
@@ -15,7 +23,13 @@
 		return title
 	}
 
-	$: navigationTitle = getNavigationTitleFromPathname($page.url.pathname)
+	$: headerTitle = getHeaderTitleFromPathname($page.url.pathname)
+
+	$: renderToolbar = $page.data.renderToolbar;
+
+	onMount(() => {
+		console.log($page.data)
+	})
 
 </script>
 
@@ -24,12 +38,12 @@
 </svelte:head>
 
 <div class="flex flex-col h-screen">
-	<HeaderComponent title={navigationTitle || ""}/>
+	<HeaderComponent title={headerTitle || ""}/>
 	<Toaster position="top-right" />
 	<div class="mb-auto">
 		<slot />
 	</div>
-	{#if $page.data.renderToolbar}
+	{#if renderToolbar}
 		<ToolbarComponent />
 	{/if}
 </div>

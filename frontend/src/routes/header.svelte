@@ -14,7 +14,6 @@
                     <UserRoundIcon class="size-4"/>
                 </Avatar.Fallback>
               </Avatar.Root>
-            
         </div>
     </div>
 </header>

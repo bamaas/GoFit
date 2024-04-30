@@ -12,7 +12,7 @@
 <div class="container items-center py-4 max-w-screen-2xl">
     <div class="pb-3 pt-4 justify-between flex">
         <BackButton />
-        <DeleteButton />
+        <DeleteButton authToken={data.authToken}/>
     </div>
     <Card.Root>
         <Card.Header>
@@ -20,7 +20,7 @@
         <Card.Description>Every new day is another chance to change your life</Card.Description>
         </Card.Header>
         <Card.Content>
-            <Form data={data.form} />
+            <Form data={data.form} authToken={data.authToken}/>
         </Card.Content>
     </Card.Root>
 </div>

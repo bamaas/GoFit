@@ -10,15 +10,14 @@ func (app *application) routes() *http.ServeMux {
 	mux.HandleFunc("GET /v1/health", app.healthcheckHandler)
 
 	// Check-ins
-	mux.HandleFunc("GET /v1/check-ins", app.getCheckInsHandler)
-	mux.HandleFunc("GET /v1/check-ins/{uuid}", app.getCheckInHandler)
-	mux.HandleFunc("POST /v1/check-ins", app.createCheckIn)
-	mux.HandleFunc("DELETE /v1/check-ins/{uuid}", app.deleteCheckIn)
-	mux.HandleFunc("PUT /v1/check-ins/", app.updateCheckIn)
+	mux.Handle("GET /v1/check-ins", app.authenticate(http.HandlerFunc(app.getCheckInsHandler)))
+	mux.Handle("GET /v1/check-ins/{uuid}", app.authenticate(http.HandlerFunc(app.getCheckInHandler)))
+	mux.Handle("POST /v1/check-ins", app.authenticate(http.HandlerFunc(app.createCheckIn)))
+	mux.Handle("DELETE /v1/check-ins/{uuid}", app.authenticate(http.HandlerFunc(app.deleteCheckIn)))
+	mux.Handle("PUT /v1/check-ins/", app.authenticate(http.HandlerFunc(app.updateCheckIn)))
 
 	// Stats
-	// mux.Handle("GET /v1/stats", app.authenticate(http.HandlerFunc(app.getStatsHandler)))
-	mux.HandleFunc("GET /v1/stats", app.getStatsHandler)
+	mux.Handle("GET /v1/stats", app.authenticate(http.HandlerFunc(app.getStatsHandler)))
 
 	// Users
 	mux.HandleFunc("POST /v1/users", app.registerUserHandler)

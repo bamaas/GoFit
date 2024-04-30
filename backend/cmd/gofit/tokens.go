@@ -51,7 +51,7 @@ func (app *application) createAuthenticationTokenHandler(w http.ResponseWriter, 
 	}
 
 	// Create the token
-	token, err := app.models.Tokens.New(user.ID, 24*time.Hour, data.ScopeAuthentication)
+	token, err := app.models.Tokens.New(user.ID, 1*time.Hour, data.ScopeAuthentication)
 	if err != nil {
 		app.logger.Error(err.Error())
 		http.Error(w, "error creating token", http.StatusInternalServerError)
@@ -59,5 +59,5 @@ func (app *application) createAuthenticationTokenHandler(w http.ResponseWriter, 
 	}
 
 	// Respond
-	app.writeJSON(w, http.StatusCreated, envelope{"token": token})
+	app.writeJSON(w, http.StatusCreated, envelope{"authentication_token": token})
 }

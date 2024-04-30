@@ -7,6 +7,8 @@
 	  import { goto } from "$app/navigation";
     import * as AlertDialog from "$lib/components/ui/alert-dialog";
 
+    export let authToken: string;
+
     let uuid = "";
     $: uuid = $page.params.uuid;
 
@@ -16,6 +18,7 @@
           method: 'DELETE',
           headers: {
             'Content-Type': 'application/json',
+            'Authorization': `Bearer ${authToken}`,
           },
         })
         .then(response => {
