@@ -7,6 +7,10 @@ import (
 func (app *application) routes() *http.ServeMux {
 	mux := http.NewServeMux()
 
+	// Static files
+	mux.Handle("/", app.logRequests(http.HandlerFunc(app.spaHandler)))		// TODO: wrap mux and wrap all requests
+
+	// Healthcheck
 	mux.HandleFunc("GET /v1/health", app.healthcheckHandler)
 
 	// Check-ins

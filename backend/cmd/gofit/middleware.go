@@ -53,3 +53,10 @@ func (app *application) authenticate(next http.Handler) http.Handler {
 
 	})
 }
+
+func (app *application) logRequests(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		app.logger.Debug("request", "method", r.Method, "url", r.URL.String(), )
+		next.ServeHTTP(w, r)
+	})
+}

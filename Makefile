@@ -27,6 +27,9 @@ direnv_allow:
 	direnv allow .
 
 # Backend
+build/backend:
+	cd ./backend && \
+	go build -o ./bin/${APP_NAME} ./cmd/${APP_NAME} 
 
 get_backend_image:
 	@echo ${IMAGE}
@@ -35,13 +38,13 @@ run_backend:
 	cd ./backend && go run ./cmd/${APP_NAME}/
 
 backend:																						## Build an application container image
-	docker build -f ./backend/build/Dockerfile -t ${IMAGE} ./backend
+	docker build -t ${IMAGE} .
 
 push_backend:
 	docker push ${IMAGE}
 
 # Frontend
-frontend:
+build/frontend:
 	cd frontend && npm run build
 
 run_frontend:

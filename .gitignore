@@ -1,2 +1,6 @@
 gofit.db
 test.sh
+# backend
+backend/bin/*
+backend/internal/assets/*
+!backend/internal/assets/*.go
