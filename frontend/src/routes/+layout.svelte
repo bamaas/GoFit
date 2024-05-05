@@ -27,10 +27,6 @@
 
 	$: renderToolbar = $page.data.renderToolbar;
 
-	onMount(() => {
-		console.log($page.data)
-	})
-
 </script>
 
 <svelte:head>

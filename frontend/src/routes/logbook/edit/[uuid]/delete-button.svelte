@@ -6,36 +6,19 @@
 	  import { toast } from "svelte-sonner";
 	  import { goto } from "$app/navigation";
     import * as AlertDialog from "$lib/components/ui/alert-dialog";
-
-    export let authToken: string;
+	  import { request } from "$lib/functions/request";
 
     let uuid = "";
     $: uuid = $page.params.uuid;
 
     function deleteCheckIn(){
-        fetch(`${PUBLIC_BACKEND_BASE_URL}/v1/check-ins/${uuid}`, 
-        {
-          method: 'DELETE',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${authToken}`,
-          },
-        })
-        .then(response => {
-          if (response.ok) {
+        request(`${PUBLIC_BACKEND_BASE_URL}/v1/check-ins/${uuid}`, {method: 'DELETE'})
+        .then( () => {
             toast.success("Check-in deleted.",{
-                description: "Bye bye...",
-                cancel: { label: "X" }
-              }
-            );
+              description: "Bye bye...",
+              cancel: { label: "X" }
+            });
             goto("/logbook")
-          } else {
-            toast.error("Something went wrong.", {description: "Ouch...", cancel: { label: "X" }});
-          }
-        })
-        .catch(error => {
-          toast.error("Something went wrong.", {description: "Ouch...", cancel: { label: "X" }});
-          console.log(error);
         });
       }
 

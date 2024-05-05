@@ -1,17 +1,13 @@
 import { goto } from "$app/navigation";
 import type { PageLoad } from "./$types.js";
+import { redirectIfNoAuthCookie } from "$lib/functions/auth";
 
 export const load: PageLoad = async ({}) => {
-    
-    // Get auth token
-    if (document.cookie == "") {
-        goto("/login")
-    }
-    const authToken: string = document.cookie.split('=')[1]; 
+
+    redirectIfNoAuthCookie();
 
     return { 
         title: "Logbook",
-        renderToolbar: true,
-        authToken: authToken
+        renderToolbar: true
     };
 };

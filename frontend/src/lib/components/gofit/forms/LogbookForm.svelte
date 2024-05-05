@@ -20,8 +20,7 @@
   import LoaderCircleIcon from "lucide-svelte/icons/loader-circle";
 	import { ZodError } from "zod";
   import { type CheckIn } from "../../../../routes/logbook/store"
-
-  export let authToken: string;
+  import { request } from "$lib/functions/request";
   
   export let data: SuperValidated<Infer<FormSchema>>;
 
@@ -32,52 +31,30 @@
   function postCheckIn(data: CheckIn){
     showLoaderIcon = true;
     submitButtonDisabled = true;
-    fetch(`${PUBLIC_BACKEND_BASE_URL}/v1/check-ins`, 
+    request(`${PUBLIC_BACKEND_BASE_URL}/v1/check-ins`, 
         {
           method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${authToken}`,
-          },
           body: JSON.stringify({
             "datetime": data.datetime,
             "weight": data.weight,
             "notes": data.notes
           })
         })
-        .then(response => {
-          if (response.ok) {
-            response.json().then((data) => {
-              toast.success("Check-in added.", {
-                description: "Good work, keep it up!",
-                action: {label: "View", onClick: () => goto(`/logbook/edit/${data.data.uuid}`)}
-              });
-              goto("/logbook")
-            })
-          } else {
-            toast.error("Oops! Something went wrong.", {cancel: { label: "X" }});
-            showLoaderIcon = false;
-            submitButtonDisabled = false;
-          }
-        })
-        .catch(() => {
-          toast.error("Oops! Something went wrong.", {cancel: { label: "X" }});
-          showLoaderIcon = false;
-          submitButtonDisabled = false;
-        }
-    );
+        .then( () => {
+          toast.success("Check-in added.", {
+            description: "Good work, keep it up!",
+            action: {label: "View", onClick: () => goto(`/logbook/edit/${data.uuid}`)}
+          });
+          goto("/logbook")
+        });
   }
 
   function updateCheckIn(data: CheckIn){
     showLoaderIcon = true;
     submitButtonDisabled = true;
-    fetch(`${PUBLIC_BACKEND_BASE_URL}/v1/check-ins`, 
+    request(`${PUBLIC_BACKEND_BASE_URL}/v1/check-ins`, 
         {
           method: 'PUT',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${authToken}`,
-          },
           body: JSON.stringify({
             "uuid": data.uuid,
             "datetime": data.datetime,
@@ -85,20 +62,12 @@
             "notes": data.notes
           })
         })
-        .then(response => {
-          if (response.ok) {
-            response.json().then((data) => {
-              toast.success("Check-in updated.", {
-                description: "Let's get things right.",
-                action: {label: "View", onClick: () => goto(`/logbook/edit/${data.data.uuid}`)}
-              });
-              goto("/logbook")
-            })
-          } else {
-            toast.error("Something went wrong.", {description: "Oops!", cancel: { label: "X" }});
-            showLoaderIcon = false;
-            submitButtonDisabled = false;
-          }
+        .then(() => {
+          toast.success("Check-in updated.", {
+              description: "Let's get things right.",
+              action: {label: "View", onClick: () => goto(`/logbook/edit/${data.uuid}`)}
+            });
+            goto("/logbook")
         })
         .catch(() => {
           toast.error("Something went wrong.", {description: "Oops!", cancel: { label: "X" }});

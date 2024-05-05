@@ -127,6 +127,8 @@ func (app *application) deleteCheckIn(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "error deleting record", http.StatusInternalServerError)
 		return
 	}
+
+	app.writeJSON(w, http.StatusOK, envelope{"message": "record deleted"})
 }
 
 func (app *application) updateCheckIn(w http.ResponseWriter, r *http.Request) {

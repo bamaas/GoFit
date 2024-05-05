@@ -11,6 +11,7 @@
       superForm,
     } from "sveltekit-superforms";
     import { zodClient } from "sveltekit-superforms/adapters";
+    import LoaderCircleIcon from "lucide-svelte/icons/loader-circle";
 
     let buttonDisabled: boolean = true;
    
@@ -38,6 +39,8 @@
       validators: zodClient(formSchema),
       resetForm: false,
       SPA: true,
+      delayMs: 0,
+      timeoutMs: 8000,
       onChange: () => {validateForm()},
       onUpdate: async ({form}) => {
         try {
@@ -51,7 +54,7 @@
           const r = await response.json();
           const expires = new Date(r.authentication_token.expiry).toUTCString();
           const token = r.authentication_token.token;
-          document.cookie = `token=${token}; expires=${expires} ;path=/`;
+          document.cookie = `token=${token}; expires=${expires};path=/`;
           goto("/logbook");
         } catch (e) {
           showErrors(form);
@@ -59,7 +62,7 @@
       }
     });
    
-    const { form: formData, enhance } = form;
+    const { form: formData, enhance, submitting, delayed, timeout } = form;
 </script>
    
 <form method="POST" use:enhance>
@@ -77,5 +80,11 @@
       </Form.Control>
       <Form.FieldErrors />
   </Form.Field>
-  <Form.Button class="w-full" disabled={buttonDisabled}>Login</Form.Button>
+  <Form.Button class="w-full" disabled={buttonDisabled || $delayed}>
+    {#if $delayed}
+      <LoaderCircleIcon class="spinner"/>
+    {:else}
+      Login
+    {/if}
+  </Form.Button>
 </form>

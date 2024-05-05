@@ -11,6 +11,7 @@
     import { Skeleton } from "$lib/components/ui/skeleton/index.js";
     import { page } from '$app/stores';
     import WeightDifference from "./weight-diff-column.svelte";
+    import { request } from "$lib/functions/request";
     import moment from "moment";
 
     let pageNumber: number = Number($page.url.searchParams.get('page') || 1);
@@ -70,19 +71,9 @@
     });
 
     function fetchData(pageNumber: number): void{
+
         promise = (async () => {
-            if (document.cookie == "") {
-                goto("/login")
-            }
-            const authToken: string = document.cookie.split('=')[1];
-            const res = await fetch(`${PUBLIC_BACKEND_BASE_URL}/v1/check-ins?page=${pageNumber}&page_size=${pageSize}`, {
-                headers: {
-                    "Content-Type": "application/json",
-                    "Authorization": `Bearer ${authToken}`,
-                }
-            });
-            const response = await res.json();
-            return response; 
+            return await request(`${PUBLIC_BACKEND_BASE_URL}/v1/check-ins?page=${pageNumber}&page_size=${pageSize}`);
         })();
         promise.then(response => {
             apiData.set(response);
@@ -118,16 +109,6 @@
             header: "M. Avg",
             cell: ({ value }) => {return value.toFixed(1) + " kg"},
         }),
-        // table.column({
-        //     accessor: "notes",
-        //     header: "Notes",
-        //     cell: ({ value }) => {
-        //         if (value.length > 50) {
-        //             return value.substring(0, 80) + "...";
-        //         }
-        //         return value
-        //     },
-        // }),
     ]);
 
     function handleClick(value: string){

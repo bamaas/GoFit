@@ -3,11 +3,11 @@ import { superValidate } from "sveltekit-superforms";
 import { formSchema } from "./schema.js";
 import { zod } from "sveltekit-superforms/adapters";
 import { goto } from "$app/navigation";
+import { hasAuthCookie } from "$lib/functions/cookie.js";
  
 export const load: PageLoad = async () => {
 
-    // Redirect to logbook if already logged in
-    if (document.cookie != "") {
+    if (hasAuthCookie()) {
         goto("/logbook")
     }
 

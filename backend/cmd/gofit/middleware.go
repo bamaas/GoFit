@@ -44,7 +44,7 @@ func (app *application) authenticate(next http.Handler) http.Handler {
 		// Get user for token
 		user, err := app.models.Users.GetForToken(data.ScopeAuthentication, token)
 		if err != nil {		// TODO: implement better error handling
-			app.writeJSON(w, http.StatusInternalServerError, "error fetching user from token")
+			app.writeJSON(w, http.StatusUnauthorized, "error fetching user from token")
 			return
 		}
 

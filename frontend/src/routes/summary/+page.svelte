@@ -5,10 +5,7 @@
     import RocketIcon from "lucide-svelte/icons/rocket";
     import { PUBLIC_BACKEND_BASE_URL } from "$env/static/public";
 	import { onMount } from "svelte";
-	import { toast } from "svelte-sonner";
-    import type { PageData } from "./$types.js";
-
-    export let data: PageData;
+	import { request } from "$lib/functions/request.js";
 
     type StatsResponse = {
         stats: {
@@ -20,23 +17,14 @@
         }
     }
 
-    let promise: Promise<StatsResponse> = new Promise(() => {});
+    let apiData: Promise<StatsResponse> = new Promise(() => {});
 
-    function fetchData(){
-        return fetch(`${PUBLIC_BACKEND_BASE_URL}/v1/stats`, {
-            headers: {
-                    "Content-Type": "application/json",
-                    "Authorization": `Bearer ${data.authToken}`,
-            }
-        })
-        .then((response) => response.json())
-        .catch(() => {
-            toast.error("Failed fetching data from server.", {description: "Oops!", cancel: { label: "X" }});
-        });
+    function fetchData() {
+        return request(`${PUBLIC_BACKEND_BASE_URL}/v1/stats`)
     }
 
     onMount(() => {
-        promise = fetchData();
+        apiData = fetchData();
     });
 
 </script>
@@ -60,7 +48,7 @@
                 <TrendingDownIcon class="h-4 w-4 text-muted-foreground" />
             </Card.Header>
             <Card.Content>
-                {#await promise then data}
+                {#await apiData then data}
                     <div class="text-2xl font-bold green">{Math.abs(data.stats.weight_difference.week_ago)} kg</div>
                     <p class="text-xs text-muted-foreground">Keep going!</p>
                 {/await}
@@ -73,7 +61,7 @@
                 <RocketIcon class="h-4 w-4 text-muted-foreground" />
             </Card.Header>
             <Card.Content>
-                {#await promise then data}
+                {#await apiData then data}
                     <div class="text-2xl font-bold red">{Math.abs(data.stats.weight_difference["ninety_days_ago"])} kg</div>
                     <p class="text-xs text-muted-foreground">Good work!</p>
                 {/await}
@@ -86,7 +74,7 @@
                 <AwardIcon class="h-4 w-4 text-muted-foreground" />
             </Card.Header>
             <Card.Content>
-                {#await promise then data}
+                {#await apiData then data}
                     <div class="text-2xl font-bold">{Math.abs(data.stats.weight_difference.all_time)} kg</div>
                     <p class="text-xs text-muted-foreground">Amazing!</p>
                 {/await}
