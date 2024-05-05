@@ -31,50 +31,48 @@
   function postCheckIn(data: CheckIn){
     showLoaderIcon = true;
     submitButtonDisabled = true;
-    request(`${PUBLIC_BACKEND_BASE_URL}/v1/check-ins`, 
-        {
-          method: 'POST',
-          body: JSON.stringify({
-            "datetime": data.datetime,
-            "weight": data.weight,
-            "notes": data.notes
-          })
-        })
-        .then( () => {
-          toast.success("Check-in added.", {
-            description: "Good work, keep it up!",
-            action: {label: "View", onClick: () => goto(`/logbook/edit/${data.uuid}`)}
-          });
-          goto("/logbook")
-        });
+    request(`${PUBLIC_BACKEND_BASE_URL}/v1/check-ins`, {
+      method: 'POST',
+      body: JSON.stringify({
+        "datetime": data.datetime,
+        "weight": data.weight,
+        "notes": data.notes
+      })
+    })
+    .then( (response) => {
+      console.log(response)
+      toast.success("Check-in added.", {
+        description: "Good work, keep it up!",
+        action: {label: "View", onClick: () => goto(`/logbook/edit/${response.data.uuid}`)}
+      });
+      goto("/logbook")
+    });
   }
 
   function updateCheckIn(data: CheckIn){
     showLoaderIcon = true;
     submitButtonDisabled = true;
-    request(`${PUBLIC_BACKEND_BASE_URL}/v1/check-ins`, 
-        {
-          method: 'PUT',
-          body: JSON.stringify({
-            "uuid": data.uuid,
-            "datetime": data.datetime,
-            "weight": data.weight,
-            "notes": data.notes
-          })
+    request(`${PUBLIC_BACKEND_BASE_URL}/v1/check-ins`, {
+        method: 'PUT',
+        body: JSON.stringify({
+          "uuid": data.uuid,
+          "datetime": data.datetime,
+          "weight": data.weight,
+          "notes": data.notes
         })
-        .then(() => {
-          toast.success("Check-in updated.", {
-              description: "Let's get things right.",
-              action: {label: "View", onClick: () => goto(`/logbook/edit/${data.uuid}`)}
-            });
-            goto("/logbook")
-        })
-        .catch(() => {
-          toast.error("Something went wrong.", {description: "Oops!", cancel: { label: "X" }});
-          showLoaderIcon = false;
-          submitButtonDisabled = false;
-        }
-    );
+    })
+    .then((response) => {
+      toast.success("Check-in updated.", {
+          description: "Let's get things right.",
+          action: {label: "View", onClick: () => goto(`/logbook/edit/${response.data.uuid}`)}
+        });
+        goto("/logbook")
+    })
+    .catch(() => {
+      toast.error("Something went wrong.", {description: "Oops!", cancel: { label: "X" }});
+      showLoaderIcon = false;
+      submitButtonDisabled = false;
+    });
   }
 
   const form = superForm(data, {
