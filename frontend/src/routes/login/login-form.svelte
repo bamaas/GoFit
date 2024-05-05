@@ -12,6 +12,7 @@
     } from "sveltekit-superforms";
     import { zodClient } from "sveltekit-superforms/adapters";
     import LoaderCircleIcon from "lucide-svelte/icons/loader-circle";
+    import { authenticated } from "$lib/stores/auth"
 
     let buttonDisabled: boolean = true;
    
@@ -54,6 +55,7 @@
           const expires = new Date(r.authentication_token.expiry).toUTCString();
           const token = r.authentication_token.token;
           document.cookie = `token=${token}; expires=${expires};path=/`;
+          authenticated.set(true);
           goto("/logbook");
         } catch (e) {
           showErrors(form);

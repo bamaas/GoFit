@@ -4,9 +4,11 @@
 	import { Button } from "$lib/components/ui/button";
     import * as Card from "$lib/components/ui/card/index.js";
 	import { deleteCookie } from "$lib/functions/cookie";
+	import { authenticated } from "$lib/stores/auth";
 
     function logout(){
         deleteCookie("token")
+        authenticated.set(false);
         goto("/login");
     }
 
@@ -19,7 +21,7 @@
     <Card.Root>
         <Card.Header>
         <Card.Title>Your profile</Card.Title>
-        <Card.Description>Hello mynamehere</Card.Description>
+        <Card.Description>Hello, how are you doing?</Card.Description>
         </Card.Header>
         <Card.Content>
             <Button on:click={logout} variant="outline">Logout</Button>
