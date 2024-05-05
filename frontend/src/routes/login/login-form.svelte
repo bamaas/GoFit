@@ -39,8 +39,7 @@
       validators: zodClient(formSchema),
       resetForm: false,
       SPA: true,
-      delayMs: 0,
-      timeoutMs: 8000,
+      delayMs: 1000,
       onChange: () => {validateForm()},
       onUpdate: async ({form}) => {
         try {
@@ -62,7 +61,7 @@
       }
     });
    
-    const { form: formData, enhance, submitting, delayed, timeout } = form;
+    const { form: formData, enhance, delayed } = form;
 </script>
    
 <form method="POST" use:enhance>

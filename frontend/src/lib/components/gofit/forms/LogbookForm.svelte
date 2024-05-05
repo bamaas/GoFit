@@ -26,10 +26,8 @@
 
   let uuid: string = "";
   let submitButtonDisabled: boolean = true;
-  let showLoaderIcon: boolean = false;
 
   function postCheckIn(data: CheckIn){
-    showLoaderIcon = true;
     submitButtonDisabled = true;
     request(`${PUBLIC_BACKEND_BASE_URL}/v1/check-ins`, {
       method: 'POST',
@@ -50,7 +48,6 @@
   }
 
   function updateCheckIn(data: CheckIn){
-    showLoaderIcon = true;
     submitButtonDisabled = true;
     request(`${PUBLIC_BACKEND_BASE_URL}/v1/check-ins`, {
         method: 'PUT',
@@ -70,7 +67,6 @@
     })
     .catch(() => {
       toast.error("Something went wrong.", {description: "Oops!", cancel: { label: "X" }});
-      showLoaderIcon = false;
       submitButtonDisabled = false;
     });
   }
@@ -79,6 +75,7 @@
     resetForm: false,
     SPA: true,
     validators: zodClient(formSchema),
+    delayMs: 1000,
     onChange() {
       const d: CheckIn = {
         uuid: $formData.uuid,
@@ -119,7 +116,7 @@
 
   });
 
-  const { form: formData, enhance } = form;
+  const { form: formData, enhance, delayed } = form;
 
   const df = new DateFormatter("en-US", {
     dateStyle: "long"
@@ -219,8 +216,8 @@
     {/if}
     <Form.FieldErrors />
 </Form.Field>
-  <Form.Button class="w-full" disabled={submitButtonDisabled}>
-    {#if showLoaderIcon == true}
+  <Form.Button class="w-full" disabled={submitButtonDisabled || $delayed}>
+    {#if $delayed}
       <LoaderCircleIcon class="spinner"/>
     {:else if data.data.uuid == ""}
       Add
