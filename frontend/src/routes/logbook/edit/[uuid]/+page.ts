@@ -7,6 +7,8 @@ import type { CheckIn } from "../../store.js";
 import { redirectIfNoAuthCookie } from "$lib/functions/auth.js";
 import { request } from "$lib/functions/request.js";
 
+export const prerender = false;
+
 export const load: PageLoad = async ({params}) => {
 
     redirectIfNoAuthCookie();
