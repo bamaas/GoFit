@@ -4,7 +4,6 @@
 	import HeaderComponent from "./header.svelte";
 	import ToolbarComponent from "./toolbar.svelte";
 	import { page } from '$app/stores';
-	import { onMount } from "svelte";
 
 	// function getHeaderTitle(): string {
 	// 	if ($page.data.headerTitle != undefined) {
