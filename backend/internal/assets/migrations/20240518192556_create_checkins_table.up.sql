@@ -1,0 +1,6 @@
+CREATE TABLE IF NOT EXISTS checkins (
+		uuid STRING NOT NULL PRIMARY KEY,
+		datetime INTEGER NOT NULL,
+		weight FLOAT NOT NULL,
+		notes STRING
+);

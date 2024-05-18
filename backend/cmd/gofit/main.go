@@ -1,11 +1,17 @@
 package main
 
 import (
+	"database/sql"
 	"log/slog"
 	"net/http"
 	"time"
-	"database/sql"
 
+	"github.com/golang-migrate/migrate/v4"
+	"github.com/golang-migrate/migrate/v4/database/sqlite"
+	_ "github.com/golang-migrate/migrate/v4/source/file"
+	"github.com/golang-migrate/migrate/v4/source/iofs"
+
+	"github.com/bamaas/gofit/internal/assets"
 	"github.com/bamaas/gofit/internal/config"
 	"github.com/bamaas/gofit/internal/data"
 	"github.com/bamaas/gofit/internal/logger"
@@ -22,8 +28,8 @@ type application struct {
 func setupDB(logger *slog.Logger) (*sql.DB, error) {
 	logger.Debug("Initializing database...")
 
-
-	db, err := sql.Open("sqlite", ":memory:")
+	// db, err := sql.Open("sqlite", "./gofit.db")  // Temporary used for development
+	db, err := sql.Open("sqlite", "/data/gofit.db")
 	if err != nil {
 		return nil, err
 	}
@@ -32,45 +38,25 @@ func setupDB(logger *slog.Logger) (*sql.DB, error) {
 		return nil, err
 	}
 
-	createCheckinsTableQuery := `
-	CREATE TABLE IF NOT EXISTS checkins (
-	uuid STRING NOT NULL PRIMARY KEY,
-	datetime INTEGER NOT NULL,
-	weight FLOAT NOT NULL,
-	notes STRING
-	);`
-	_, err = db.Exec(createCheckinsTableQuery)
+	// Apply migrations
+	fsDriver, err := iofs.New(assets.MigrationsFs, assets.MigrationsPath)
+    if err != nil {
+        return nil, err
+    }
+	dbDriver, err := sqlite.WithInstance(db, &sqlite.Config{})
 	if err != nil {
+		return nil, err
+	}
+	migrator, err := migrate.NewWithInstance("iofs", fsDriver, "sqlite", dbDriver)
+	if err != nil {
+		return nil, err
+	}
+	err = migrator.Up()
+	if err != nil && err != migrate.ErrNoChange {
 		return nil, err
 	}
 
-	createUsersTableQuery := `
-	CREATE TABLE IF NOT EXISTS users (
-		id INTEGER PRIMARY KEY AUTOINCREMENT,
-		created_at timestamp(0) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-		email CITEXT UNIQUE NOT NULL,
-		password_hash BYTEA NOT NULL,
-		activated BOOL NOT NULL,
-		version INTEGER NOT NULL DEFAULT 1
-	);
-	`
-	_, err = db.Exec(createUsersTableQuery)
-	if err != nil {
-		return nil, err
-	}
-
-	createTokensTableQuery := `
-	CREATE TABLE IF NOT EXISTS tokens (
-		hash BYTEA PRIMARY KEY,
-		user_id INTEGER REFERENCES users (id) ON DELETE CASCADE,
-		expiry timestamp(0) NOT NULL,
-		scope STRING NOT NULL
-	);
-	`
-	_, err = db.Exec(createTokensTableQuery)
-	if err != nil {
-		return nil, err
-	}
+	logger.Info("database migrations applied")
 
 	return db, nil
 }
@@ -103,7 +89,7 @@ func main() {
 		models:   data.NewModels(db, logger),
 	}
 
-	// Inject demo data)
+	// Inject demo data
 	err = app.Bootstrap()
 	if err != nil {
 		panic(err)

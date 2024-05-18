@@ -58,7 +58,7 @@ func (m *UserModel) GetByEmail(email string) (*User, error) {
 	if err != nil {
 		switch {
 			case errors.Is(err, sql.ErrNoRows):
-				return nil, errors.New("no record found")
+				return nil, ErrRecordNotFound
 			default:
 				return nil, err
 		}
@@ -149,7 +149,7 @@ func (m *UserModel) GetForToken(tokenScope, tokenPlaintext string) (*User, error
 	if err != nil {
 		switch {
 			case errors.Is(err, sql.ErrNoRows):
-				return nil, errors.New("no record found")
+				return nil, ErrRecordNotFound
 			default:
 				return nil, err
 		}

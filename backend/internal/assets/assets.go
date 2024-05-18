@@ -7,10 +7,14 @@ import (
 	"net/http"
 )
 
-// Embed the build directory from the frontend.
+// Embed database migrations files
+//go:embed all:migrations
+var MigrationsFs embed.FS
+var MigrationsPath string = "migrations"
+
+// Embed static frontend files
 //go:embed all:static
 var BuildFs embed.FS
-
 var BuildPath string = "static"
 
 // Get the subtree of the embedded files with `static` directory as a root.
@@ -21,3 +25,12 @@ func BuildHTTPFS() http.FileSystem {
     }
     return http.FS(build)
 }
+
+// Get the subtree of the embedded files with `migrations` directory as a root.
+// func BuildMigrationsFs() source.Driver {
+//     d, err := iofs.New(MigrationsFs, MigrationsPath)
+//     if err != nil {
+//         log.Fatal(err)		// TODO: fix error handling
+//     }
+//     return d
+// }

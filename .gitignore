@@ -4,3 +4,4 @@ test.sh
 backend/bin/*
 backend/internal/assets/*
 !backend/internal/assets/*.go
+!backend/internal/assets/migrations

@@ -1,6 +1,7 @@
 package main
 
 import (
+	"errors"
 	"time"
 
 	"github.com/bamaas/gofit/internal/data"
@@ -8,12 +9,24 @@ import (
 )
 
 func (app *application) injectUser(email string, password string) error {
-	user := &data.User{
-		Email: email,
-		Activated: true,
+
+	// Check if user already exists
+	_, err := app.models.Users.GetByEmail(email)
+	if err != nil {
+		switch {
+			case errors.Is(err, data.ErrRecordNotFound):
+				// Insert user
+				user := &data.User{
+					Email: email,
+					Activated: true,
+				}
+				user.Password.Set(password)
+				return app.models.Users.Insert(user)
+			default:
+				return err
+		}
 	}
-	user.Password.Set(password)
-	return app.models.Users.Insert(user)
+	return nil
 }
 
 func (app *application) injectSampleData() error {
