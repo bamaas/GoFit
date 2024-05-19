@@ -20,6 +20,7 @@ IMAGE?=${IMAGE_REPOSITORY}:${IMAGE_TAG}
 
 
 # Development
+DEVELOPMENT_MODE=true
 
 setup: direnv_allow
 
@@ -35,7 +36,8 @@ get_backend_image:
 	@echo ${IMAGE}
 
 run_backend:
-	cd ./backend && go run ./cmd/${APP_NAME}/
+	cd ./backend && \
+	go run ./cmd/${APP_NAME}/
 
 backend:																						## Build an application container image
 	docker build -t ${IMAGE} .

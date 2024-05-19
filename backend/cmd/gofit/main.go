@@ -25,11 +25,14 @@ type application struct {
 	models   data.Models
 }
 
-func setupDB(logger *slog.Logger) (*sql.DB, error) {
+func setupDB(logger *slog.Logger, developmentMode bool) (*sql.DB, error) {
 	logger.Debug("Initializing database...")
 
-	// db, err := sql.Open("sqlite", "./gofit.db")  // Temporary used for development
-	db, err := sql.Open("sqlite", "/data/gofit.db")
+	datasourceName := "/data/gofit.db"
+	if (developmentMode) {
+		datasourceName = ":memory:"
+	}
+	db, err := sql.Open("sqlite", datasourceName)
 	if err != nil {
 		return nil, err
 	}
@@ -76,7 +79,7 @@ func main() {
 	}
 
 	// Database
-	db, err := setupDB(logger)
+	db, err := setupDB(logger, cfg.DevelopmentMode)
 	if err != nil {
 		panic(err)
 	}

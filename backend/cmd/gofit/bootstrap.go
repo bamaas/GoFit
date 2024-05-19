@@ -14,16 +14,16 @@ func (app *application) injectUser(email string, password string) error {
 	_, err := app.models.Users.GetByEmail(email)
 	if err != nil {
 		switch {
-			case errors.Is(err, data.ErrRecordNotFound):
-				// Insert user
-				user := &data.User{
-					Email: email,
-					Activated: true,
-				}
-				user.Password.Set(password)
-				return app.models.Users.Insert(user)
-			default:
-				return err
+		case errors.Is(err, data.ErrRecordNotFound):
+			// Insert user
+			user := &data.User{
+				Email:     email,
+				Activated: true,
+			}
+			user.Password.Set(password)
+			return app.models.Users.Insert(user)
+		default:
+			return err
 		}
 	}
 	return nil
@@ -57,13 +57,19 @@ func (app *application) injectSampleData() error {
 }
 
 func (app *application) Bootstrap() error {
+	
 	err := app.injectUser("hi@gofit.nl", "gofit123")
 	if err != nil {
 		return err
 	}
-	err = app.injectSampleData()
-	if err != nil {
-		return err
+
+	// Inject sample data if running in development mode
+	if app.config.DevelopmentMode {
+		err = app.injectSampleData()
+		if err != nil {
+			return err
+		}
 	}
+
 	return nil
 }
