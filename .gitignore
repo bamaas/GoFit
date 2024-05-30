@@ -5,3 +5,6 @@ backend/bin/*
 backend/internal/assets/*
 !backend/internal/assets/*.go
 !backend/internal/assets/migrations
+deploy/.DS_Store
+deploy/gofit/.DS_Store
+.DS_Store
