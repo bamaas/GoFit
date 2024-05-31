@@ -30,9 +30,12 @@ func (app *application) getCheckInsHandler(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
+	// Get the user
+	user := app.contextGetUser(r)
+
 	// Retrieve data
 	app.logger.Info("Getting check-ins")
-	checkIns, metadata, err := app.models.CheckIns.List(input.Filters)
+	checkIns, metadata, err := app.models.CheckIns.List(user.ID, input.Filters)
 	if err != nil {
 		app.logger.Error(err.Error())
 		http.Error(w, "error retrieving records", http.StatusInternalServerError)
@@ -52,9 +55,12 @@ func (app *application) getCheckInHandler(w http.ResponseWriter, r *http.Request
 		return
 	}
 
+	// Get the user
+	user := app.contextGetUser(r)
+
 	// Retrieve data
 	app.logger.Info("Getting check-in", "UUID", input)
-	checkIn, err := app.models.CheckIns.Get(input)
+	checkIn, err := app.models.CheckIns.Get(user.ID, input)
 	if err != nil {
 		app.logger.Error(err.Error())
 		http.Error(w, "record not found", http.StatusNotFound)
@@ -79,11 +85,15 @@ func (app *application) createCheckIn(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// Get the user
+	user := app.contextGetUser(r)
+
 	// Validate the input
 	c := &data.CheckIn{
 		Datetime: input.Datetime,
 		Weight: input.Weight,
 		Notes: input.Notes,
+		UserID: user.ID,
 	}
 	v := validator.New()
 	v.ValidateCheckIn(c)
@@ -121,8 +131,11 @@ func (app *application) deleteCheckIn(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// Get the user
+	user := app.contextGetUser(r)
+
 	app.logger.Info("Deleting check-in", "uuid", input)
-	if err := app.models.CheckIns.Delete(input); err != nil {
+	if err := app.models.CheckIns.Delete(user.ID, input); err != nil {
 		app.logger.Error(err.Error())
 		http.Error(w, "error deleting record", http.StatusInternalServerError)
 		return
@@ -140,6 +153,10 @@ func (app *application) updateCheckIn(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
+
+	// Get the user and append to the input
+	user := app.contextGetUser(r)
+	c.UserID = user.ID
 
 	// Validate the input
 	v := validator.New()

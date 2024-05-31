@@ -9,6 +9,7 @@ import (
 
 type CheckIn struct {
 	UUID     string    `json:"uuid,omitempty"`
+	UserID   int64     `json:"-"`
 	Datetime int64 	   `json:"datetime"`
 	Weight   float64   `json:"weight"`
 	Notes	 string    `json:"notes,omitempty"`
@@ -25,16 +26,16 @@ type CheckInModel struct {
 	logger *slog.Logger
 }
 
-func (m *CheckInModel) Get(UUID string) (CheckIn, error) {
+func (m *CheckInModel) Get(userID int64, UUID string) (CheckIn, error) {
 
 	m.logger.Debug("Get check-in", "UUID", UUID)
 
 	q := `
 	SELECT uuid, datetime, weight, notes
 	FROM checkins
-	WHERE uuid=?`
+	WHERE user_id=? AND uuid=?`
 
-	r, err := m.DB.Query(q, UUID)		// TODO: Use QueryRow
+	r, err := m.DB.Query(q, userID, UUID)		// TODO: Use QueryRow
 	if err != nil {
 		return CheckIn{}, err
 	}
@@ -61,7 +62,7 @@ func (m *CheckInModel) Get(UUID string) (CheckIn, error) {
 	return entries[0], nil
 }
 
-func (m *CheckInModel) List(filters Filters) ([]CheckInWithStats, Metadata, error) {
+func (m *CheckInModel) List(userID int64, filters Filters) ([]CheckInWithStats, Metadata, error) {
 
 	m.logger.Debug("Get all the check-ins")
 
@@ -73,12 +74,13 @@ func (m *CheckInModel) List(filters Filters) ([]CheckInWithStats, Metadata, erro
 		AND 6 * 24 * 60 * 60 FOLLOWING
 	) AS MovingAverageWindow7,
 	IFNULL(weight - LAG(weight, 1) OVER (ORDER BY datetime), 0.0) as weightDifference
-	FROM checkins 
+	FROM checkins
+	WHERE user_id=? 
 	ORDER BY datetime DESC
 	LIMIT ?
 	OFFSET ?;
 	`
-	r, err := m.DB.Query(q, filters.limit(), filters.offset())
+	r, err := m.DB.Query(q, userID, filters.limit(), filters.offset())
 	if err != nil {
 		return nil, Metadata{}, err
 	}
@@ -110,27 +112,27 @@ func (m *CheckInModel) Insert(checkIn CheckIn) error {
 
 	q := `
 	INSERT INTO checkins
-	(uuid, datetime, weight, notes)
+	(uuid, user_id, datetime, weight, notes)
 	VALUES
-	(?, ?, ?, ?);
+	(?, ?, ?, ?, ?);
 	`
-	_, err := m.DB.Exec(q, checkIn.UUID, checkIn.Datetime, checkIn.Weight, checkIn.Notes)
+	_, err := m.DB.Exec(q, checkIn.UUID, checkIn.UserID, checkIn.Datetime, checkIn.Weight, checkIn.Notes)
 	if err != nil {
 		return err
 	}
 	return nil
 }
 
-func (m *CheckInModel) Delete(UUID string) error {
+func (m *CheckInModel) Delete(userID int64, UUID string) error {
 
 	m.logger.Debug("Deleting", "UUID", UUID)
 
 	q := `
 	DELETE FROM checkins
 	WHERE
-	uuid=?
+	user_id=? AND uuid=?
 	`
-	_, err := m.DB.Exec(q, UUID)
+	_, err := m.DB.Exec(q, userID, UUID)
 	if err != nil {
 		return err
 	}
@@ -144,9 +146,9 @@ func (m *CheckInModel) Update(checkIn CheckIn) error {
 	q := `
 	UPDATE checkins
 	SET weight=?, datetime=?, notes=?
-	WHERE uuid=?
+	WHERE user_id=? AND uuid=?
 	`
-	_, err := m.DB.Exec(q, checkIn.Weight, checkIn.Datetime, checkIn.Notes, checkIn.UUID)
+	_, err := m.DB.Exec(q, checkIn.Weight, checkIn.Datetime, checkIn.Notes, checkIn.UserID, checkIn.UUID)
 	if err != nil {
 		return err
 	}

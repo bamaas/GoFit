@@ -93,6 +93,7 @@ func main() {
 	}
 
 	// Inject demo data
+	// TODO: build condition around bootstrap to only run in development mode. Inject user should pickup env vars.
 	err = app.Bootstrap()
 	if err != nil {
 		panic(err)

@@ -40,6 +40,7 @@ func (app *application) injectSampleData() error {
 		}
 		checkIn := data.CheckIn{
 			UUID:     uuid.String(),
+			UserID:   1,
 			Datetime: time.Now().AddDate(0, 0, -i).Unix(),
 			Weight:   float64(i + 29),
 			Notes:    "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Etiam nulla sem.",

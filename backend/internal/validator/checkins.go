@@ -9,4 +9,5 @@ func (v *Validator) ValidateCheckIn(c *data.CheckIn) {
 	v.Check(c.Weight >= 20, "weight", "must be at least 20")
 	v.Check(c.Weight <= 300, "weight", "must be at most 300")
 	v.Check(len(c.Notes) <= 100, "notes", "can't be longer than 100 characters")
+	v.Check(c.UserID != 0, "user_id", "must be provided")
 }
