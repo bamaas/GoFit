@@ -1,0 +1,20 @@
+persistence:
+  enabled: true
+  size: 10Mi
+  accessModes: 
+    - ReadWriteOnce
+  storageClass: ""
+
+ingress:
+  enabled: false
+  annotations: {}
+  hosts: []
+    # - host: gofit.kubernetes.lan.basmaas.nl
+    #   paths:
+    #     - path: /
+    #       pathType: Prefix
+    #       port: 8080
+  tls: []
+    # - secretName: gofit.kubernetes.lan.basmaas.nl
+    #   hosts:
+    #     - gofit.kubernetes.lan.basmaas.nl

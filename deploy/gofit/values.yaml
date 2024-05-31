@@ -1,5 +1,4 @@
-logLevel: debug
-storage: 10Mi
+logLevel: info
 
 replicaCount: 1
 
@@ -10,21 +9,26 @@ image:
 
 podLabels: {}
 
+persistence:
+  enabled: false
+  size: 10Mi
+  accessModes: 
+    - ReadWriteOnce
+  storageClass: ""
+
 ingress:
-  annotations:
-    kubernetes.io/ingress.class: nginx
-    cert-manager.io/cluster-issuer: letsencrypt-prd
-    #nginx.ingress.kubernetes.io/whitelist-source-range: 
-  hosts:
-    - host: gofit.kubernetes.lan.basmaas.nl
-      paths:
-        - path: /
-          pathType: Prefix
-          port: 8080
-  tls:
-    - secretName: gofit.kubernetes.lan.basmaas.nl
-      hosts:
-        - gofit.kubernetes.lan.basmaas.nl
+  enabled: false
+  annotations: {}
+  hosts: []
+    # - host: gofit.kubernetes.lan.basmaas.nl
+    #   paths:
+    #     - path: /
+    #       pathType: Prefix
+    #       port: 8080
+  tls: []
+    # - secretName: gofit.kubernetes.lan.basmaas.nl
+    #   hosts:
+    #     - gofit.kubernetes.lan.basmaas.nl
 
 service:
   type: ClusterIP
@@ -36,10 +40,3 @@ podSecurityContext:
   runAsGroup: 1001
   runAsNonRoot: true
   runAsUser: 1001
-
-volumes:
-  - name: gofit-data
-
-volumeMounts:
-  - name: gofit-data
-    mountPath: /data

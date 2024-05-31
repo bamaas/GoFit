@@ -25,15 +25,16 @@ spec:
         imagePullPolicy: {{ .Values.image.pullPolicy }}
         name: {{ .Chart.Name }}
         resources: {}
-        {{- with .Values.volumeMounts }}
+        {{- if .Values.persistence.enabled }}
         volumeMounts:
-          {{- toYaml . | nindent 8 }}
+          - name: data
+            mountPath: /data
         {{- end }}
       securityContext:
         {{- toYaml .Values.podSecurityContext | nindent 8 }}
-      {{- with .Values.volumes }}
+      {{- if .Values.persistence.enabled }}
       volumes:
-        {{- toYaml . | nindent 6 }}
+        - name: data
+          persistentVolumeClaim:
+            claimName: {{ include "gofit.fullname" . }}
       {{- end }}
-        persistentVolumeClaim:
-          claimName: {{ include "gofit.fullname" . }}

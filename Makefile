@@ -54,3 +54,20 @@ run_frontend:
 
 install_frontend:
 	cd frontend && npm install
+
+# Chart
+CHART_PATH="./deploy/gofit"
+CHART_RELEASE_NAME=gofit
+NAMESPACE?=default
+
+helm/template:
+	helm template ${CHART_RELEASE_NAME} ${CHART_PATH} \
+	-n ${NAMESPACE}
+
+helm/install:
+	helm upgrade --install ${CHART_RELEASE_NAME} ${CHART_PATH} \
+	-n ${NAMESPACE} \
+	-f test/chart/values.yaml
+
+helm/uninstall:
+	helm uninstall ${CHART_RELEASE_NAME} -n ${NAMESPACE}
