@@ -65,6 +65,20 @@
    
     const { form: formData, enhance, delayed } = form;
 </script>
+
+<style>
+  :global(.spinner) {
+		animation: spinner-frames 3s infinite linear;
+	}
+  @keyframes spinner-frames {
+    0% {
+      transform: rotate(0deg);
+    }
+    100% {
+      transform: rotate(360deg);
+    }
+  }
+</style>
    
 <form method="POST" use:enhance>
     <Form.Field {form} name="email" class="pb-5">
