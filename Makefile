@@ -18,46 +18,53 @@ IMAGE_REPOSITORY=bamaas/${APP_NAME}
 IMAGE_TAG?=${APP_VERSION}
 IMAGE?=${IMAGE_REPOSITORY}:${IMAGE_TAG}
 
+# Help
+help:           																			## Show this help.
+	@fgrep -h "##" $(MAKEFILE_LIST) | fgrep -v fgrep | sed -e 's/\\$$//' | sed -e 's/:.*##/;/' | column -t -s';'
 
 # Development
 DEVELOPMENT_MODE=true
 
-setup: direnv_allow
+development/setup: direnv_allow frontend/install_deps
 
 direnv_allow:
 	direnv allow .
 
 # Backend
-build/backend:
+backend/build:
 	cd ./backend && \
-	go build -o ./bin/${APP_NAME} ./cmd/${APP_NAME} 
+	go build -o ./bin/${APP_NAME} ./cmd/${APP_NAME}
 
-get_backend_image:
-	@echo ${IMAGE}
-
-run_backend:
+backend/run:
 	cd ./backend && \
 	go run ./cmd/${APP_NAME}/
 
-backend:																						## Build an application container image
+# Image
+image:																						## Build an application container image
 	docker build -t ${IMAGE} .
 
-push_backend:
+image/get:
+	@echo ${IMAGE}
+
+image/push:
 	docker push ${IMAGE}
 
 # Frontend
-build/frontend:
-	cd frontend && npm run build
+frontend/build:
+	cd frontend && \
+	npm run build
 
-run_frontend:
-	cd frontend && npm run dev -- --open
+frontend/run:
+	cd frontend && \
+	npm run dev -- --open
 
-install_frontend:
-	cd frontend && npm install
+frontend/install_deps:
+	cd frontend && \
+	npm install
 
-# Chart
+# Helm
 CHART_PATH="./deploy/gofit"
-CHART_RELEASE_NAME=gofit
+CHART_RELEASE_NAME=${APP_NAME}
 NAMESPACE?=default
 
 helm/template:
@@ -70,4 +77,5 @@ helm/install:
 	-f test/chart/values.yaml
 
 helm/uninstall:
-	helm uninstall ${CHART_RELEASE_NAME} -n ${NAMESPACE}
+	helm uninstall ${CHART_RELEASE_NAME} \
+	-n ${NAMESPACE}

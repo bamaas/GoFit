@@ -14,20 +14,20 @@ steps:
       command: login
       containerRegistry: dockerhub
 
-  - script: make backend
-    displayName: Build backend image
+  - script: make image
+    displayName: Build image
     env:
       IMAGE_TAG: $(Build.SourceVersion)
 
-  - script: make push_backend
-    displayName: Push backend image
+  - script: make image/push
+    displayName: Push image
     env:
       IMAGE_TAG: $(Build.SourceVersion)
 
   - script: |
-      echo "##vso[task.setvariable variable=backendImage]$(make get_backend_image)"
-      echo "Defined backend image task variable value: ${backendImage}"
-    displayName: Define backend image task variable
+      echo "##vso[task.setvariable variable=image]$(make image/get)"
+      echo "Defined backend image task variable value: ${image}"
+    displayName: Define image task variable
     env:
       IMAGE_TAG: $(Build.SourceVersion)
 
@@ -36,7 +36,7 @@ steps:
     inputs:
       azureSubscription: gofit-ARM
       appName: gofit-api
-      containers: $(backendImage)
+      containers: $(image)
 
   - task: AzureStaticWebApp@0
     displayName: Deploy frontend
