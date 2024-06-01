@@ -7,7 +7,7 @@ COPY ./frontend/package.json /frontend/package-lock.json ./
 RUN npm ci
 COPY ./frontend .
 RUN rm ./.env.production &&  \
-    echo 'PUBLIC_BACKEND_BASE_URL=""' > .env.production
+    echo 'PUBLIC_BACKEND_BASE_URL="/api"' > .env.production
 RUN npm run build
 
 # Build the binary

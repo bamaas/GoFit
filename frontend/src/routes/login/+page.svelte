@@ -9,7 +9,7 @@
   <Card.Root>
     <Card.Header>
         <Card.Title>Let's get it on</Card.Title>
-        <Card.Description>Demo account: hi@gofit.nl | gofit123</Card.Description>
+        <!-- <Card.Description>Demo account: hi@gofit.nl | gofit123</Card.Description> -->
     </Card.Header>
     <Card.Content>
       <LoginForm data={data.form} />

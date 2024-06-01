@@ -21,6 +21,8 @@ spec:
       - envFrom:
         - configMapRef:
             name: {{ include "gofit.fullname" . }}
+        - secretRef:
+            name: {{ include "gofit.fullname" . }}
         image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
         imagePullPolicy: {{ .Values.image.pullPolicy }}
         name: {{ .Chart.Name }}

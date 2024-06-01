@@ -22,8 +22,10 @@ IMAGE?=${IMAGE_REPOSITORY}:${IMAGE_TAG}
 help:           																			## Show this help.
 	@fgrep -h "##" $(MAKEFILE_LIST) | fgrep -v fgrep | sed -e 's/\\$$//' | sed -e 's/:.*##/;/' | column -t -s';'
 
-# Development
+# App config
 DEVELOPMENT_MODE=true
+USERS=[{"email": "demo@gofit.nl", "password": "gofit123"}, {"email": "test@gofit.nl", "password": "gofit123"}]
+LOG_LEVEL=debug
 
 development/setup: direnv_allow frontend/install_deps
 
@@ -40,7 +42,7 @@ backend/run:
 	go run ./cmd/${APP_NAME}/
 
 # Image
-image:																						## Build an application container image
+image/build:													## Build an application container image
 	docker build -t ${IMAGE} .
 
 image/get:
@@ -48,6 +50,9 @@ image/get:
 
 image/push:
 	docker push ${IMAGE}
+
+image/run:
+	docker run -e USERS='${USERS}' --rm -p 8080:8080 ${IMAGE}
 
 # Frontend
 frontend/build:
@@ -74,8 +79,23 @@ helm/template:
 helm/install:
 	helm upgrade --install ${CHART_RELEASE_NAME} ${CHART_PATH} \
 	-n ${NAMESPACE} \
-	-f test/chart/values.yaml
+	-f test/chart/values.yaml \
+	--set image.tag=${IMAGE_TAG} \
 
 helm/uninstall:
 	helm uninstall ${CHART_RELEASE_NAME} \
 	-n ${NAMESPACE}
+
+# Kind
+CLUSTER_NAME=${APP_NAME}
+kind/create:
+	kind get clusters | grep -e "^${CLUSTER_NAME}$$" && exit 0 || \
+	(kind create cluster --name ${CLUSTER_NAME})
+
+kind/delete:
+	kind delete cluster --name ${CLUSTER_NAME}
+
+kind/load_image:
+	kind load docker-image ${IMAGE} --name ${CLUSTER_NAME}
+
+kind/full_install: kind/create image/build kind/load_image helm/install

@@ -1,6 +1,7 @@
 package config
 
 import (
+	"encoding/json"
 	"os"
 	"strconv"
 )
@@ -8,10 +9,11 @@ import (
 type Config struct {
 	LogLevel string
 	DevelopmentMode bool
+	Users []user
 }
 
 // Default configuration values
-var defaultLogLevel = "INFO"
+var defaultLogLevel = "DEBUG"
 var defaultDevelopmentMode = "false"
 
 func getEnv(key, fallback string) string {
@@ -19,7 +21,12 @@ func getEnv(key, fallback string) string {
         return value
     }
     return fallback
-}	
+}
+
+type user struct {
+	Email string `json:"email"`
+	Password string `json:"password"`
+}
 
 func Retrieve() (*Config, error){
 
@@ -28,9 +35,17 @@ func Retrieve() (*Config, error){
 	if err != nil {
 		return nil, err
 	}
+ 
+	// Get users
+	var users []user
+	err = json.Unmarshal([]byte(getEnv("USERS", `[]`)), &users)
+	if err != nil {
+		return nil, err
+	}
 
 	return &Config{
 		LogLevel: getEnv("LOG_LEVEL", defaultLogLevel),
 		DevelopmentMode: devMode,
+		Users: users,
 	}, nil
 }

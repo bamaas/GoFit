@@ -58,15 +58,18 @@ func (app *application) injectSampleData() error {
 }
 
 func (app *application) Bootstrap() error {
-	
-	err := app.injectUser("hi@gofit.nl", "gofit123")
-	if err != nil {
-		return err
+
+	// Inject users
+	for _, u := range app.config.Users {
+		err := app.injectUser(u.Email, u.Password)
+		if err != nil {
+			return err
+		}
 	}
 
 	// Inject sample data if running in development mode
 	if app.config.DevelopmentMode {
-		err = app.injectSampleData()
+		err := app.injectSampleData()
 		if err != nil {
 			return err
 		}

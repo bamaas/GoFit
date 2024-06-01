@@ -78,6 +78,11 @@ func main() {
 		panic(err)
 	}
 
+	logger.Info(cfg.Users[0].Email)
+	logger.Info(cfg.Users[0].Password)
+	logger.Info(cfg.Users[1].Email)
+	logger.Info(cfg.Users[1].Password)
+
 	// Database
 	db, err := setupDB(logger, cfg.DevelopmentMode)
 	if err != nil {
@@ -92,13 +97,13 @@ func main() {
 		models:   data.NewModels(db, logger),
 	}
 
-	// Inject demo data
-	// TODO: build condition around bootstrap to only run in development mode. Inject user should pickup env vars.
+	// Bootstrap
 	err = app.Bootstrap()
 	if err != nil {
 		panic(err)
 	}
 
+	// Start server
 	srv := &http.Server{
 		Addr:         "0.0.0.0:8080",
 		Handler:      app.routes(),

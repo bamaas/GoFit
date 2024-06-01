@@ -20,7 +20,7 @@ type WeightDifferenceStats struct {
 	NinetyDaysAgo float64 	`json:"ninety_days_ago"`
 }
 
-func (m *StatsModel) GetStats() (*Stats, error) {
+func (m *StatsModel) GetStats(userID int64) (*Stats, error) {
 
 	m.logger.Debug("Getting stats...")
 
@@ -39,10 +39,10 @@ func (m *StatsModel) GetStats() (*Stats, error) {
                 ( SELECT weight
                     FROM checkins
                     WHERE datetime = (
-														SELECT
+							 SELECT
                               MAX(datetime)
                             	FROM checkins
-                             WHERE datetime >= strftime('%s', datetime('now','-91 day'))
+                             WHERE datetime >= strftime('%s', datetime('now','-91 day')) AND user_id=?
                         )
                 ) AS wdnd1,
                 (
@@ -57,7 +57,7 @@ func (m *StatsModel) GetStats() (*Stats, error) {
                             FROM
                                 checkins
                             WHERE
-                                datetime >= strftime('%s', datetime('now','-91 day'))
+                                datetime >= strftime('%s', datetime('now','-91 day')) AND user_id=?
                         )
                 ) AS wdnd2
         )
@@ -69,7 +69,7 @@ FROM
         WHERE datetime = (
             SELECT MAX(datetime) 
             FROM checkins
-        )
+        ) AND AND user_id=?
     ) AS wdat1,
     (
         SELECT weight 
@@ -77,7 +77,7 @@ FROM
         WHERE datetime = (
             SELECT MIN(datetime) 
             FROM checkins
-        )
+        ) AND user_id=?
     ) AS wdat2,
     (
         SELECT weight 
@@ -85,8 +85,8 @@ FROM
         WHERE datetime = (
             SELECT MAX(datetime) 
             FROM checkins 
-            WHERE datetime >= strftime('%s', datetime('now','-8 day'))
-        )
+            WHERE datetime >= strftime('%s', datetime('now','-8 day')) AND user_id=?
+        ) AND user_id=?
     ) AS wdsd1,
     (
         SELECT weight 
@@ -94,13 +94,13 @@ FROM
         WHERE datetime = (
             SELECT MIN(datetime) 
             FROM checkins 
-            WHERE datetime >= strftime('%s', datetime('now','-8 day'))
-        )
+            WHERE datetime >= strftime('%s', datetime('now','-8 day')) AND user_id=?
+        ) AND user_id=?
     ) AS wdsd2;
 	`
 
 	var stats Stats
-	err := m.DB.QueryRow(q).Scan(&stats.WeightDifference.AllTime, &stats.WeightDifference.WeekAgo, &stats.WeightDifference.NinetyDaysAgo)
+	err := m.DB.QueryRow(q, userID, userID, userID, userID, userID, userID, userID, userID).Scan(&stats.WeightDifference.AllTime, &stats.WeightDifference.WeekAgo, &stats.WeightDifference.NinetyDaysAgo)
 	if err != nil {
 		return nil, err
 	}

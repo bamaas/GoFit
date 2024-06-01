@@ -14,7 +14,7 @@ steps:
       command: login
       containerRegistry: dockerhub
 
-  - script: make image
+  - script: make image/build
     displayName: Build image
     env:
       IMAGE_TAG: $(Build.SourceVersion)

@@ -1,3 +1,7 @@
+users: []
+  # - email: "user@gofit.nl"
+  #   password: "gofit123"
+
 logLevel: info
 
 replicaCount: 1
