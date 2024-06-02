@@ -62,39 +62,3 @@ resource "azurerm_static_site" "gofit" {
     resource_group_name = azurerm_resource_group.gofit.name
     location            = azurerm_resource_group.gofit.location
 }
-
-
-// Create function app
-
-resource "azurerm_resource_group" "gofit_functions" {
-    name     = "gofit-functions"
-    location = "West Europe"
-}
-
-resource "azurerm_storage_account" "gofit" {
-  name                     = "gofit"
-  resource_group_name      = azurerm_resource_group.gofit_functions.name
-  location                 = azurerm_resource_group.gofit_functions.location
-  account_tier             = "Standard"
-  account_replication_type = "LRS"
-}
-
-resource "azurerm_service_plan" "gofit_functions" {
-    name                = "ASP-gofit-functions"
-    location            = azurerm_resource_group.gofit_functions.location
-    resource_group_name = azurerm_resource_group.gofit_functions.name
-    sku_name = "Y1"
-    os_type  = "Linux" 
-}
-
-resource "azurerm_linux_function_app" "gofit_caffeine" {
-    name                = "gofit-caffeine"
-    location            = azurerm_resource_group.gofit_functions.location
-    resource_group_name = azurerm_resource_group.gofit_functions.name
-
-    service_plan_id = azurerm_service_plan.gofit_functions.id
-    storage_account_name       = azurerm_storage_account.gofit.name
-    storage_account_access_key = azurerm_storage_account.gofit.primary_access_key
-
-    site_config {}
-}
