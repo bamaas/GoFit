@@ -23,21 +23,14 @@ function catchError(error: Error){
 export async function request(url: string, options?: any): Promise<any> {
     const authToken = getAuthToken();
 
-    console.log(options)
-
     if (options === undefined) {
-        console.log("options undefined")
         options = {
             headers: {}
         };
-    } else {
-        console.log("options are defined")
     }
     options["headers"] = {}
     // options.headers["Content-Type"] = "application/json";
     options.headers["Authorization"] = `Bearer ${authToken}`;
-
-    console.log(options)
 
     return fetch(url, options)
     .then( response => {

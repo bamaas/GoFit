@@ -2,6 +2,7 @@ package data
 
 import (
 	"database/sql"
+	"errors"
 	"log/slog"
 )
 
@@ -103,8 +104,13 @@ FROM
 	var stats Stats
 	err := m.DB.QueryRow(q, userID, userID, userID, userID, userID, userID, userID, userID, userID, userID, userID).Scan(&stats.WeightDifference.AllTime, &stats.WeightDifference.WeekAgo, &stats.WeightDifference.NinetyDaysAgo)
     
-    if err != nil {
-		return nil, err
+	if err != nil {
+		switch {
+            case errors.Is(err, sql.ErrNoRows):
+                return &stats, nil
+            default:
+                return nil, err
+		}
 	}
 
 	return &stats, nil

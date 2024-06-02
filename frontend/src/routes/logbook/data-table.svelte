@@ -23,6 +23,8 @@
     let lastPage: number = 1;
     $: lastPage;
 
+    $: recordsPresent = false;
+
     let promise: Promise<ApiResponse> = new Promise(() => {});
 
     onMount(() => {
@@ -56,6 +58,15 @@
         fetchData(pageNumber);
 
         apiData.subscribe((data) => {
+
+            // Check if records are present
+            if (data.data.length == 0) {
+                recordsPresent = false;
+            } else {
+                recordsPresent = true;
+            }
+
+            // Check if there are more pages
             if (data.metadata.current_page < data.metadata.last_page) {
                 hasNextPage = true;
             } else {
@@ -138,42 +149,17 @@
     }
 </script>
 
-<div>
-    <div class="rounded-md border">
-        <Table.Root {...$tableAttrs}>
-            <Table.Header>
-            {#each $headerRows as headerRow}
-                <Subscribe rowAttrs={headerRow.attrs()}>
-                <Table.Row>
-                    {#each headerRow.cells as cell (cell.id)}
-                    <Subscribe attrs={cell.attrs()} let:attrs props={cell.props()} let:props >
-                        <Table.Head {...attrs}>
-                            {#if cell.id =="notes"}
-                                <div class="invisible lg:visible">
-                                    <Render of={cell.render()} />
-                                </div>
-                            {:else}
-                                <div class="text-center">
-                                    <Render of={cell.render()} />
-                                </div>
-                            {/if}
-                        </Table.Head>
-                    </Subscribe>
-                    {/each}
-                </Table.Row>
-                </Subscribe>
-            {/each}
-            </Table.Header>
-            <Table.Body {...$tableBodyAttrs}>
-            {#each $pageRows as row (row.id)}
-                <Subscribe rowAttrs={row.attrs()} let:rowAttrs>
-                <Table.Row {...rowAttrs} on:click={() => handleClick(row.original['uuid'])} class="cursor-pointer">
-                    {#each row.cells as cell (cell.id)}
-                    <Subscribe attrs={cell.attrs()} let:attrs>
-                        <Table.Cell {...attrs}>
-                            {#await promise}
-                                <Skeleton class="h-4 w-full" />
-                            {:then}
+{#if recordsPresent == true}
+    <div> 
+        <div class="rounded-md border">
+            <Table.Root {...$tableAttrs}>
+                <Table.Header>
+                {#each $headerRows as headerRow}
+                    <Subscribe rowAttrs={headerRow.attrs()}>
+                    <Table.Row>
+                        {#each headerRow.cells as cell (cell.id)}
+                        <Subscribe attrs={cell.attrs()} let:attrs props={cell.props()} let:props >
+                            <Table.Head {...attrs}>
                                 {#if cell.id =="notes"}
                                     <div class="invisible lg:visible">
                                         <Render of={cell.render()} />
@@ -183,31 +169,67 @@
                                         <Render of={cell.render()} />
                                     </div>
                                 {/if}
-                            {:catch}
-                                <Skeleton class="h-4 w-full" />
-                            {/await}
-                        </Table.Cell>
+                            </Table.Head>
+                        </Subscribe>
+                        {/each}
+                    </Table.Row>
                     </Subscribe>
-                    {/each}
-                </Table.Row>
-                </Subscribe>
-            {/each}
-            </Table.Body>
-        </Table.Root>
+                {/each}
+                </Table.Header>
+                <Table.Body {...$tableBodyAttrs}>
+                {#each $pageRows as row (row.id)}
+                    <Subscribe rowAttrs={row.attrs()} let:rowAttrs>
+                    <Table.Row {...rowAttrs} on:click={() => handleClick(row.original['uuid'])} class="cursor-pointer">
+                        {#each row.cells as cell (cell.id)}
+                        <Subscribe attrs={cell.attrs()} let:attrs>
+                            <Table.Cell {...attrs}>
+                                {#await promise}
+                                    <Skeleton class="h-4 w-full" />
+                                {:then}
+                                    {#if cell.id =="notes"}
+                                        <div class="invisible lg:visible">
+                                            <Render of={cell.render()} />
+                                        </div>
+                                    {:else}
+                                        <div class="text-center">
+                                            <Render of={cell.render()} />
+                                        </div>
+                                    {/if}
+                                {:catch}
+                                    <Skeleton class="h-4 w-full" />
+                                {/await}
+                            </Table.Cell>
+                        </Subscribe>
+                        {/each}
+                    </Table.Row>
+                    </Subscribe>
+                {/each}
+                </Table.Body>
+            </Table.Root>
+        </div>
+        <!-- svelte-ignore empty-block -->
+        {#await promise}
+        {:then}
+        <div class="flex items-center justify-between space-x-4 py-4">
+            <Button variant="outline" size="lg" disabled={!hasPrevPage} on:click={goToPreviousPage}>
+                <ArrowLeft class="size-4"/>
+            </Button>
+            <span class="text-sm text-muted-foreground">
+                Page {pageNumber} of {lastPage}
+            </span>
+            <Button variant="outline" size="lg" disabled={!hasNextPage} on:click={gotoNextPage}>
+                <ArrowRight class="size-4"/>
+            </Button>
+        </div>
+        {/await}
     </div>
-    <!-- svelte-ignore empty-block -->
-    {#await promise}
-    {:then}
-    <div class="flex items-center justify-between space-x-4 py-4">
-        <Button variant="outline" size="lg" disabled={!hasPrevPage} on:click={goToPreviousPage}>
-            <ArrowLeft class="size-4"/>
-        </Button>
-        <span class="text-sm text-muted-foreground">
-            Page {pageNumber} of {lastPage}
-        </span>
-        <Button variant="outline" size="lg" disabled={!hasNextPage} on:click={gotoNextPage}>
-            <ArrowRight class="size-4"/>
-        </Button>
+{:else}
+    <!-- No records present -->
+    <div class="text-center items-center justify-center align-middle mt-36">
+        <h1 class="text-2xl font-semibold tracking-tight">Let's get started</h1>
+        <p class="text-sm text-muted-foreground mt-2">Add your first check-in to get started.</p>
+        <a href="/logbook/create">
+            <Button class="mt-8">Add check-in</Button>
+        </a>
     </div>
-    {/await}
-</div>
+{/if}
