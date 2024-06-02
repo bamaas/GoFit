@@ -78,11 +78,6 @@ func main() {
 		panic(err)
 	}
 
-	logger.Info(cfg.Users[0].Email)
-	logger.Info(cfg.Users[0].Password)
-	logger.Info(cfg.Users[1].Email)
-	logger.Info(cfg.Users[1].Password)
-
 	// Database
 	db, err := setupDB(logger, cfg.DevelopmentMode)
 	if err != nil {

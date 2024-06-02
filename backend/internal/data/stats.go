@@ -24,6 +24,7 @@ func (m *StatsModel) GetStats(userID int64) (*Stats, error) {
 
 	m.logger.Debug("Getting stats...")
 
+    // TODO: Simplify this query.
 	q := `
 	SELECT 
     wdat1.weight - wdat2.weight AS weight_difference_all_time, 
@@ -31,7 +32,7 @@ func (m *StatsModel) GetStats(userID int64) (*Stats, error) {
     CASE WHEN (
             SELECT datetime('now') - MIN(datetime)
             FROM checkins
-            WHERE datetime >= strftime('%s', datetime('now','-91 day'))
+            WHERE datetime >= strftime('%s', datetime('now','-91 day')) AND user_id=?
         ) < 91 THEN 0
         ELSE (
             SELECT wdnd1.weight - wdnd2.weight
@@ -39,9 +40,9 @@ func (m *StatsModel) GetStats(userID int64) (*Stats, error) {
                 ( SELECT weight
                     FROM checkins
                     WHERE datetime = (
-							 SELECT
+                             SELECT
                               MAX(datetime)
-                            	FROM checkins
+                                FROM checkins
                              WHERE datetime >= strftime('%s', datetime('now','-91 day')) AND user_id=?
                         )
                 ) AS wdnd1,
@@ -68,15 +69,15 @@ FROM
         FROM checkins 
         WHERE datetime = (
             SELECT MAX(datetime) 
-            FROM checkins
-        ) AND AND user_id=?
+            FROM checkins WHERE user_id=?
+        ) AND user_id=?
     ) AS wdat1,
     (
         SELECT weight 
         FROM checkins 
         WHERE datetime = (
             SELECT MIN(datetime) 
-            FROM checkins
+            FROM checkins WHERE user_id=?
         ) AND user_id=?
     ) AS wdat2,
     (
@@ -100,8 +101,9 @@ FROM
 	`
 
 	var stats Stats
-	err := m.DB.QueryRow(q, userID, userID, userID, userID, userID, userID, userID, userID).Scan(&stats.WeightDifference.AllTime, &stats.WeightDifference.WeekAgo, &stats.WeightDifference.NinetyDaysAgo)
-	if err != nil {
+	err := m.DB.QueryRow(q, userID, userID, userID, userID, userID, userID, userID, userID, userID, userID, userID).Scan(&stats.WeightDifference.AllTime, &stats.WeightDifference.WeekAgo, &stats.WeightDifference.NinetyDaysAgo)
+    
+    if err != nil {
 		return nil, err
 	}
 
