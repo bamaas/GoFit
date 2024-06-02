@@ -1,5 +1,6 @@
 gofit.db
 test.sh
+
 # backend
 backend/bin/*
 backend/internal/assets/*
@@ -8,3 +9,9 @@ backend/internal/assets/*
 deploy/.DS_Store
 deploy/gofit/.DS_Store
 .DS_Store
+
+# Terraform
+deploy/terraform/.terraform.lock.hcl
+deploy/terraform/*.tfstate
+deploy/terraform/.terraform
+deploy/terraform/terraform.tfstate.backup

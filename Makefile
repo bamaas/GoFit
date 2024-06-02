@@ -68,7 +68,7 @@ frontend/install_deps:																		## Install frontend dependencies
 	npm install
 
 # -------------- Helm --------------
-CHART_PATH="./deploy/gofit"
+CHART_PATH="./deploy/chart/gofit"
 CHART_RELEASE_NAME=${APP_NAME}
 NAMESPACE?=default
 
@@ -99,3 +99,24 @@ kind/load_image:																			## Load image into kind cluster
 	kind load docker-image ${IMAGE} --name ${CLUSTER_NAME}
 
 kind/full_install: kind/create image/build kind/load_image helm/install						## Create kind cluster, build image, load image into cluster and install helm chart
+
+# -------------- Terraform --------------
+TERRAFORM_DIR="./deploy/terraform"
+
+terraform/init:																				## Initialize terraform
+	terraform -chdir=${TERRAFORM_DIR} init
+
+terraform/plan:																				## Plan terraform
+	terraform -chdir=${TERRAFORM_DIR} plan
+
+terraform/apply:																			## Apply terraform resources
+	terraform -chdir=${TERRAFORM_DIR} apply
+
+terraform/fmt:																				## Format terraform files
+	terraform -chdir=${TERRAFORM_DIR} fmt
+
+terraform/validate:																			## Validate terraform files
+	terraform -chdir=${TERRAFORM_DIR} validate
+
+terraform/destroy:																			## Delete terraform resources
+	terraform -chdir=${TERRAFORM_DIR} destroy
