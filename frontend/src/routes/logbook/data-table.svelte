@@ -24,6 +24,7 @@
     $: lastPage;
 
     $: recordsPresent = false;
+    $: showPageNav = false;
 
     let promise: Promise<ApiResponse> = new Promise(() => {});
 
@@ -64,6 +65,13 @@
                 recordsPresent = false;
             } else {
                 recordsPresent = true;
+            }
+
+            // show page navigation if there are more than 1 page
+            if (data.metadata.last_page > 1) {
+                showPageNav = true;
+            } else {
+                showPageNav = false;
             }
 
             // Check if there are more pages
@@ -210,17 +218,19 @@
         <!-- svelte-ignore empty-block -->
         {#await promise}
         {:then}
-        <div class="flex items-center justify-between space-x-4 py-4">
-            <Button variant="outline" size="lg" disabled={!hasPrevPage} on:click={goToPreviousPage}>
-                <ArrowLeft class="size-4"/>
-            </Button>
-            <span class="text-sm text-muted-foreground">
-                Page {pageNumber} of {lastPage}
-            </span>
-            <Button variant="outline" size="lg" disabled={!hasNextPage} on:click={gotoNextPage}>
-                <ArrowRight class="size-4"/>
-            </Button>
-        </div>
+        {#if showPageNav == true}
+            <div class="flex items-center justify-between space-x-4 py-4">
+                <Button variant="outline" size="lg" disabled={!hasPrevPage} on:click={goToPreviousPage}>
+                    <ArrowLeft class="size-4"/>
+                </Button>
+                <span class="text-sm text-muted-foreground">
+                    Page {pageNumber} of {lastPage}
+                </span>
+                <Button variant="outline" size="lg" disabled={!hasNextPage} on:click={gotoNextPage}>
+                    <ArrowRight class="size-4"/>
+                </Button>
+            </div>
+        {/if}
         {/await}
     </div>
 {:else}
