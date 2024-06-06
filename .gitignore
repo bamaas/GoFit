@@ -3,9 +3,10 @@ test.sh
 
 # backend
 backend/bin/*
-backend/internal/assets/*
+backend/internal/assets/static/*
 !backend/internal/assets/*.go
 !backend/internal/assets/migrations
+!backend/internal/assets/static/.keep
 deploy/.DS_Store
 deploy/gofit/.DS_Store
 .DS_Store
