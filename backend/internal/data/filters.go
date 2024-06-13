@@ -1,8 +1,14 @@
 package data
 
+import (
+	"time"
+)
+
 type Filters struct {
 	Page int
 	PageSize int
+	StartTime time.Time
+	EndTime time.Time
 }
 
 func (f Filters) limit() int {

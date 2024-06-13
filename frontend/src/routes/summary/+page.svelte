@@ -7,78 +7,73 @@
 	import { onMount } from "svelte";
 	import { request } from "$lib/functions/request.js";
 
-    type StatsResponse = {
-        stats: {
-            weight_difference: {
-                week_ago: number;
-                ninety_days_ago: number;
-                all_time: number;
-            }
-        }
-    }
-
-    let apiData: Promise<StatsResponse> = new Promise(() => {});
-
-    function fetchData() {
-        return request(`${PUBLIC_BACKEND_BASE_URL}/v1/stats`)
-    }
+    let apiDataWeekAgoWeightDifference: Promise<any> = new Promise(() => {});
+	let apiDataNinetyDaysAgoWeightDifference: Promise<any> = new Promise(() => {});
+	let apiDataAllTimeWeightDifference: Promise<any> = new Promise(() => {});
 
     onMount(() => {
-        apiData = fetchData();
+        let today: string = new Date().toISOString().split("T")[0]
+        let weekAgo: string = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString().split("T")[0]
+		let ninetyDaysAgo: string = new Date(Date.now() - 90 * 24 * 60 * 60 * 1000).toISOString().split("T")[0]
+		let allTime: string = "1990-01-01"
+        apiDataWeekAgoWeightDifference = request(`${PUBLIC_BACKEND_BASE_URL}/v1/stats/weight-difference?start_time=${weekAgo}&end_time=${today}`)
+		apiDataNinetyDaysAgoWeightDifference = request(`${PUBLIC_BACKEND_BASE_URL}/v1/stats/weight-difference?start_time=${ninetyDaysAgo}&end_time=${today}`)
+		apiDataAllTimeWeightDifference = request(`${PUBLIC_BACKEND_BASE_URL}/v1/stats/weight-difference?end_time=${today}`)
     });
 
 </script>
 
-<style>
-    .green {
-        color: rgba(23, 104, 51, 0.84)
-    }
-
-    .red {
-        color: #7f1d1d;
-    }
-</style>
-
-<div class="container items-center py-14 max-w-screen-2xl">
-    <div class="grid gap-3 md:grid-cols-2 lg:grid-cols-3">
-        <Card.Root>
-            <Card.Header
-                class="flex flex-row items-center justify-between space-y-0 pb-2">
-                <Card.Title class="text-sm font-medium">Lost in 7 days</Card.Title>
-                <TrendingDownIcon class="h-4 w-4 text-muted-foreground" />
-            </Card.Header>
-            <Card.Content>
-                {#await apiData then data}
-                    <div class="text-2xl font-bold green">{Math.abs(data.stats.weight_difference.week_ago)} kg</div>
-                    <p class="text-xs text-muted-foreground">Keep going!</p>
-                {/await}
-            </Card.Content>
-        </Card.Root>
-        <Card.Root>
-            <Card.Header
-                class="flex flex-row items-center justify-between space-y-0 pb-2">
-                <Card.Title class="text-sm font-medium">Lost in 90 days</Card.Title>
-                <RocketIcon class="h-4 w-4 text-muted-foreground" />
-            </Card.Header>
-            <Card.Content>
-                {#await apiData then data}
-                    <div class="text-2xl font-bold red">{Math.abs(data.stats.weight_difference["ninety_days_ago"])} kg</div>
-                    <p class="text-xs text-muted-foreground">Good work!</p>
-                {/await}
-            </Card.Content>
-        </Card.Root>
-        <Card.Root>
-            <Card.Header
-                class="flex flex-row items-center justify-between space-y-0 pb-2">
-                <Card.Title class="text-sm font-medium">Lost all time</Card.Title>
-                <AwardIcon class="h-4 w-4 text-muted-foreground" />
-            </Card.Header>
-            <Card.Content>
-                {#await apiData then data}
-                    <div class="text-2xl font-bold">{Math.abs(data.stats.weight_difference.all_time)} kg</div>
-                    <p class="text-xs text-muted-foreground">Amazing!</p>
-                {/await}
-            </Card.Content>
-        </Card.Root>
-    </div>
+<div class="container max-w-screen-2xl items-center py-14">
+	<div class="grid gap-3 md:grid-cols-2 lg:grid-cols-3">
+		<Card.Root>
+			<Card.Header class="flex flex-row items-center justify-between space-y-0 pb-2">
+				<Card.Title class="text-sm font-medium">Lost in 7 days</Card.Title>
+				<TrendingDownIcon class="text-muted-foreground h-4 w-4" />
+			</Card.Header>
+			<Card.Content>
+				{#await apiDataWeekAgoWeightDifference then data}
+					<div class="green text-2xl font-bold">
+						{Math.abs(data.weight_difference)} kg
+					</div>
+					<p class="text-muted-foreground text-xs">Keep going!</p>
+				{/await}
+			</Card.Content>
+		</Card.Root>
+		<Card.Root>
+			<Card.Header class="flex flex-row items-center justify-between space-y-0 pb-2">
+				<Card.Title class="text-sm font-medium">Lost in 90 days</Card.Title>
+				<RocketIcon class="text-muted-foreground h-4 w-4" />
+			</Card.Header>
+			<Card.Content>
+				{#await apiDataNinetyDaysAgoWeightDifference then data}
+					<div class="red text-2xl font-bold">
+						{Math.abs(data.weight_difference)} kg
+					</div>
+					<p class="text-muted-foreground text-xs">Good work!</p>
+				{/await}
+			</Card.Content>
+		</Card.Root>
+		<Card.Root>
+			<Card.Header class="flex flex-row items-center justify-between space-y-0 pb-2">
+				<Card.Title class="text-sm font-medium">Lost all time</Card.Title>
+				<AwardIcon class="text-muted-foreground h-4 w-4" />
+			</Card.Header>
+			<Card.Content>
+				{#await apiDataAllTimeWeightDifference then data}
+					<div class="text-2xl font-bold">{Math.abs(data.weight_difference)} kg</div>
+					<p class="text-muted-foreground text-xs">Amazing!</p>
+				{/await}
+			</Card.Content>
+		</Card.Root>
+	</div>
 </div>
+
+<style>
+	.green {
+		color: rgba(23, 104, 51, 0.84);
+	}
+
+	.red {
+		color: #7f1d1d;
+	}
+</style>

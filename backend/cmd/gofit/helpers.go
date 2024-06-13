@@ -57,3 +57,11 @@ func (app *application) readInt(qs url.Values, key string, defaultValue int) int
 	}
 	return result
 }
+
+func (app *application) readString(qs url.Values, key string, defaultValue string) string {
+	value := qs.Get(key)
+	if value == "" {
+		return defaultValue
+	}
+	return value
+}

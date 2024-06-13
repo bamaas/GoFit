@@ -21,7 +21,7 @@ func (app *application) routes() *http.ServeMux {
 	mux.Handle("PUT /api/v1/check-ins/", app.authenticate(http.HandlerFunc(app.updateCheckIn)))
 
 	// Stats
-	mux.Handle("GET /api/v1/stats", app.authenticate(http.HandlerFunc(app.getStatsHandler)))
+	mux.Handle("GET /api/v1/stats/weight-difference", app.authenticate(http.HandlerFunc(app.getWeightDifferenceStatsHandler)))
 
 	// Users
 	mux.HandleFunc("POST /api/v1/users", app.registerUserHandler)

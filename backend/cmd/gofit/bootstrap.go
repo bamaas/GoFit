@@ -33,7 +33,7 @@ func (app *application) injectSampleData() error {
 
 	var checkIns []data.CheckIn
 
-	for i := 1; i <= 60; i++ {
+	for i := 1; i <= 120; i++ {
 		uuid, err := uuid.NewRandom()
 		if err != nil {
 			return err
