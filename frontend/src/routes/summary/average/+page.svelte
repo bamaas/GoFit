@@ -71,7 +71,7 @@
 		</Card.Root>
 		<Card.Root>
 			<Card.Header class="flex flex-row items-center justify-between space-y-0 pb-2">
-				<Card.Title class="text-sm font-medium">Average weight last week</Card.Title>
+				<Card.Title class="text-sm font-medium">Average weight lost last week</Card.Title>
 				<RocketIcon class="text-muted-foreground h-4 w-4" />
 			</Card.Header>
 			<Card.Content>
