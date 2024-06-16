@@ -10,7 +10,7 @@
 
     let apiDataAverageWeightThisWeek: Promise<any> = new Promise(() => {});
 	let apiDataAverageWeightLastWeek: Promise<any> = new Promise(() => {});
-	let apiDataAllTimeWeightDifference: Promise<any> = new Promise(() => {});
+	let averageWeightDifference: Promise<any> = new Promise(() => {});
 
 	function getMonday(d: Date) {
 		d = new Date(d);
@@ -19,15 +19,19 @@
 		return new Date(d.setDate(diff));
 	}
 
-    onMount(() => {
-        let today: string = new Date().toISOString().split("T")[0]
-		let lastMonday: string = getMonday(new Date()).toISOString().split("T")[0]
-		let previousWeekModay: string = getMonday(new Date(Date.now() - 7 * 24 * 60 * 60 * 1000)).toISOString().split("T")[0]
-		let previousWeekSunday: string = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString().split("T")[0]
+	let today: string = new Date().toISOString().split("T")[0]
+	let lastMonday: string = getMonday(new Date()).toISOString().split("T")[0]
+	let previousWeekModay: string = getMonday(new Date(Date.now() - 7 * 24 * 60 * 60 * 1000)).toISOString().split("T")[0]
+	let previousWeekSunday: string = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString().split("T")[0]
 
+    onMount(() => {
 		apiDataAverageWeightThisWeek = request(`${PUBLIC_BACKEND_BASE_URL}/v1/stats/weight-average?start_time=${lastMonday}&end_time=${today}`)
 		apiDataAverageWeightLastWeek = request(`${PUBLIC_BACKEND_BASE_URL}/v1/stats/weight-average?start_time=${previousWeekModay}&end_time=${previousWeekSunday}`)
-		apiDataAllTimeWeightDifference = request(`${PUBLIC_BACKEND_BASE_URL}/v1/stats/weight-difference`)
+		Promise.all([apiDataAverageWeightThisWeek, apiDataAverageWeightLastWeek]).then((results) => {
+			averageWeightDifference = new Promise((resolve) => {
+				resolve(results[0].weight_average - results[1].weight_average)
+			})
+		})
     });
 
 </script>
@@ -71,9 +75,9 @@
 				<RocketIcon class="text-muted-foreground h-4 w-4" />
 			</Card.Header>
 			<Card.Content>
-				{#await apiDataAverageWeightLastWeek then data}
+				{#await averageWeightDifference then data}
 					<div class="red text-2xl font-bold">
-						{Number(data.weight_average).toFixed(1)} kg
+						{Number(data).toFixed(1)} kg
 					</div>
 					<p class="text-muted-foreground text-xs">Good work!</p>
 				{/await}
