@@ -49,7 +49,7 @@
 			<Card.Content>
 				{#await apiDataAverageWeightThisWeek then data}
 					<div class="green text-2xl font-bold">
-						{Number(data.weight_average).toFixed(1)} kg
+						{Math.abs(Number(data.weight_average)).toFixed(1)} kg
 					</div>
 					<p class="text-muted-foreground text-xs">Keep going!</p>
 				{/await}
@@ -63,7 +63,7 @@
 			<Card.Content>
 				{#await apiDataAverageWeightLastWeek then data}
 					<div class="red text-2xl font-bold">
-						{Number(data.weight_average).toFixed(1)} kg
+						{Math.abs(Number(data.weight_average)).toFixed(1)} kg
 					</div>
 					<p class="text-muted-foreground text-xs">Good work!</p>
 				{/await}
@@ -77,7 +77,7 @@
 			<Card.Content>
 				{#await averageWeightDifference then data}
 					<div class="red text-2xl font-bold">
-						{Number(data).toFixed(1)} kg
+						{Math.abs(Number(data)).toFixed(1)} kg
 					</div>
 					<p class="text-muted-foreground text-xs">Good work!</p>
 				{/await}

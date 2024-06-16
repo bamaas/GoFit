@@ -50,7 +50,7 @@
 				<Card.Content>
 					{#await apiDataAverageWeightThisWeek then data}
 						<div class="green text-2xl font-bold">
-							{Number(data.weight_average).toFixed(1)} kg
+							{Math.abs(Number(data.weight_average)).toFixed(1)} kg
 						</div>
 						<p class="text-muted-foreground text-xs">Keep it up!</p>
 					{/await}
@@ -65,7 +65,7 @@
 			<Card.Content>
 				{#await apiDataWeightDifferenceThisWeek then data}
 					<div class="red text-2xl font-bold">
-						{Number(data.weight_difference).toFixed(1)} kg
+						{Math.abs(Number(data.weight_difference)).toFixed(1)} kg
 					</div>
 					<p class="text-muted-foreground text-xs">Good work!</p>
 				{/await}
@@ -79,7 +79,7 @@
 			<Card.Content>
 				{#await apiDataAllTimeWeightDifference then data}
 					<!-- <div class="text-2xl font-bold">{Math.abs(data.weight_difference)} kg</div> -->
-					<div class="text-2xl font-bold">{data.weight_difference} kg</div>
+					<div class="text-2xl font-bold">{Math.abs(Number(data.weight_difference)).toFixed(1)} kg</div>
 					<p class="text-muted-foreground text-xs">Amazing!</p>
 				{/await}
 			</Card.Content>
