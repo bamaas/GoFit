@@ -41,6 +41,10 @@ backend/run:																				## Run backend application
 	cd ./backend && \
 	go run ./cmd/${APP_NAME}/
 
+backend/migrate/create:																		## Create database migration
+	cd ./backend && \
+	migrate create -ext=.sql -dir=./internal/assets/migrations ${NAME}
+
 # -------------- Image --------------
 image/build:																				## Build an application container image
 	docker build -t ${IMAGE} .

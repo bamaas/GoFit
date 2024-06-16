@@ -6,10 +6,14 @@
     import { PUBLIC_BACKEND_BASE_URL } from "$env/static/public";
 	import { onMount } from "svelte";
 	import { request } from "$lib/functions/request.js";
+	import { goal } from "$lib/stores/profile.js";
 
     let apiDataAverageWeightThisWeek: Promise<any> = new Promise(() => {});
 	let apiDataWeightDifferenceThisWeek: Promise<any> = new Promise(() => {});
 	let apiDataAllTimeWeightDifference: Promise<any> = new Promise(() => {});
+
+	let today: string = new Date().toISOString().split("T")[0]
+	let lastMonday: string = getMonday(new Date()).toISOString().split("T")[0]
 
 	function getMonday(d: Date) {
 		d = new Date(d);
@@ -18,8 +22,40 @@
 		return new Date(d.setDate(diff));
 	}
 
-	let today: string = new Date().toISOString().split("T")[0]
-	let lastMonday: string = getMonday(new Date()).toISOString().split("T")[0]
+	function getColorClass(goal: string, weight: number): string | undefined{
+		// gain
+		if (goal == "gain" && weight >= 0){
+			return "green"
+		} else if (goal == "gain") {
+			return "red"
+		// lose
+		} else if (goal == "lose" && weight < 0) {
+			return "green"
+		} else if (goal == "lose") {
+			return "red"
+		// maintain
+		} else if (goal == "maintain" && weight == 0) {
+			return "green"
+		} else if (goal == "maintain") {
+			return "red"
+		}
+	}
+
+	function goalMet(goal: string, weight: number): boolean | undefined {
+		if (goal == "gain" && weight > 0) {
+			return true
+		} else if (goal == "gain") {
+			return false
+		} else if (goal == "lose" && weight < 0) {
+			return true
+		} else if (goal == "lose") {
+			return false
+		} else if (goal == "maintain" && weight == 0) {
+			return true
+		} else if (goal == "maintain") {
+			return false
+		}
+	}
 
     onMount(() => {
 		apiDataAverageWeightThisWeek = request(`${PUBLIC_BACKEND_BASE_URL}/v1/stats/weight-average?start_time=${lastMonday}&end_time=${today}`)
@@ -49,7 +85,7 @@
 				</Card.Header>
 				<Card.Content>
 					{#await apiDataAverageWeightThisWeek then data}
-						<div class="green text-2xl font-bold">
+						<div class="text-2xl font-bold">
 							{Math.abs(Number(data.weight_average)).toFixed(1)} kg
 						</div>
 						<p class="text-muted-foreground text-xs">Keep it up!</p>
@@ -58,31 +94,56 @@
 			</Card.Root>
 		</a>
 		<Card.Root>
+			{#await apiDataWeightDifferenceThisWeek then data}
 			<Card.Header class="flex flex-row items-center justify-between space-y-0 pb-2">
-				<Card.Title class="text-sm font-medium">Lost this week</Card.Title>
+				<Card.Title class="text-sm font-medium">
+					{#if $goal == "gain"}
+						Gained this week
+					{:else if $goal == "lose"}
+						Lost this week
+					{/if}
+				</Card.Title>
 				<TrendingDownIcon class="text-muted-foreground h-4 w-4" />
 			</Card.Header>
 			<Card.Content>
-				{#await apiDataWeightDifferenceThisWeek then data}
-					<div class="red text-2xl font-bold">
-						{Math.abs(Number(data.weight_difference)).toFixed(1)} kg
+					<div class="text-2xl font-bold {getColorClass($goal, data.weight_difference)}">
+						{#if data.weight_difference > 0}+{/if}{Number(data.weight_difference).toFixed(1)} kg
 					</div>
-					<p class="text-muted-foreground text-xs">Good work!</p>
-				{/await}
+					<p class="text-muted-foreground text-xs">
+						{#if goalMet($goal, data.weight_difference)}
+							Good work!
+						{:else}
+							Time to pull yourself together...
+						{/if}
+					</p>
 			</Card.Content>
+			{/await}
 		</Card.Root>
 		<Card.Root>
+			{#await apiDataAllTimeWeightDifference then data}
 			<Card.Header class="flex flex-row items-center justify-between space-y-0 pb-2">
-				<Card.Title class="text-sm font-medium">Lost all time</Card.Title>
+				<Card.Title class="text-sm font-medium">
+					{#if $goal == "gain"}
+						Gained all time
+					{:else if $goal == "lose"}
+						Lost all time
+					{/if}
+				</Card.Title>
 				<AwardIcon class="text-muted-foreground h-4 w-4" />
 			</Card.Header>
 			<Card.Content>
-				{#await apiDataAllTimeWeightDifference then data}
-					<!-- <div class="text-2xl font-bold">{Math.abs(data.weight_difference)} kg</div> -->
-					<div class="text-2xl font-bold">{Math.abs(Number(data.weight_difference)).toFixed(1)} kg</div>
-					<p class="text-muted-foreground text-xs">Amazing!</p>
-				{/await}
+					<div class="text-2xl font-bold {getColorClass($goal, data.weight_difference)}">
+						{#if data.weight_difference > 0}+{/if}{Number(data.weight_difference).toFixed(1)} kg
+					</div>
+					<p class="text-muted-foreground text-xs">
+						{#if goalMet($goal, data.weight_difference)}
+							Amazing!
+						{:else}
+							Regain focus...
+						{/if}
+					</p>
 			</Card.Content>
+			{/await}
 		</Card.Root>
 	</div>
 </div>

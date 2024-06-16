@@ -15,7 +15,6 @@ func (app * application) registerUserHandler(w http.ResponseWriter, r *http.Requ
 		Password string `json:"password"`
 	}
 
-
 	err := app.readJSON(w, r, &input)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)

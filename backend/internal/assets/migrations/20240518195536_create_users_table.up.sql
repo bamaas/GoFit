@@ -4,5 +4,6 @@ CREATE TABLE IF NOT EXISTS users (
 		email CITEXT UNIQUE NOT NULL,
 		password_hash BYTEA NOT NULL,
 		activated BOOL NOT NULL,
-		version INTEGER NOT NULL DEFAULT 1
+		version INTEGER NOT NULL DEFAULT 1,
+		goal TEXT CHECK( goal IN ('lose', 'gain', 'maintain') )
 );
