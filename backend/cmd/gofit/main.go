@@ -30,7 +30,7 @@ func setupDB(logger *slog.Logger, developmentMode bool) (*sql.DB, error) {
 
 	datasourceName := "/data/gofit.db"
 	if (developmentMode) {
-		datasourceName = ":memory:"
+		datasourceName = "./gofit.db"
 	}
 	db, err := sql.Open("sqlite", datasourceName)
 	if err != nil {

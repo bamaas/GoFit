@@ -7,47 +7,65 @@
 	import { onMount } from "svelte";
 	import { request } from "$lib/functions/request.js";
 
-    let apiDataWeekAgoWeightDifference: Promise<any> = new Promise(() => {});
-	let apiDataNinetyDaysAgoWeightDifference: Promise<any> = new Promise(() => {});
+    let apiDataAverageWeightThisWeek: Promise<any> = new Promise(() => {});
+	let apiDataWeightDifferenceThisWeek: Promise<any> = new Promise(() => {});
 	let apiDataAllTimeWeightDifference: Promise<any> = new Promise(() => {});
 
+	function getMonday(d: Date) {
+		d = new Date(d);
+		var day = d.getDay(),
+			diff = d.getDate() - day + (day == 0 ? -6 : 1); // adjust when day is sunday
+		return new Date(d.setDate(diff));
+	}
+
+	let today: string = new Date().toISOString().split("T")[0]
+	let lastMonday: string = getMonday(new Date()).toISOString().split("T")[0]
+
     onMount(() => {
-        let today: string = new Date().toISOString().split("T")[0]
-        let weekAgo: string = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString().split("T")[0]
-		let ninetyDaysAgo: string = new Date(Date.now() - 90 * 24 * 60 * 60 * 1000).toISOString().split("T")[0]
-		let allTime: string = "1990-01-01"
-        apiDataWeekAgoWeightDifference = request(`${PUBLIC_BACKEND_BASE_URL}/v1/stats/weight-difference?start_time=${weekAgo}&end_time=${today}`)
-		apiDataNinetyDaysAgoWeightDifference = request(`${PUBLIC_BACKEND_BASE_URL}/v1/stats/weight-difference?start_time=${ninetyDaysAgo}&end_time=${today}`)
-		apiDataAllTimeWeightDifference = request(`${PUBLIC_BACKEND_BASE_URL}/v1/stats/weight-difference?end_time=${today}`)
+		apiDataAverageWeightThisWeek = request(`${PUBLIC_BACKEND_BASE_URL}/v1/stats/weight-average?start_time=${lastMonday}&end_time=${today}`)
+		apiDataWeightDifferenceThisWeek = request(`${PUBLIC_BACKEND_BASE_URL}/v1/stats/weight-difference?start_time=${lastMonday}`)
+		apiDataAllTimeWeightDifference = request(`${PUBLIC_BACKEND_BASE_URL}/v1/stats/weight-difference`)
     });
 
 </script>
 
+<style>
+	.green {
+		color: rgba(23, 104, 51, 0.84);
+	}
+
+	.red {
+		color: #7f1d1d;
+	}
+</style>
+
 <div class="container max-w-screen-2xl items-center py-14">
 	<div class="grid gap-3 md:grid-cols-2 lg:grid-cols-3">
+		<a href="/summary/average">
+			<Card.Root>
+				<Card.Header class="flex flex-row items-center justify-between space-y-0 pb-2">
+					<Card.Title class="text-sm font-medium">Average weight this week</Card.Title>
+					<RocketIcon class="text-muted-foreground h-4 w-4" />
+				</Card.Header>
+				<Card.Content>
+					{#await apiDataAverageWeightThisWeek then data}
+						<div class="green text-2xl font-bold">
+							{Number(data.weight_average).toFixed(1)} kg
+						</div>
+						<p class="text-muted-foreground text-xs">Keep it up!</p>
+					{/await}
+				</Card.Content>
+			</Card.Root>
+		</a>
 		<Card.Root>
 			<Card.Header class="flex flex-row items-center justify-between space-y-0 pb-2">
-				<Card.Title class="text-sm font-medium">Lost in 7 days</Card.Title>
+				<Card.Title class="text-sm font-medium">Lost this week</Card.Title>
 				<TrendingDownIcon class="text-muted-foreground h-4 w-4" />
 			</Card.Header>
 			<Card.Content>
-				{#await apiDataWeekAgoWeightDifference then data}
-					<div class="green text-2xl font-bold">
-						{Math.abs(data.weight_difference)} kg
-					</div>
-					<p class="text-muted-foreground text-xs">Keep going!</p>
-				{/await}
-			</Card.Content>
-		</Card.Root>
-		<Card.Root>
-			<Card.Header class="flex flex-row items-center justify-between space-y-0 pb-2">
-				<Card.Title class="text-sm font-medium">Lost in 90 days</Card.Title>
-				<RocketIcon class="text-muted-foreground h-4 w-4" />
-			</Card.Header>
-			<Card.Content>
-				{#await apiDataNinetyDaysAgoWeightDifference then data}
+				{#await apiDataWeightDifferenceThisWeek then data}
 					<div class="red text-2xl font-bold">
-						{Math.abs(data.weight_difference)} kg
+						{Number(data.weight_difference).toFixed(1)} kg
 					</div>
 					<p class="text-muted-foreground text-xs">Good work!</p>
 				{/await}
@@ -60,20 +78,11 @@
 			</Card.Header>
 			<Card.Content>
 				{#await apiDataAllTimeWeightDifference then data}
-					<div class="text-2xl font-bold">{Math.abs(data.weight_difference)} kg</div>
+					<!-- <div class="text-2xl font-bold">{Math.abs(data.weight_difference)} kg</div> -->
+					<div class="text-2xl font-bold">{data.weight_difference} kg</div>
 					<p class="text-muted-foreground text-xs">Amazing!</p>
 				{/await}
 			</Card.Content>
 		</Card.Root>
 	</div>
 </div>
-
-<style>
-	.green {
-		color: rgba(23, 104, 51, 0.84);
-	}
-
-	.red {
-		color: #7f1d1d;
-	}
-</style>

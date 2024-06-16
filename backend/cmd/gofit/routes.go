@@ -22,6 +22,7 @@ func (app *application) routes() *http.ServeMux {
 
 	// Stats
 	mux.Handle("GET /api/v1/stats/weight-difference", app.authenticate(http.HandlerFunc(app.getWeightDifferenceStatsHandler)))
+	mux.Handle("GET /api/v1/stats/weight-average", app.authenticate(http.HandlerFunc(app.getWeightAverageStatsHandler)))
 
 	// Users
 	mux.HandleFunc("POST /api/v1/users", app.registerUserHandler)
