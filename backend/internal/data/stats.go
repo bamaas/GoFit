@@ -10,6 +10,11 @@ type StatsModel struct {
 	logger *slog.Logger
 }
 
+type WeightWeeklyAverage struct {
+    Week int `json:"week"`
+    Weight float64 `json:"weight"`
+}
+
 func (m *StatsModel) GetWeightDifference(userID int64, filters Filters) (*float64, error) {
     
     m.logger.Debug("Getting weight difference...")
@@ -125,3 +130,38 @@ func (m *StatsModel) GetWeightAverage(userID int64, filters Filters) (*float64, 
 
     return weight, nil
 }
+
+func (m *StatsModel) GetWeightAverageByWeek(userID int64) ([]WeightWeeklyAverage, error) {
+        
+        m.logger.Debug("Getting weight average by week...")
+
+        q := `
+        SELECT strftime('%W', datetime(datetime, 'unixepoch')) as week, AVG(weight) 
+        FROM checkins 
+        WHERE user_id = ?
+        GROUP BY week;
+        `
+        args := []any{
+            userID,
+        }
+    
+        // Execute query
+        rows, err := m.DB.Query(q, args...)
+        if err != nil {
+            return nil, err
+        }
+        defer rows.Close()
+
+        // Parse data
+        data := []WeightWeeklyAverage{}
+        for rows.Next() {
+            var r WeightWeeklyAverage
+            err := rows.Scan(&r.Week, &r.Weight)
+            if err != nil {
+                return nil, err
+            }
+            data = append(data, r)
+        }
+    
+        return data, nil
+    }

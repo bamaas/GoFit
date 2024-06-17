@@ -2,11 +2,13 @@
     import * as Card from "$lib/components/ui/card/index.js";
     import TrendingDownIcon from "lucide-svelte/icons/trending-down";
     import AwardIcon from "lucide-svelte/icons/award";
+	import CalendarIcon from "lucide-svelte/icons/calendar";
     import RocketIcon from "lucide-svelte/icons/rocket";
     import { PUBLIC_BACKEND_BASE_URL } from "$env/static/public";
 	import { onMount } from "svelte";
 	import { request } from "$lib/functions/request.js";
 	import { goal } from "$lib/stores/profile.js";
+	import { Chart, Svg, Axis, TooltipItem, Tooltip, Highlight, Spline } from 'layerchart';
 
 	// Current average weight
     let apiDataAverageWeight: Promise<any> = new Promise(() => {});
@@ -18,6 +20,7 @@
 	let apiDataAverageWeightThisWeek: Promise<any> = new Promise(() => {});
 	let apiDataAverageWeightLastWeek: Promise<any> = new Promise(() => {});
 	let apiDataAverageWeightDifference: Promise<any> = new Promise(() => {});
+	let apiDataWeeklyAverageWeight: Promise<any> = new Promise(() => {});
 
 	let today: string = new Date().toISOString().split("T")[0]
 	let lastMonday: string = getMonday(new Date()).toISOString().split("T")[0]
@@ -79,6 +82,8 @@
 				resolve(results[0].weight_average - results[1].weight_average)
 			})
 		})
+
+		apiDataWeeklyAverageWeight = request(`${PUBLIC_BACKEND_BASE_URL}/v1/stats/weight-average-by-week`)
     });
 
 </script>
@@ -95,22 +100,20 @@
 
 <div class="container max-w-screen-2xl items-center py-14">
 	<div class="grid gap-3 md:grid-cols-2 lg:grid-cols-3">
-		<!-- <a href="/summary/weight-average"> -->
-			<Card.Root>
-				<Card.Header class="flex flex-row items-center justify-between space-y-0 pb-2">
-					<Card.Title class="text-sm font-medium">Current average weight</Card.Title>
-					<RocketIcon class="text-muted-foreground h-4 w-4" />
-				</Card.Header>
-				<Card.Content>
-					{#await apiDataAverageWeight then data}
-						<div class="text-2xl font-bold">
-							{Math.abs(Number(data.weight_average)).toFixed(1)} kg
-						</div>
-						<p class="text-muted-foreground text-xs">Keep it up!</p>
-					{/await}
-				</Card.Content>
-			</Card.Root>
-		<!-- </a> -->
+		<Card.Root>
+			<Card.Header class="flex flex-row items-center justify-between space-y-0 pb-2">
+				<Card.Title class="text-sm font-medium">Current average weight</Card.Title>
+				<RocketIcon class="text-muted-foreground h-4 w-4" />
+			</Card.Header>
+			<Card.Content>
+				{#await apiDataAverageWeight then data}
+					<div class="text-2xl font-bold">
+						{Math.abs(Number(data.weight_average)).toFixed(1)} kg
+					</div>
+					<p class="text-muted-foreground text-xs">Keep it up!</p>
+				{/await}
+			</Card.Content>
+		</Card.Root>
 		<Card.Root>
 			{#await apiDataAverageWeightDifference then data}
 			<Card.Header class="flex flex-row items-center justify-between space-y-0 pb-2">
@@ -164,4 +167,39 @@
 			{/await}
 		</Card.Root>
 	</div>
+	{#await apiDataWeeklyAverageWeight then dateSeriesData}
+    <Card.Root class="mt-3">
+        <Card.Header class="flex flex-row items-center justify-between space-y-0 pb-2">
+            <Card.Title class="text-sm font-medium">Average weight per week</Card.Title>
+            <CalendarIcon class="text-muted-foreground h-4 w-4" />
+        </Card.Header>
+        <Card.Content>
+            <div class="h-[300px] p-2 rounded">
+                <Chart
+                  data={dateSeriesData}
+                  x="week"
+                  y="weight"
+                  yDomain={[0, null]}
+                  yNice
+                  padding={{ left: 16, bottom: 24 }}
+                  tooltip={{ mode: "bisect-x" }}
+                >
+                  <Svg>
+                    <Axis placement="left" grid rule />
+                    <Axis
+                        placement="bottom"
+                        format={(d) => d}
+                        rule
+                    />
+                    <Spline class="stroke-2 stroke-primary" />
+                    <Highlight points lines />
+                  </Svg>
+                  <Tooltip header={(data) => "Week: " + data.week} let:data>
+                    <TooltipItem label="Weight" value={data.weight.toFixed(1)} />
+                  </Tooltip>
+                </Chart>
+            </div>
+        </Card.Content>
+    </Card.Root>    
+    {/await} 
 </div>
