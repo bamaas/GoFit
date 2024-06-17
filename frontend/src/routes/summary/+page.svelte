@@ -8,12 +8,22 @@
 	import { request } from "$lib/functions/request.js";
 	import { goal } from "$lib/stores/profile.js";
 
-    let apiDataAverageWeightThisWeek: Promise<any> = new Promise(() => {});
-	let apiDataWeightDifferenceThisWeek: Promise<any> = new Promise(() => {});
+	// Current average weight
+    let apiDataAverageWeight: Promise<any> = new Promise(() => {});
+
+	// Lost all time
 	let apiDataAllTimeWeightDifference: Promise<any> = new Promise(() => {});
+
+	// Gained/lost this week
+	let apiDataAverageWeightThisWeek: Promise<any> = new Promise(() => {});
+	let apiDataAverageWeightLastWeek: Promise<any> = new Promise(() => {});
+	let apiDataAverageWeightDifference: Promise<any> = new Promise(() => {});
 
 	let today: string = new Date().toISOString().split("T")[0]
 	let lastMonday: string = getMonday(new Date()).toISOString().split("T")[0]
+	let sevenDaysAgo: string = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString().split("T")[0]
+	let previousWeekModay: string = getMonday(new Date(Date.now() - 7 * 24 * 60 * 60 * 1000)).toISOString().split("T")[0]
+	let previousWeekSunday: string = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString().split("T")[0]
 
 	function getMonday(d: Date) {
 		d = new Date(d);
@@ -58,9 +68,17 @@
 	}
 
     onMount(() => {
-		apiDataAverageWeightThisWeek = request(`${PUBLIC_BACKEND_BASE_URL}/v1/stats/weight-average?start_time=${lastMonday}&end_time=${today}`)
-		apiDataWeightDifferenceThisWeek = request(`${PUBLIC_BACKEND_BASE_URL}/v1/stats/weight-difference?start_time=${lastMonday}`)
+		apiDataAverageWeight = request(`${PUBLIC_BACKEND_BASE_URL}/v1/stats/weight-average?start_time=${sevenDaysAgo}&end_time=${today}`)
+
 		apiDataAllTimeWeightDifference = request(`${PUBLIC_BACKEND_BASE_URL}/v1/stats/weight-difference`)
+
+		apiDataAverageWeightThisWeek = request(`${PUBLIC_BACKEND_BASE_URL}/v1/stats/weight-average?start_time=${lastMonday}&end_time=${today}`)
+		apiDataAverageWeightLastWeek = request(`${PUBLIC_BACKEND_BASE_URL}/v1/stats/weight-average?start_time=${previousWeekModay}&end_time=${previousWeekSunday}`)
+		Promise.all([apiDataAverageWeightThisWeek, apiDataAverageWeightLastWeek]).then((results) => {
+			apiDataAverageWeightDifference = new Promise((resolve) => {
+				resolve(results[0].weight_average - results[1].weight_average)
+			})
+		})
     });
 
 </script>
@@ -77,14 +95,14 @@
 
 <div class="container max-w-screen-2xl items-center py-14">
 	<div class="grid gap-3 md:grid-cols-2 lg:grid-cols-3">
-		<a href="/summary/weight-average">
+		<!-- <a href="/summary/weight-average"> -->
 			<Card.Root>
 				<Card.Header class="flex flex-row items-center justify-between space-y-0 pb-2">
-					<Card.Title class="text-sm font-medium">Average weight this week</Card.Title>
+					<Card.Title class="text-sm font-medium">Current average weight</Card.Title>
 					<RocketIcon class="text-muted-foreground h-4 w-4" />
 				</Card.Header>
 				<Card.Content>
-					{#await apiDataAverageWeightThisWeek then data}
+					{#await apiDataAverageWeight then data}
 						<div class="text-2xl font-bold">
 							{Math.abs(Number(data.weight_average)).toFixed(1)} kg
 						</div>
@@ -92,9 +110,9 @@
 					{/await}
 				</Card.Content>
 			</Card.Root>
-		</a>
+		<!-- </a> -->
 		<Card.Root>
-			{#await apiDataWeightDifferenceThisWeek then data}
+			{#await apiDataAverageWeightDifference then data}
 			<Card.Header class="flex flex-row items-center justify-between space-y-0 pb-2">
 				<Card.Title class="text-sm font-medium">
 					{#if $goal == "gain"}
@@ -106,11 +124,11 @@
 				<TrendingDownIcon class="text-muted-foreground h-4 w-4" />
 			</Card.Header>
 			<Card.Content>
-					<div class="text-2xl font-bold {getColorClass($goal, data.weight_difference)}">
-						{#if data.weight_difference > 0}+{/if}{Number(data.weight_difference).toFixed(1)} kg
+					<div class="text-2xl font-bold {getColorClass($goal, data)}">
+						{#if data > 0}+{/if}{Number(data).toFixed(1)} kg
 					</div>
 					<p class="text-muted-foreground text-xs">
-						{#if goalMet($goal, data.weight_difference)}
+						{#if goalMet($goal, data)}
 							Good work!
 						{:else}
 							Time to pull yourself together...

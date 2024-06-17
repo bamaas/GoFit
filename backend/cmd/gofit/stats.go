@@ -94,7 +94,7 @@ func (app *application) getWeightAverageStatsHandler(w http.ResponseWriter, r *h
 
 	// Validate the input
 	v := validator.New()
-	v.Check(input.Filters.StartTime.Before(input.Filters.EndTime), "start_time", "must be before end_time")
+	v.Check(input.Filters.StartTime.Before(input.Filters.EndTime) || input.Filters.StartTime == input.Filters.EndTime, "start_time", "must be before or equal to end_time")
 	if !v.Valid() {
 		http.Error(w, "invalid query parameters", http.StatusBadRequest)
 		return
