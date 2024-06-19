@@ -93,6 +93,8 @@
 
         let uri: string = `/v1/check-ins?page=${pageNumber}&page_size=${pageSize}`
         if (dateFilter != undefined) {
+            // setQueryParam('start_time', dateFilter?.start?.toString());
+            // setQueryParam('end_time', dateFilter?.end?.toString());
             uri = uri + `&start_time=${dateFilter?.start?.toString()}&end_time=${dateFilter?.end?.toString()}`;
         }
 
@@ -174,6 +176,7 @@
     import { cn } from "$lib/utils.js";
     import { RangeCalendar } from "$lib/components/ui/range-calendar/index.js";
     import * as Popover from "$lib/components/ui/popover/index.js";
+	import { set } from "zod";
 
     let rangeCalendarOpen: boolean = false;
     const df = new DateFormatter("en-US", {
@@ -181,6 +184,8 @@
     });
     let dateRangeFilter: DateRange | undefined = undefined;
     $: dateRangeFilter: fetchData(pageNumber, dateRangeFilter);
+    let startTime: number = Number($page.url.searchParams.get('start_time') || undefined);
+    let endTime: number = Number($page.url.searchParams.get('end_time') || undefined);
 
 </script>
 
