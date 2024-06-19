@@ -2,6 +2,7 @@ package main
 
 import (
 	"net/http"
+	"time"
 
 	"github.com/bamaas/gofit/internal/data"
 	"github.com/bamaas/gofit/internal/validator"
@@ -20,6 +21,31 @@ func (app *application) getCheckInsHandler(w http.ResponseWriter, r *http.Reques
 	input.Filters.Page = app.readInt(qs, "page", 1)
 	input.Filters.PageSize = app.readInt(qs, "page_size", 30)
 
+	// TODO: Refactor this into a function
+	format := "2006-01-02"
+	
+	start := app.readString(qs, "start_time", "")
+	if start != "" {
+		startTime, err := time.Parse(format, start)
+		if err != nil {
+			app.logger.Error(err.Error())
+			app.writeJSON(w, http.StatusBadRequest, envelope{"error": "invalid start_time"})
+			return
+		}
+		input.Filters.StartTime = startTime
+	}
+
+	end := app.readString(qs, "end_time", "")
+	if end != "" {
+		endTime, err := time.Parse(format, end)
+		if err != nil {
+			app.logger.Error(err.Error())
+			app.writeJSON(w, http.StatusBadRequest, envelope{"error": "invalid end_time"})
+			return
+		}
+		input.Filters.EndTime = endTime
+	}
+
 	// Validate the input
 	v := validator.New()
 	v.Check(input.Filters.Page >= 1, "page", "can't be less than 1")
@@ -28,6 +54,14 @@ func (app *application) getCheckInsHandler(w http.ResponseWriter, r *http.Reques
 	if !v.Valid() {
 		app.writeJSON(w, http.StatusBadRequest, envelope{"invalid_query_parameters": v.Errors})
 		return
+	}
+	if !input.Filters.StartTime.IsZero() && !input.Filters.EndTime.IsZero() {
+		v := validator.New()
+		v.Check(input.Filters.StartTime.Before(input.Filters.EndTime), "start_time", "must be before end_time")
+		if !v.Valid() {
+			app.writeJSON(w, http.StatusBadRequest, envelope{"invalid_query_parameters": v.Errors})
+			return
+		}
 	}
 
 	// Get the user

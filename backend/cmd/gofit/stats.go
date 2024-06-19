@@ -45,7 +45,7 @@ func (app *application) getWeightDifferenceStatsHandler(w http.ResponseWriter, r
 		v := validator.New()
 		v.Check(input.Filters.StartTime.Before(input.Filters.EndTime), "start_time", "must be before end_time")
 		if !v.Valid() {
-			http.Error(w, "invalid query parameters", http.StatusBadRequest)
+			app.writeJSON(w, http.StatusBadRequest, envelope{"invalid_query_parameters": v.Errors})
 			return
 		}
 	}

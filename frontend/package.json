@@ -41,9 +41,9 @@
 	},
 	"type": "module",
 	"dependencies": {
-		"@internationalized/date": "^3.5.2",
+		"@internationalized/date": "^3.5.4",
 		"@sveltejs/adapter-static": "^3.0.1",
-		"bits-ui": "^0.21.4",
+		"bits-ui": "^0.21.10",
 		"clsx": "^2.1.0",
 		"formsnap": "^1.0.0",
 		"layerchart": "^0.41.4",

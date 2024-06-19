@@ -3,6 +3,7 @@ package data
 import (
 	"log/slog"
 	"database/sql"
+	"fmt"
 
 	_ "modernc.org/sqlite"
 )
@@ -75,12 +76,29 @@ func (m *CheckInModel) List(userID int64, filters Filters) ([]CheckInWithStats, 
 	) AS MovingAverageWindow7,
 	IFNULL(weight - LAG(weight, 1) OVER (ORDER BY datetime), 0.0) as weightDifference
 	FROM checkins
-	WHERE user_id=? 
+	WHERE user_id=? %s
 	ORDER BY datetime DESC
 	LIMIT ?
 	OFFSET ?;
 	`
-	r, err := m.DB.Query(q, userID, filters.limit(), filters.offset())
+	args := []any{
+		userID,
+		filters.limit(),
+		filters.offset(),
+	}
+
+	// Add date filter if provided
+	if !filters.StartTime.IsZero() && !filters.EndTime.IsZero() {
+		format := "2006-01-02"
+		dateFilter := fmt.Sprintf("AND (datetime > strftime('%%s', '%s') AND datetime < strftime('%%s', '%s'))", filters.StartTime.Format(format), filters.EndTime.Format(format))
+		q = fmt.Sprintf(q, dateFilter)
+	} else {
+		q = fmt.Sprintf(q, "")
+	}
+	m.logger.Debug("Query", "q", q)
+
+	// Execute the query
+	r, err := m.DB.Query(q, args...)
 	if err != nil {
 		return nil, Metadata{}, err
 	}
