@@ -5,7 +5,7 @@
     import { PUBLIC_BACKEND_BASE_URL } from "$env/static/public";
     import { apiData, checkIns, type CheckIn, type Metadata, type ApiResponse } from "./store";
     import { Button } from "$lib/components/ui/button/index.js";
-	import { ArrowLeft, ArrowRight } from "lucide-svelte";
+	import { ArrowLeft, ArrowRight, XIcon } from "lucide-svelte";
 	import { toast } from "svelte-sonner";
 	import { goto } from "$app/navigation";
     import { Skeleton } from "$lib/components/ui/skeleton/index.js";
@@ -161,16 +161,17 @@
         goto(`?${query.toString()}`);
     }
 
-    // Date range picker
+    // Date range picker TODO: put in seperate sub component
     import CalendarIcon from "lucide-svelte/icons/calendar";
     import type { DateRange } from "bits-ui";
     import {
       DateFormatter,
-      type DateValue,
-      getLocalTimeZone
+      getLocalTimeZone,
+      today,
+	  CalendarDate
+
     } from "@internationalized/date";
     import { cn } from "$lib/utils.js";
-    // import { Button } from "$lib/components/ui/button/index.js";
     import { RangeCalendar } from "$lib/components/ui/range-calendar/index.js";
     import * as Popover from "$lib/components/ui/popover/index.js";
 
@@ -180,51 +181,63 @@
     });
     let dateRangeFilter: DateRange | undefined = undefined;
 
+    function clearDateRangeFilter(){
+        dateRangeFilter = undefined;
+        fetchData(pageNumber, dateRangeFilter);
+    }
+
 </script>
 
-{#if recordsPresent == true}
-<div class="grid gap-2 mb-4 mt-6">
-    <Popover.Root openFocus bind:open={rangeCalendarOpen} closeOnEscape closeOnOutsideClick>
-        <Popover.Trigger asChild let:builder>
-          <Button
-            variant="outline"
-            class={cn(
-              "w-full justify-start text-left font-normal",
-              !dateRangeFilter && "text-muted-foreground"
-            )}
-            builders={[builder]}
-          >
-            <CalendarIcon class="mr-2 h-4 w-4" />
-            {#if dateRangeFilter && dateRangeFilter.start}
-              {#if dateRangeFilter.end}
-                {df.format(dateRangeFilter.start.toDate(getLocalTimeZone()))} - {df.format(
-                  dateRangeFilter.end.toDate(getLocalTimeZone())
+<div class="">
+    <div class="grid gap-2 mb-4 mt-6">
+        <Popover.Root openFocus bind:open={rangeCalendarOpen} closeOnEscape closeOnOutsideClick>
+            <Popover.Trigger asChild let:builder>
+            <Button
+                variant="outline"
+                class={cn(
+                "w-[300] justify-start text-left font-normal",
+                !dateRangeFilter && "text-muted-foreground"
                 )}
-              {:else}
-                {df.format(dateRangeFilter.start.toDate(getLocalTimeZone()))}
-              {/if}
-            {:else}
-              Pick a date
-            {/if}
-          </Button>
-        </Popover.Trigger>
-        <Popover.Content class="w-auto p-0" align="start">
-          <RangeCalendar
-            bind:value={dateRangeFilter}
-            initialFocus
-            numberOfMonths={2}
-            placeholder={dateRangeFilter?.start}
-            onValueChange={(v) => {
-                if (v.start && v.end) {
-                    fetchData(pageNumber, v);
-                    rangeCalendarOpen = false;
-                }
-            }}
-          />
-        </Popover.Content>
-      </Popover.Root>
-  </div>
-
+                builders={[builder]}
+            >
+                <CalendarIcon class="mr-2 h-4 w-4" />
+                {#if dateRangeFilter && dateRangeFilter.start}
+                {#if dateRangeFilter.end}
+                    {df.format(dateRangeFilter.start.toDate(getLocalTimeZone()))} - {df.format(
+                    dateRangeFilter.end.toDate(getLocalTimeZone())
+                    )}
+                {:else}
+                    {df.format(dateRangeFilter.start.toDate(getLocalTimeZone()))}
+                {/if}
+                {:else}
+                Pick a date
+                {/if}
+            </Button>
+            </Popover.Trigger>
+            <Popover.Content class="w-auto p-0" align="start">
+            <RangeCalendar
+                bind:value={dateRangeFilter}
+                initialFocus
+                numberOfMonths={2}
+                weekStartsOn={1}
+                placeholder={dateRangeFilter?.start}
+                minValue={new CalendarDate(1900, 1, 1)}
+                maxValue={today(getLocalTimeZone())}
+                onValueChange={(v) => {
+                    if (v.start && v.end) {
+                        fetchData(pageNumber, v);
+                        rangeCalendarOpen = false;
+                    }
+                }}
+            />
+            </Popover.Content>
+        </Popover.Root>
+    </div>
+    <!-- <Button variant="outline" size="default" on:click={clearDateRangeFilter}>
+        <XIcon class="size-3"/>
+    </Button> -->
+</div>
+  {#if recordsPresent == true}
     <div> 
         <div class="rounded-md border">
             <Table.Root {...$tableAttrs}>

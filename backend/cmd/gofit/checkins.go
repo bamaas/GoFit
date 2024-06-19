@@ -57,7 +57,7 @@ func (app *application) getCheckInsHandler(w http.ResponseWriter, r *http.Reques
 	}
 	if !input.Filters.StartTime.IsZero() && !input.Filters.EndTime.IsZero() {
 		v := validator.New()
-		v.Check(input.Filters.StartTime.Before(input.Filters.EndTime), "start_time", "must be before end_time")
+		v.Check(input.Filters.StartTime.Before(input.Filters.EndTime) || input.Filters.StartTime == input.Filters.EndTime, "start_time", "must be before or equal to end_time")
 		if !v.Valid() {
 			app.writeJSON(w, http.StatusBadRequest, envelope{"invalid_query_parameters": v.Errors})
 			return

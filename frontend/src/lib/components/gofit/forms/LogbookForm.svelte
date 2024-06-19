@@ -169,6 +169,7 @@
             minValue={new CalendarDate(1900, 1, 1)}
             maxValue={today(getLocalTimeZone())}
             initialFocus
+            weekStartsOn={1}
             onValueChange={(v) => {
               if (v) {
                 $formData.date = v.toString();
