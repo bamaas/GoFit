@@ -148,7 +148,7 @@
   <Form.Field {form} name="date" class="pb-5">
     <Form.Control let:attrs>
       <Form.Label>Date</Form.Label>
-      <Popover.Root bind:open={popOverOpen}>
+      <Popover.Root bind:open={popOverOpen} closeOnEscape closeOnOutsideClick>
         <Popover.Trigger asChild let:builder>
           <Button
             variant="outline"

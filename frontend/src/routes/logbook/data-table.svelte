@@ -56,7 +56,7 @@
 
         apiData.set(dummyData);
 
-        fetchData(pageNumber, dateRangeValue);
+        fetchData(pageNumber, dateRangeFilter);
 
         apiData.subscribe((data) => {
 
@@ -93,9 +93,7 @@
 
         let uri: string = `/v1/check-ins?page=${pageNumber}&page_size=${pageSize}`
         if (dateFilter != undefined) {
-            let startDate = new Date(dateFilter.start?.year ?? 0, dateFilter.start?.month - 1 ?? 0, dateFilter.start?.day + 1 ?? 0).toISOString().split('T')[0];
-            let endDate = new Date(dateFilter.end?.year ?? 0, dateFilter.end?.month -1  ?? 0, dateFilter.end?.day + 1 ?? 0).toISOString().split('T')[0];
-            uri = uri + `&start_time=${startDate}&end_time=${endDate}`;
+            uri = uri + `&start_time=${dateFilter?.start?.toString()}&end_time=${dateFilter?.end?.toString()}`;
         }
 
         promise = (async () => {
@@ -148,13 +146,13 @@
     function gotoNextPage(): void {
         pageNumber = pageNumber + 1;
         setQueryParam('page', String(pageNumber));
-        fetchData(pageNumber, dateRangeValue);
+        fetchData(pageNumber, dateRangeFilter);
     }
 
     function goToPreviousPage(): void {
         pageNumber = pageNumber - 1;
         setQueryParam('page', String(pageNumber));
-        fetchData(pageNumber, dateRangeValue);
+        fetchData(pageNumber, dateRangeFilter);
     }
 
     function setQueryParam(key: string, value: string): void {
@@ -163,74 +161,70 @@
         goto(`?${query.toString()}`);
     }
 
-
-    // nieuw
+    // Date range picker
     import CalendarIcon from "lucide-svelte/icons/calendar";
     import type { DateRange } from "bits-ui";
     import {
-        CalendarDate,
-        DateFormatter,
-        type DateValue,
-        getLocalTimeZone
+      DateFormatter,
+      type DateValue,
+      getLocalTimeZone
     } from "@internationalized/date";
     import { cn } from "$lib/utils.js";
+    // import { Button } from "$lib/components/ui/button/index.js";
     import { RangeCalendar } from "$lib/components/ui/range-calendar/index.js";
     import * as Popover from "$lib/components/ui/popover/index.js";
-    
+
+    let rangeCalendarOpen: boolean = false;
     const df = new DateFormatter("en-US", {
-        dateStyle: "medium"
+      dateStyle: "medium"
     });
-    
-    // let value: DateRange | undefined = {
-    //     start: new CalendarDate(2022, 1, 20),
-    //     end: new CalendarDate(2022, 1, 20).add({ days: 20 })
-    // };
-    let dateRangeValue: DateRange | undefined = undefined;
-    $: dateRangeValue: fetchData(pageNumber, dateRangeValue);
-    let startValue: DateValue | undefined = undefined;
+    let dateRangeFilter: DateRange | undefined = undefined;
 
 </script>
 
+{#if recordsPresent == true}
 <div class="grid gap-2 mb-4 mt-6">
-    <Popover.Root openFocus>
-      <Popover.Trigger asChild let:builder>
-        <Button
-          variant="outline"
-          class={cn(
-            "w-full justify-start text-left font-normal",
-            !dateRangeValue && "text-muted-foreground"
-          )}
-          builders={[builder]}
-        >
-          <CalendarIcon class="mr-2 h-4 w-4" />
-          {#if dateRangeValue && dateRangeValue.start}
-            {#if dateRangeValue.end}
-              {df.format(dateRangeValue.start.toDate(getLocalTimeZone()))} - {df.format(
-                dateRangeValue.end.toDate(getLocalTimeZone())
-              )}
+    <Popover.Root openFocus bind:open={rangeCalendarOpen} closeOnEscape closeOnOutsideClick>
+        <Popover.Trigger asChild let:builder>
+          <Button
+            variant="outline"
+            class={cn(
+              "w-full justify-start text-left font-normal",
+              !dateRangeFilter && "text-muted-foreground"
+            )}
+            builders={[builder]}
+          >
+            <CalendarIcon class="mr-2 h-4 w-4" />
+            {#if dateRangeFilter && dateRangeFilter.start}
+              {#if dateRangeFilter.end}
+                {df.format(dateRangeFilter.start.toDate(getLocalTimeZone()))} - {df.format(
+                  dateRangeFilter.end.toDate(getLocalTimeZone())
+                )}
+              {:else}
+                {df.format(dateRangeFilter.start.toDate(getLocalTimeZone()))}
+              {/if}
             {:else}
-              {df.format(dateRangeValue.start.toDate(getLocalTimeZone()))}
+              Pick a date
             {/if}
-          {:else if startValue}
-            {df.format(startValue.toDate(getLocalTimeZone()))}
-          {:else}
-            Pick a date
-          {/if}
-        </Button>
-      </Popover.Trigger>
-      <Popover.Content class="w-auto p-0" align="start">
-        <RangeCalendar
-          bind:value={dateRangeValue}
-          bind:startValue
-          initialFocus
-          numberOfMonths={2}
-          placeholder={dateRangeValue?.start}
-        />
-      </Popover.Content>
-    </Popover.Root>
+          </Button>
+        </Popover.Trigger>
+        <Popover.Content class="w-auto p-0" align="start">
+          <RangeCalendar
+            bind:value={dateRangeFilter}
+            initialFocus
+            numberOfMonths={2}
+            placeholder={dateRangeFilter?.start}
+            onValueChange={(v) => {
+                if (v.start && v.end) {
+                    fetchData(pageNumber, v);
+                    rangeCalendarOpen = false;
+                }
+            }}
+          />
+        </Popover.Content>
+      </Popover.Root>
   </div>
 
-{#if recordsPresent == true}
     <div> 
         <div class="rounded-md border">
             <Table.Root {...$tableAttrs}>

@@ -90,12 +90,11 @@ func (m *CheckInModel) List(userID int64, filters Filters) ([]CheckInWithStats, 
 	// Add date filter if provided
 	if !filters.StartTime.IsZero() && !filters.EndTime.IsZero() {
 		format := "2006-01-02"
-		dateFilter := fmt.Sprintf("AND (datetime > strftime('%%s', '%s') AND datetime < strftime('%%s', '%s'))", filters.StartTime.Format(format), filters.EndTime.Format(format))
+		dateFilter := fmt.Sprintf("AND (datetime > strftime('%%s', '%s') AND datetime < strftime('%%s', '%s'))", filters.StartTime.Format(format), filters.EndTime.AddDate(0,0,1).Format(format))
 		q = fmt.Sprintf(q, dateFilter)
 	} else {
 		q = fmt.Sprintf(q, "")
 	}
-	m.logger.Debug("Query", "q", q)
 
 	// Execute the query
 	r, err := m.DB.Query(q, args...)
