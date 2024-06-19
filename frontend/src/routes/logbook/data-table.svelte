@@ -180,22 +180,19 @@
       dateStyle: "medium"
     });
     let dateRangeFilter: DateRange | undefined = undefined;
-
-    function clearDateRangeFilter(){
-        dateRangeFilter = undefined;
-        fetchData(pageNumber, dateRangeFilter);
-    }
+    $: dateRangeFilter: fetchData(pageNumber, dateRangeFilter);
 
 </script>
 
 <div class="">
-    <div class="grid gap-2 mb-4 mt-6">
+    <div class="gap-2 mb-4 mt-6">
         <Popover.Root openFocus bind:open={rangeCalendarOpen} closeOnEscape closeOnOutsideClick>
+            <div class="flex">
             <Popover.Trigger asChild let:builder>
             <Button
                 variant="outline"
                 class={cn(
-                "w-[300] justify-start text-left font-normal",
+                "w-screen justify-start text-left font-normal",
                 !dateRangeFilter && "text-muted-foreground"
                 )}
                 builders={[builder]}
@@ -214,6 +211,12 @@
                 {/if}
             </Button>
             </Popover.Trigger>
+            {#if dateRangeFilter && dateRangeFilter.start && dateRangeFilter.end}
+                <Button variant="outline" class="ml-4" size="default" on:click={() => dateRangeFilter = undefined}>
+                    <XIcon class="h-3 w-3" />
+                </Button>
+            {/if}
+            </div>
             <Popover.Content class="w-auto p-0" align="start">
             <RangeCalendar
                 bind:value={dateRangeFilter}
@@ -225,7 +228,6 @@
                 maxValue={today(getLocalTimeZone())}
                 onValueChange={(v) => {
                     if (v.start && v.end) {
-                        fetchData(pageNumber, v);
                         rangeCalendarOpen = false;
                     }
                 }}
