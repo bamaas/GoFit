@@ -14,6 +14,8 @@
     import { request } from "$lib/functions/request";
     import moment from "moment";
 
+    let startTime: string | null = $page.url.searchParams.get('start_time');
+    let endTime: string | null = $page.url.searchParams.get('end_time');
     let pageNumber: number = Number($page.url.searchParams.get('page') || 1);
     let pageSize: number = 30;
     $: pageNumber;
@@ -56,7 +58,9 @@
 
         apiData.set(dummyData);
 
-        fetchData(pageNumber, dateRangeFilter);
+        if (!dataLoaded){
+            fetchData(pageNumber, $page.url.searchParams.get('start_time'), $page.url.searchParams.get('end_time'));
+        }
 
         apiData.subscribe((data) => {
 
@@ -89,15 +93,17 @@
         });
     });
 
-    function fetchData(pageNumber: number, dateFilter: DateRange | undefined): void {
+    function fetchData(pageNumber: number, startTime: string | null, endTime: string | null): void {
+
+        console.log("Fetch data called")
 
         let uri: string = `/v1/check-ins?page=${pageNumber}&page_size=${pageSize}`
-        if (dateFilter != undefined) {
-            // setQueryParam('start_time', dateFilter?.start?.toString());
-            // setQueryParam('end_time', dateFilter?.end?.toString());
-            uri = uri + `&start_time=${dateFilter?.start?.toString()}&end_time=${dateFilter?.end?.toString()}`;
+
+        if (startTime != null && endTime != null) {
+            uri = uri + `&start_time=${startTime}&end_time=${endTime}`;
         }
 
+        dataLoaded = true;
         promise = (async () => {
             return await request(`${PUBLIC_BACKEND_BASE_URL}${uri}`);
         })();
@@ -106,6 +112,7 @@
         }).catch(() => {
             toast.error("Failed fetching data from server.", {description: "Oops!", cancel: { label: "X" }});
         });
+
     }
 
     const table = createTable(checkIns, {});
@@ -148,13 +155,13 @@
     function gotoNextPage(): void {
         pageNumber = pageNumber + 1;
         setQueryParam('page', String(pageNumber));
-        fetchData(pageNumber, dateRangeFilter);
+        fetchData(pageNumber, startTime, endTime);
     }
 
     function goToPreviousPage(): void {
         pageNumber = pageNumber - 1;
         setQueryParam('page', String(pageNumber));
-        fetchData(pageNumber, dateRangeFilter);
+        fetchData(pageNumber, startTime, endTime);
     }
 
     function setQueryParam(key: string, value: string): void {
@@ -176,16 +183,53 @@
     import { cn } from "$lib/utils.js";
     import { RangeCalendar } from "$lib/components/ui/range-calendar/index.js";
     import * as Popover from "$lib/components/ui/popover/index.js";
-	import { set } from "zod";
+	import { dateRange } from "svelte-ux";
 
     let rangeCalendarOpen: boolean = false;
     const df = new DateFormatter("en-US", {
       dateStyle: "medium"
     });
-    let dateRangeFilter: DateRange | undefined = undefined;
-    $: dateRangeFilter: fetchData(pageNumber, dateRangeFilter);
-    let startTime: number = Number($page.url.searchParams.get('start_time') || undefined);
-    let endTime: number = Number($page.url.searchParams.get('end_time') || undefined);
+    let prevDateRangerFilter: DateRange | undefined = undefined;
+    let dateRangeFilter: DateRange | undefined = setDateRangeFilterByQueryParams();
+    $: dateRangeFilter: iets(dateRangeFilter);
+
+    function setDateRangeFilterByQueryParams(): DateRange | undefined {
+        if (startTime != null && endTime != null) {
+            let s: Date = new Date(startTime);
+            let e: Date = new Date(endTime);
+            console.log(e)
+            return { start: new CalendarDate(s.getFullYear(), s.getMonth()+1, s.getDate()), 
+                     end: new CalendarDate(e.getFullYear(), e.getMonth()+1, e.getDate()) };
+        } else {
+            return { start: undefined, end: undefined}
+        }
+    }
+
+    let dataLoaded: boolean = false;
+
+    function iets(d: DateRange | undefined): void {
+        let query = new URLSearchParams($page.url.searchParams.toString());
+        // If resetted
+        if (d == undefined) {
+            startTime = null;
+            endTime = null;
+            query.delete("start_time");
+            query.delete("end_time");
+            goto(`?${query.toString()}`);
+            fetchData(pageNumber, startTime, endTime);
+        // If filters set
+        } else if (d?.start && d?.end) {
+            if (prevDateRangerFilter != d) {
+                prevDateRangerFilter = d;
+                startTime = d?.start?.toString();
+                endTime = d?.end?.toString();
+                query.set("start_time", startTime);
+                query.set("end_time", endTime);
+                goto(`?${query.toString()}`);
+                fetchData(pageNumber, startTime, endTime);
+            }
+        }
+    }
 
 </script>
 
@@ -240,9 +284,6 @@
             </Popover.Content>
         </Popover.Root>
     </div>
-    <!-- <Button variant="outline" size="default" on:click={clearDateRangeFilter}>
-        <XIcon class="size-3"/>
-    </Button> -->
 </div>
   {#if recordsPresent == true}
     <div> 
