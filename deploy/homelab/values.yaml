@@ -1,22 +1,17 @@
-logLevel: info
-
 persistence:
   enabled: true
   size: 100Mi
-
-replicaCount: 1
 
 image:
   repository: bamaas/gofit
   pullPolicy: IfNotPresent
   tag: 6f2494c151a144abb02d5d12aa271487ff132ae4
 
-podLabels: {}
-
 ingress:
+  enabled: true
   annotations:
-    kubernetes.io/ingress.class: nginx
-    cert-manager.io/cluster-issuer: letsencrypt-prd
+      kubernetes.io/ingress.class: nginx
+      cert-manager.io/cluster-issuer: letsencrypt-prd
   hosts:
     - host: gofit.kubernetes.lan.basmaas.nl
       paths:
@@ -28,20 +23,9 @@ ingress:
       hosts:
         - gofit.kubernetes.lan.basmaas.nl
 
-service:
-  type: ClusterIP
-  port: 8080
-
 podSecurityContext:
   fsGroup: 1001
   fsGroupChangePolicy: Always
   runAsGroup: 1001
   runAsNonRoot: true
   runAsUser: 1001
-
-volumes:
-  - name: gofit-data
-
-volumeMounts:
-  - name: gofit-data
-    mountPath: /data
