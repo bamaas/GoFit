@@ -1,0 +1,26 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: gofit
+spec:
+  destination:
+    name: ''
+    namespace: gofit
+    server: 'https://kubernetes.default.svc'
+  sources:
+    - path: deploy/chart/gofit
+      repoURL: 'https://github.com/bamaas/gofit'
+      targetRevision: HEAD
+      helm:
+        valueFiles:
+          - $values/deploy/homelab/values.yaml
+    - repoURL: 'https://github.com/bamaas/gofit'
+      targetRevision: HEAD
+      ref: values
+  project: default
+  syncPolicy:
+    automated:
+      prune: false
+      selfHeal: false
+    syncOptions:
+      - CreateNamespace=true

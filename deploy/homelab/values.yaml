@@ -1,5 +1,8 @@
 logLevel: info
-storage: 100Mi
+
+persistence:
+  enabled: true
+  size: 100Mi
 
 replicaCount: 1
 
