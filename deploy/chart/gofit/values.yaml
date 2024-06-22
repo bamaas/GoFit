@@ -38,9 +38,4 @@ service:
   type: ClusterIP
   port: 8080
 
-podSecurityContext:
-  fsGroup: 1001
-  fsGroupChangePolicy: Always
-  runAsGroup: 1001
-  runAsNonRoot: true
-  runAsUser: 1001
+podSecurityContext: {}
