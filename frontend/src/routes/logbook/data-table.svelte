@@ -58,8 +58,8 @@
 
         apiData.set(dummyData);
 
-        if (!dataLoaded){
-            fetchData(pageNumber, $page.url.searchParams.get('start_time'), $page.url.searchParams.get('end_time'));
+        if (dateRangeFilter == undefined){
+            fetchData(pageNumber, null, null);
         }
 
         apiData.subscribe((data) => {
@@ -95,15 +95,12 @@
 
     function fetchData(pageNumber: number, startTime: string | null, endTime: string | null): void {
 
-        console.log("Fetch data called")
-
         let uri: string = `/v1/check-ins?page=${pageNumber}&page_size=${pageSize}`
 
         if (startTime != null && endTime != null) {
             uri = uri + `&start_time=${startTime}&end_time=${endTime}`;
         }
 
-        dataLoaded = true;
         promise = (async () => {
             return await request(`${PUBLIC_BACKEND_BASE_URL}${uri}`);
         })();
@@ -170,64 +167,61 @@
         goto(`?${query.toString()}`);
     }
 
-    // Date range picker TODO: put in seperate sub component
+    // Date range picker TODO: put in seperate component
     import CalendarIcon from "lucide-svelte/icons/calendar";
     import type { DateRange } from "bits-ui";
     import {
       DateFormatter,
       getLocalTimeZone,
       today,
-	  CalendarDate
-
+	  CalendarDate,
     } from "@internationalized/date";
     import { cn } from "$lib/utils.js";
     import { RangeCalendar } from "$lib/components/ui/range-calendar/index.js";
     import * as Popover from "$lib/components/ui/popover/index.js";
-	import { dateRange } from "svelte-ux";
 
     let rangeCalendarOpen: boolean = false;
     const df = new DateFormatter("en-US", {
       dateStyle: "medium"
     });
     let prevDateRangerFilter: DateRange | undefined = undefined;
-    let dateRangeFilter: DateRange | undefined = setDateRangeFilterByQueryParams();
-    $: dateRangeFilter: iets(dateRangeFilter);
+    let dateRangeFilter: DateRange | undefined = initDateRangeFilter();
+    $: dateRangeFilter: fetch(dateRangeFilter);
 
-    function setDateRangeFilterByQueryParams(): DateRange | undefined {
+    function initDateRangeFilter(): DateRange | undefined {
         if (startTime != null && endTime != null) {
-            let s: Date = new Date(startTime);
-            let e: Date = new Date(endTime);
-            console.log(e)
-            return { start: new CalendarDate(s.getFullYear(), s.getMonth()+1, s.getDate()), 
-                     end: new CalendarDate(e.getFullYear(), e.getMonth()+1, e.getDate()) };
+            const s: Date = new Date(startTime);
+            const e: Date = new Date(endTime);
+            return { 
+                start: new CalendarDate(s.getFullYear(), s.getMonth()+1, s.getDate()), 
+                end: new CalendarDate(e.getFullYear(), e.getMonth()+1, e.getDate()) 
+            };
         } else {
-            return { start: undefined, end: undefined}
+            return undefined;
         }
     }
 
-    let dataLoaded: boolean = false;
-
-    function iets(d: DateRange | undefined): void {
+    function resetDateRangeFilter(): void {
         let query = new URLSearchParams($page.url.searchParams.toString());
-        // If resetted
-        if (d == undefined) {
-            startTime = null;
-            endTime = null;
-            query.delete("start_time");
-            query.delete("end_time");
+        startTime = null;
+        endTime = null;
+        query.delete("start_time");
+        query.delete("end_time");
+        goto(`?${query.toString()}`);
+        dateRangeFilter = undefined;
+        fetchData(pageNumber, startTime, endTime);
+    }
+
+    function fetch(d: DateRange | undefined): void {
+        if ((d?.start && d?.end) && prevDateRangerFilter != d) {
+            prevDateRangerFilter = d;
+            startTime = d?.start?.toString();
+            endTime = d?.end?.toString();
+            const query = new URLSearchParams($page.url.searchParams.toString());
+            query.set("start_time", startTime);
+            query.set("end_time", endTime);
             goto(`?${query.toString()}`);
             fetchData(pageNumber, startTime, endTime);
-        // If filters set
-        } else if (d?.start && d?.end) {
-            if (prevDateRangerFilter != d) {
-                prevDateRangerFilter = d;
-                startTime = d?.start?.toString();
-                endTime = d?.end?.toString();
-                query.set("start_time", startTime);
-                query.set("end_time", endTime);
-                goto(`?${query.toString()}`);
-                fetchData(pageNumber, startTime, endTime);
-            }
         }
     }
 
@@ -235,7 +229,7 @@
 
 <div class="">
     <div class="gap-2 mb-4 mt-6">
-        <Popover.Root openFocus bind:open={rangeCalendarOpen} closeOnEscape closeOnOutsideClick>
+        <Popover.Root bind:open={rangeCalendarOpen} closeOnEscape closeOnOutsideClick>
             <div class="flex">
             <Popover.Trigger asChild let:builder>
             <Button
@@ -261,7 +255,7 @@
             </Button>
             </Popover.Trigger>
             {#if dateRangeFilter && dateRangeFilter.start && dateRangeFilter.end}
-                <Button variant="outline" class="ml-4" size="default" on:click={() => dateRangeFilter = undefined}>
+                <Button variant="outline" class="ml-4" size="default" on:click={() => resetDateRangeFilter()}>
                     <XIcon class="h-3 w-3" />
                 </Button>
             {/if}
