@@ -186,7 +186,7 @@
     });
     let prevDateRangerFilter: DateRange | undefined = undefined;
     let dateRangeFilter: DateRange | undefined = initDateRangeFilter();
-    $: dateRangeFilter: fetch(dateRangeFilter);
+    $: dateRangeFilter: renameThisFunction(dateRangeFilter);
 
     function initDateRangeFilter(): DateRange | undefined {
         if (startTime != null && endTime != null) {
@@ -205,21 +205,25 @@
         let query = new URLSearchParams($page.url.searchParams.toString());
         startTime = null;
         endTime = null;
+        pageNumber = 1;
         query.delete("start_time");
         query.delete("end_time");
+        query.delete("page")
         goto(`?${query.toString()}`);
         dateRangeFilter = undefined;
         fetchData(pageNumber, startTime, endTime);
     }
 
-    function fetch(d: DateRange | undefined): void {
+    function renameThisFunction(d: DateRange | undefined): void {
         if ((d?.start && d?.end) && prevDateRangerFilter != d) {
             prevDateRangerFilter = d;
             startTime = d?.start?.toString();
             endTime = d?.end?.toString();
+            pageNumber = 1;
             const query = new URLSearchParams($page.url.searchParams.toString());
             query.set("start_time", startTime);
             query.set("end_time", endTime);
+            query.delete("page")
             goto(`?${query.toString()}`);
             fetchData(pageNumber, startTime, endTime);
         }
@@ -358,10 +362,15 @@
 {:else}
     <!-- No records present -->
     <div class="text-center items-center justify-center align-middle mt-36">
-        <h1 class="text-2xl font-semibold tracking-tight">Let's get started</h1>
+        <h1 class="text-2xl font-semibold tracking-tight">Oops!</h1>
+        <p class="text-sm text-muted-foreground mt-2">No records found.</p>
+        <!-- <a href="/logbook/create">
+            <Button class="mt-8">Add check-in</Button>
+        </a> -->
+        <!-- <h1 class="text-2xl font-semibold tracking-tight">Let's get started</h1>
         <p class="text-sm text-muted-foreground mt-2">Add your first check-in to get started.</p>
         <a href="/logbook/create">
             <Button class="mt-8">Add check-in</Button>
-        </a>
+        </a> -->
     </div>
 {/if}
