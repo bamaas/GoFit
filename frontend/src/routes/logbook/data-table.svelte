@@ -360,17 +360,19 @@
         {/await}
     </div>
 {:else}
-    <!-- No records present -->
+<!-- No records present -->
     <div class="text-center items-center justify-center align-middle mt-36">
-        <h1 class="text-2xl font-semibold tracking-tight">Oops!</h1>
-        <p class="text-sm text-muted-foreground mt-2">No records found.</p>
-        <!-- <a href="/logbook/create">
-            <Button class="mt-8">Add check-in</Button>
-        </a> -->
-        <!-- <h1 class="text-2xl font-semibold tracking-tight">Let's get started</h1>
+    {#if dateRangeFilter == undefined}
+        <h1 class="text-2xl font-semibold tracking-tight">Let's get started</h1>
         <p class="text-sm text-muted-foreground mt-2">Add your first check-in to get started.</p>
         <a href="/logbook/create">
             <Button class="mt-8">Add check-in</Button>
-        </a> -->
+        </a>
+    {:else}
+        <div class="text-center items-center justify-center align-middle mt-36">
+            <h1 class="text-2xl font-semibold tracking-tight">Oops!</h1>
+            <p class="text-sm text-muted-foreground mt-2">No records found.</p>
+        </div>
+    {/if}
     </div>
 {/if}
