@@ -6,6 +6,7 @@ export const load: PageLoad = async ({}) => {
     redirectIfNoAuthCookie();
 
     return { 
-        title: "Profile"
+        title: "Profile",
+        renderToolbar: true
     };
 };
