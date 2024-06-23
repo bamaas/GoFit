@@ -232,6 +232,7 @@
 
 </script>
 
+{#if recordsPresent == true || dateRangeFilter != undefined}
 <div class="gap-2 mb-4 mt-6">
     <Popover.Root bind:open={rangeCalendarOpen} closeOnEscape closeOnOutsideClick>
         <div class="flex">
@@ -282,6 +283,7 @@
         </Popover.Content>
     </Popover.Root>
 </div>
+{/if}
 {#if recordsPresent == true}
     <div class="rounded-md border">
         <Table.Root {...$tableAttrs}>
