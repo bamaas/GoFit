@@ -8,7 +8,7 @@ persistence:
   storageClass: longhorn
 
 image:
-  name: docker.io/bamaas/gofit
+  name: bamaas/gofit
   pullPolicy: IfNotPresent
   tag: "0.0.1"
 
