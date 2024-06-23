@@ -52,6 +52,9 @@ image/build:																				## Build an application container image
 image/get:																					## Get the image name
 	@echo ${IMAGE}
 
+image/retag-to-latest:																		## Retag image to latest
+	docker tag ${IMAGE} ${IMAGE_REPOSITORY}:latest
+
 image/push:																					## Push the image to the registry
 	docker push ${IMAGE}
 
