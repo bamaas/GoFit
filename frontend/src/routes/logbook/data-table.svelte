@@ -179,6 +179,7 @@
     import { cn } from "$lib/utils.js";
     import { RangeCalendar } from "$lib/components/ui/range-calendar/index.js";
     import * as Popover from "$lib/components/ui/popover/index.js";
+	import { date } from "zod";
 
     let rangeCalendarOpen: boolean = false;
     const df = new DateFormatter("en-US", {
@@ -231,69 +232,92 @@
 
 </script>
 
-<div class="">
-    <div class="gap-2 mb-4 mt-6">
-        <Popover.Root bind:open={rangeCalendarOpen} closeOnEscape closeOnOutsideClick>
-            <div class="flex">
-            <Popover.Trigger asChild let:builder>
-            <Button
-                variant="outline"
-                class={cn(
-                "w-screen justify-start text-left font-normal",
-                !dateRangeFilter && "text-muted-foreground"
+<div class="gap-2 mb-4 mt-6">
+    <Popover.Root bind:open={rangeCalendarOpen} closeOnEscape closeOnOutsideClick>
+        <div class="flex">
+        <Popover.Trigger asChild let:builder>
+        <Button
+            variant="outline"
+            class={cn(
+            "w-screen justify-start text-left font-normal",
+            !dateRangeFilter && "text-muted-foreground"
+            )}
+            builders={[builder]}
+        >
+            <CalendarIcon class="mr-2 h-4 w-4" />
+            {#if dateRangeFilter && dateRangeFilter.start}
+            {#if dateRangeFilter.end}
+                {df.format(dateRangeFilter.start.toDate(getLocalTimeZone()))} - {df.format(
+                dateRangeFilter.end.toDate(getLocalTimeZone())
                 )}
-                builders={[builder]}
-            >
-                <CalendarIcon class="mr-2 h-4 w-4" />
-                {#if dateRangeFilter && dateRangeFilter.start}
-                {#if dateRangeFilter.end}
-                    {df.format(dateRangeFilter.start.toDate(getLocalTimeZone()))} - {df.format(
-                    dateRangeFilter.end.toDate(getLocalTimeZone())
-                    )}
-                {:else}
-                    {df.format(dateRangeFilter.start.toDate(getLocalTimeZone()))}
-                {/if}
-                {:else}
-                Pick a date
-                {/if}
-            </Button>
-            </Popover.Trigger>
-            {#if dateRangeFilter && dateRangeFilter.start && dateRangeFilter.end}
-                <Button variant="outline" class="ml-4" size="default" on:click={() => resetDateRangeFilter()}>
-                    <XIcon class="h-3 w-3" />
-                </Button>
+            {:else}
+                {df.format(dateRangeFilter.start.toDate(getLocalTimeZone()))}
             {/if}
-            </div>
-            <Popover.Content class="w-auto p-0" align="start">
-            <RangeCalendar
-                bind:value={dateRangeFilter}
-                initialFocus
-                numberOfMonths={2}
-                weekStartsOn={1}
-                placeholder={dateRangeFilter?.start}
-                minValue={new CalendarDate(1900, 1, 1)}
-                maxValue={today(getLocalTimeZone())}
-                onValueChange={(v) => {
-                    if (v.start && v.end) {
-                        rangeCalendarOpen = false;
-                    }
-                }}
-            />
-            </Popover.Content>
-        </Popover.Root>
-    </div>
+            {:else}
+            Pick a date
+            {/if}
+        </Button>
+        </Popover.Trigger>
+        {#if dateRangeFilter && dateRangeFilter.start && dateRangeFilter.end}
+            <Button variant="outline" class="ml-4" size="default" on:click={() => resetDateRangeFilter()}>
+                <XIcon class="h-3 w-3" />
+            </Button>
+        {/if}
+        </div>
+        <Popover.Content class="w-auto p-0" align="start">
+        <RangeCalendar
+            bind:value={dateRangeFilter}
+            initialFocus
+            numberOfMonths={2}
+            weekStartsOn={1}
+            placeholder={dateRangeFilter?.start}
+            minValue={new CalendarDate(1900, 1, 1)}
+            maxValue={today(getLocalTimeZone())}
+            onValueChange={(v) => {
+                if (v.start && v.end) {
+                    rangeCalendarOpen = false;
+                }
+            }}
+        />
+        </Popover.Content>
+    </Popover.Root>
 </div>
-  {#if recordsPresent == true}
-    <div> 
-        <div class="rounded-md border">
-            <Table.Root {...$tableAttrs}>
-                <Table.Header>
-                {#each $headerRows as headerRow}
-                    <Subscribe rowAttrs={headerRow.attrs()}>
-                    <Table.Row>
-                        {#each headerRow.cells as cell (cell.id)}
-                        <Subscribe attrs={cell.attrs()} let:attrs props={cell.props()} let:props >
-                            <Table.Head {...attrs}>
+{#if recordsPresent == true}
+    <div class="rounded-md border">
+        <Table.Root {...$tableAttrs}>
+            <Table.Header>
+            {#each $headerRows as headerRow}
+                <Subscribe rowAttrs={headerRow.attrs()}>
+                <Table.Row>
+                    {#each headerRow.cells as cell (cell.id)}
+                    <Subscribe attrs={cell.attrs()} let:attrs props={cell.props()} let:props >
+                        <Table.Head {...attrs}>
+                            {#if cell.id =="notes"}
+                                <div class="invisible lg:visible">
+                                    <Render of={cell.render()} />
+                                </div>
+                            {:else}
+                                <div class="text-center">
+                                    <Render of={cell.render()} />
+                                </div>
+                            {/if}
+                        </Table.Head>
+                    </Subscribe>
+                    {/each}
+                </Table.Row>
+                </Subscribe>
+            {/each}
+            </Table.Header>
+            <Table.Body {...$tableBodyAttrs}>
+            {#each $pageRows as row (row.id)}
+                <Subscribe rowAttrs={row.attrs()} let:rowAttrs>
+                <Table.Row {...rowAttrs} on:click={() => handleClick(row.original['uuid'])} class="cursor-pointer">
+                    {#each row.cells as cell (cell.id)}
+                    <Subscribe attrs={cell.attrs()} let:attrs>
+                        <Table.Cell {...attrs}>
+                            {#await promise}
+                                <Skeleton class="h-4 w-full" />
+                            {:then}
                                 {#if cell.id =="notes"}
                                     <div class="invisible lg:visible">
                                         <Render of={cell.render()} />
@@ -303,62 +327,35 @@
                                         <Render of={cell.render()} />
                                     </div>
                                 {/if}
-                            </Table.Head>
-                        </Subscribe>
-                        {/each}
-                    </Table.Row>
+                            {:catch}
+                                <Skeleton class="h-4 w-full" />
+                            {/await}
+                        </Table.Cell>
                     </Subscribe>
-                {/each}
-                </Table.Header>
-                <Table.Body {...$tableBodyAttrs}>
-                {#each $pageRows as row (row.id)}
-                    <Subscribe rowAttrs={row.attrs()} let:rowAttrs>
-                    <Table.Row {...rowAttrs} on:click={() => handleClick(row.original['uuid'])} class="cursor-pointer">
-                        {#each row.cells as cell (cell.id)}
-                        <Subscribe attrs={cell.attrs()} let:attrs>
-                            <Table.Cell {...attrs}>
-                                {#await promise}
-                                    <Skeleton class="h-4 w-full" />
-                                {:then}
-                                    {#if cell.id =="notes"}
-                                        <div class="invisible lg:visible">
-                                            <Render of={cell.render()} />
-                                        </div>
-                                    {:else}
-                                        <div class="text-center">
-                                            <Render of={cell.render()} />
-                                        </div>
-                                    {/if}
-                                {:catch}
-                                    <Skeleton class="h-4 w-full" />
-                                {/await}
-                            </Table.Cell>
-                        </Subscribe>
-                        {/each}
-                    </Table.Row>
-                    </Subscribe>
-                {/each}
-                </Table.Body>
-            </Table.Root>
-        </div>
-        <!-- svelte-ignore empty-block -->
-        {#await promise}
-        {:then}
-        {#if showPageNav == true}
-            <div class="flex items-center justify-between space-x-4 py-4">
-                <Button variant="outline" size="lg" disabled={!hasPrevPage} on:click={goToPreviousPage}>
-                    <ArrowLeft class="size-4"/>
-                </Button>
-                <span class="text-sm text-muted-foreground">
-                    Page {pageNumber} of {lastPage}
-                </span>
-                <Button variant="outline" size="lg" disabled={!hasNextPage} on:click={gotoNextPage}>
-                    <ArrowRight class="size-4"/>
-                </Button>
-            </div>
-        {/if}
-        {/await}
+                    {/each}
+                </Table.Row>
+                </Subscribe>
+            {/each}
+            </Table.Body>
+        </Table.Root>
     </div>
+    <!-- svelte-ignore empty-block -->
+    {#await promise}
+    {:then}
+    {#if showPageNav == true}
+        <div class="flex items-center justify-between space-x-4 py-4">
+            <Button variant="outline" size="lg" disabled={!hasPrevPage} on:click={goToPreviousPage}>
+                <ArrowLeft class="size-4"/>
+            </Button>
+            <span class="text-sm text-muted-foreground">
+                Page {pageNumber} of {lastPage}
+            </span>
+            <Button variant="outline" size="lg" disabled={!hasNextPage} on:click={gotoNextPage}>
+                <ArrowRight class="size-4"/>
+            </Button>
+        </div>
+    {/if}
+    {/await}
 {:else}
 <!-- No records present -->
     <div class="text-center items-center justify-center align-middle mt-36">

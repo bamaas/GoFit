@@ -13,6 +13,8 @@ export const load: PageLoad = async () => {
 
     return {
         title: "Login",
-        form: await superValidate(zod(formSchema))
+        form: await superValidate(zod(formSchema)),
+        renderHeader: false,
+        renderToolbar: false
     };
 };

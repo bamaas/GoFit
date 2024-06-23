@@ -5,13 +5,6 @@
 	import ToolbarComponent from "./toolbar.svelte";
 	import { page } from '$app/stores';
 
-	// function getHeaderTitle(): string {
-	// 	if ($page.data.headerTitle != undefined) {
-	// 		return $page.data.headerTitle
-	// 	}
-	// 	return getHeaderTitleFromPathname($page.url.pathname)
-	// }
-
 	function getHeaderTitleFromPathname(pathname: string): string {
 		let title: string = pathname.split('/')[1];
 		// Capitalize first letter
@@ -23,8 +16,8 @@
 	}
 
 	$: headerTitle = getHeaderTitleFromPathname($page.url.pathname)
-
 	$: renderToolbar = $page.data.renderToolbar;
+	$: renderHeader = $page.data.renderHeader;
 
 </script>
 
@@ -33,7 +26,9 @@
 </svelte:head>
 
 <div class="flex flex-col h-screen">
-	<HeaderComponent title={headerTitle || ""}/>
+	{#if renderHeader != false}
+		<HeaderComponent title={headerTitle || ""}/>
+	{/if}
 	<Toaster position="top-right" />
 	<div class="mb-auto">
 		<slot />

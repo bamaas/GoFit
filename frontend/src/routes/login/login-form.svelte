@@ -83,15 +83,13 @@
 <form method="POST" use:enhance>
     <Form.Field {form} name="email" class="pb-5">
         <Form.Control let:attrs>
-          <Form.Label>Email</Form.Label>
-          <Input {...attrs} bind:value={$formData.email} />
+          <Input placeholder="username" {...attrs} bind:value={$formData.email} />
         </Form.Control>
         <Form.FieldErrors />
     </Form.Field>
-    <Form.Field {form} name="password" class="pb-5">
+    <Form.Field {form} name="password" class="pb-5 text-center">
       <Form.Control let:attrs>
-        <Form.Label>Password</Form.Label>
-        <Input type="password" {...attrs} bind:value={$formData.password} />
+        <Input placeholder="Password" type="password" {...attrs} bind:value={$formData.password} />
       </Form.Control>
       <Form.FieldErrors />
   </Form.Field>
