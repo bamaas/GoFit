@@ -7,11 +7,6 @@ persistence:
   size: 100Mi
   storageClass: longhorn
 
-image:
-  repository: bamaas/gofit
-  pullPolicy: IfNotPresent
-  tag: 6f2494c151a144abb02d5d12aa271487ff132ae4
-
 ingress:
   enabled: true
   annotations:

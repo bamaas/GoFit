@@ -23,7 +23,7 @@ spec:
             name: {{ include "gofit.fullname" . }}
         - secretRef:
             name: {{ include "gofit.fullname" . }}
-        image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+        image: "{{ .Values.image.name }}:{{ .Values.image.tag }}"
         imagePullPolicy: {{ .Values.image.pullPolicy }}
         name: {{ .Chart.Name }}
         resources: {}

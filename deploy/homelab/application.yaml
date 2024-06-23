@@ -7,9 +7,10 @@ metadata:
     - resources-finalizer.argocd.argoproj.io
   annotations:
     argocd-image-updater.argoproj.io/image-list: gofit=docker.io/bamaas/gofit
-    argocd-image-updater.argoproj.io/gofit.update-strategy: newest-build
+    argocd-image-updater.argoproj.io/gofit.update-strategy: semver
     argocd-image-updater.argoproj.io/write-back-method: imperative
     argocd-image-updater.argoproj.io/gofit.force-update: "true"
+    argocd-image-updater.argoproj.io/gofit.helm.image-name: image.repository
     argocd-image-updater.argoproj.io/gofit.helm.image-tag: image.tag
 spec:
   destination:

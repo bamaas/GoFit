@@ -7,7 +7,7 @@ logLevel: info
 replicaCount: 1
 
 image:
-  repository: bamaas/gofit
+  name: docker.io/bamaas/gofit
   pullPolicy: IfNotPresent
   tag: "6f2494c151a144abb02d5d12aa271487ff132ae4"
 
