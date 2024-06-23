@@ -8,9 +8,9 @@ metadata:
   annotations:
     argocd-image-updater.argoproj.io/image-list: gofit=docker.io/bamaas/gofit:~0.0
     argocd-image-updater.argoproj.io/gofit.update-strategy: semver
-    argocd-image-updater.argoproj.io/write-back-method: imperative
+    argocd-image-updater.argoproj.io/write-back-method: argocd
     argocd-image-updater.argoproj.io/gofit.force-update: "true"
-    # argocd-image-updater.argoproj.io/gofit.helm.image-name: image.repository
+    argocd-image-updater.argoproj.io/gofit.helm.image-name: image.repository
     argocd-image-updater.argoproj.io/gofit.helm.image-tag: image.tag
 spec:
   destination:
@@ -30,7 +30,7 @@ spec:
   project: default
   syncPolicy:
     automated:
-      prune: false
-      selfHeal: false
+      prune: true
+      selfHeal: true
     syncOptions:
       - CreateNamespace=true
