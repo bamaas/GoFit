@@ -1,6 +1,6 @@
 import type { PageLoad } from "./$types.js";
 import { superValidate } from "sveltekit-superforms";
-import { formSchema } from "./schema.js";
+import { formSchema } from "./(components)/schema.js";
 import { zod } from "sveltekit-superforms/adapters";
 import { goto } from "$app/navigation";
 import { hasAuthCookie } from "$lib/functions/cookie.js";

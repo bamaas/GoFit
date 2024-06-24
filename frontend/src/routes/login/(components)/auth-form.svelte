@@ -83,7 +83,7 @@
 <form method="POST" use:enhance>
     <Form.Field {form} name="email" class="pb-5">
         <Form.Control let:attrs>
-          <Input placeholder="username" {...attrs} bind:value={$formData.email} />
+          <Input autofocus placeholder="Username" {...attrs} bind:value={$formData.email} />
         </Form.Control>
         <Form.FieldErrors />
     </Form.Field>

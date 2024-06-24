@@ -1,7 +1,7 @@
 <script lang="ts">
   import * as Card from "$lib/components/ui/card/index.js";
   import type { PageData } from "./$types.js";
-  import LoginForm from "./login-form.svelte";
+  import LoginForm from "./(components)/auth-form.svelte";
   export let data: PageData;
 </script>
 <div 
@@ -11,7 +11,7 @@ style="background-image:linear-gradient(rgba(2, 8, 23, 0.45), rgba(2, 8, 23, 0.4
     <Card.Root class="lg:w-1/3 w-11/12 bg-opacity-80">
       <Card.Header>
           <Card.Title class="text-center text-2xl tracking-tight">GoFit</Card.Title>
-          <Card.Description class="text-center text-sm text-muted-foreground">Enter your credentials to login.</Card.Description>
+          <Card.Description class="text-center text-sm text-muted-foreground">Enter your credentials to login</Card.Description>
       </Card.Header>
       <Card.Content>
         <LoginForm data={data.form} />
