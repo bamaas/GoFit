@@ -30,6 +30,7 @@ func (app *application) routes() *http.ServeMux {
 
 	// Authentication
 	mux.HandleFunc("POST /api/v1/tokens/authentication", app.createAuthenticationTokenHandler)
+	mux.Handle("DELETE /api/v1/tokens/retract-all", app.authenticate(http.HandlerFunc(app.retractAllAuthenticationTokensHandler)))
 
 	return mux
 }

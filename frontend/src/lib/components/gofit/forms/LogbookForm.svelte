@@ -38,7 +38,6 @@
       })
     })
     .then( (response) => {
-      console.log(response)
       toast.success("Check-in added.", {
         description: "Good work, keep it up!",
         action: {label: "View", onClick: () => goto(`/logbook/edit/${response.data.uuid}`)}

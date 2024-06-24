@@ -1,14 +1,21 @@
 <script lang="ts">
 	import { goto } from "$app/navigation";
+	import { PUBLIC_BACKEND_BASE_URL } from "$env/static/public";
 	import { Button } from "$lib/components/ui/button";
     import * as Card from "$lib/components/ui/card/index.js";
 	import { deleteCookie } from "$lib/functions/cookie";
+	import { request } from "$lib/functions/request";
 	import { authenticated } from "$lib/stores/auth";
 
     function logout(){
-        deleteCookie("token")
-        authenticated.set(false);
-        goto("/login");
+        request(`${PUBLIC_BACKEND_BASE_URL}/v1/tokens/retract-all`, {method: 'DELETE'}, false)
+        .then( (response: Response) => {
+            if (response.ok){
+                deleteCookie("token")
+                authenticated.set(false);
+                goto("/login");
+            }
+        });
     }
 
 </script>

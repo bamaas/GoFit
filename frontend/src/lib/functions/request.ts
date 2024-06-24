@@ -20,7 +20,7 @@ function catchError(error: Error){
     }
 }
 
-export async function request(url: string, options?: any): Promise<any> {
+export async function request(url: string, options?: any, returnJson: boolean = true): Promise<any> {
     const authToken = getAuthToken();
 
     if (options === undefined) {
@@ -39,6 +39,12 @@ export async function request(url: string, options?: any): Promise<any> {
         }
         return response
     })
-    .then((response) => response.json())
+    .then((response) => {
+        if (returnJson){
+            return response.json()
+        } else {
+            return response
+        }
+    })
     .catch(catchError)
 }
