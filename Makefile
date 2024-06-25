@@ -68,7 +68,7 @@ frontend/build:																				## Build frontend application
 
 frontend/run:																				## Run frontend application in development mode
 	cd frontend && \
-	npm run dev -- --open
+	npm run dev -- --host --open
 
 frontend/install_deps:																		## Install frontend dependencies
 	cd frontend && \
