@@ -1,4 +1,4 @@
-FROM bamaas/devcontainer:0c9e378410cf10210b512eb8666111f7c3cef519
+FROM bamaas/devcontainer:2f03e7ccfb73871b7deb353e63081b806e79de94
 SHELL ["/bin/zsh", "-c"]
 USER root
 
