@@ -6,6 +6,8 @@ trigger:
 pool:
   vmImage: ubuntu-latest
 
+container: docker.io/bamaas/devcontainer:0c9e378410cf10210b512eb8666111f7c3cef519
+
 steps:
 
   - task: Docker@2
@@ -18,7 +20,7 @@ steps:
     displayName: Build image
     env:
       IMAGE_TAG: $(Build.SourceVersion)
-  
+
   - script: make image/retag-to-latest
     displayName: Retag image to latest
     env:
