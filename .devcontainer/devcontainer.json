@@ -3,23 +3,39 @@
 {
 	"name": "GoFit",
 	// Or use a Dockerfile or Docker Compose file. More info: https://containers.dev/guide/dockerfile
-	"image": "bamaas/devcontainer:eeabfca45959074660bd15c00aa9536569d2a802",
+	// "image": "bamaas/devcontainer:0c9e378410cf10210b512eb8666111f7c3cef519",
+	"build": {
+		"dockerfile": "Dockerfile",
+		"context": ".."
+	},
 
 	// Features to add to the dev container. More info: https://containers.dev/features.
 	// "features": {},
 
 	// Use 'forwardPorts' to make a list of ports inside the container available locally.
-	"forwardPorts": [
-		5731,
-		8080
+	// "forwardPorts": [
+	// 	5173,
+	// 	8080
+	// ],
+
+	"mounts": [
+		"source=/var/run/docker.sock,target=/var/run/docker.sock,type=bind"
+	],
+	"runArgs": [
+		"--add-host=host.docker.internal:host-gateway",
+		"--network=host"
 	],
 
 	// Use 'postCreateCommand' to run commands after the container is created.
-	// "postCreateCommand": "make frontend/install_deps",
+	"postCreateCommand": "/bin/zsh -c 'source ~/.zshrc && direnv allow .'",
 
 	// Configure tool-specific properties.
 	// "customizations": {},
 
 	// Uncomment to connect as root instead. More info: https://aka.ms/dev-containers-non-root.
-	"remoteUser": "root"
+	"remoteUser": "root",
+
+	"containerEnv": {
+    	"SHELL": "/bin/zsh"
+	}
 }
