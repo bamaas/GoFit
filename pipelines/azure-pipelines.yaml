@@ -9,6 +9,14 @@ pool:
 container: docker.io/bamaas/devcontainer:0c9e378410cf10210b512eb8666111f7c3cef519
 
 steps:
+  - script: |
+      apt-get update \
+      && apt-get install -y apt-transport-https ca-certificates curl gnupg2 lsb-release \
+      && curl -fsSL https://download.docker.com/linux/$(lsb_release -is | tr '[:upper:]' '[:lower:]')/gpg | apt-key add - 2>/dev/null \
+      && echo "deb [arch=amd64] https://download.docker.com/linux/$(lsb_release -is | tr '[:upper:]' '[:lower:]') $(lsb_release -cs) stable" | tee /etc/apt/sources.list.d/docker.list \
+      && apt-get update \
+      && apt-get install -y docker-ce-cli
+    displayName: Install Docker CLI
 
   - task: Docker@2
     displayName: Login to DockerHub
