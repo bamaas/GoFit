@@ -17,6 +17,7 @@ type User struct {
 	Password 	password 	`json:"-"`
 	Activated 	bool   		`json:"activated"`
 	Version 	int    		`json:"-"`
+	Goal 	 	string 		`json:"goal"`
 }
 
 type password struct {
@@ -45,6 +46,25 @@ func (m *UserModel) Insert(user *User) error {
 	return nil
 }
 
+func (m *UserModel) Update(user *User) error {
+	
+	q := `
+	UPDATE users
+	SET email = ?, password_hash = ?, activated = ?, version = version + 1, goal = ?
+	WHERE id = ?
+	RETURNING version;
+	`
+
+	args := []any{
+		user.Email,
+		user.Password.Hash,
+		user.Activated,
+		user.Goal,
+	}
+
+	return m.DB.QueryRow(q, args...).Scan(&user.Version)
+}
+
 func (m *UserModel) GetByEmail(email string) (*User, error) {
 
 	user := User{}
@@ -65,36 +85,6 @@ func (m *UserModel) GetByEmail(email string) (*User, error) {
 	}
 
 	return &user, nil
-}
-
-func (m *UserModel) Update(user User) error {
-
-	query := `
-	UPDATE users
-	SET email = ?, password_hash = ?, activated = ?, version = version + 1
-	WHERE id = ? AND version = ?
-	RETURNING version;`
-
-	args := []any{
-		user.Email,
-		user.Password.Hash,
-		user.Activated,
-		user.ID,
-		user.Version,
-	}
-
-	err := m.DB.QueryRow(query, args...).Scan(&user.Version)
-	if err != nil {
-		switch {
-			// Check for duplicate email
-			case errors.Is(err, sql.ErrNoRows):
-				return errors.New("no record found")
-			default:
-				return err
-		}
-	}
-
-	return nil
 }
 
 func (p* password) Set(plaintextPassword string) error {

@@ -12,7 +12,7 @@
     } from "sveltekit-superforms";
     import { zodClient } from "sveltekit-superforms/adapters";
     import LoaderCircleIcon from "lucide-svelte/icons/loader-circle";
-    import { authenticated } from "$lib/stores/auth"
+    import { authenticated } from "$lib/stores/auth";
 
     let buttonDisabled: boolean = true;
    

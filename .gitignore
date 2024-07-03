@@ -16,3 +16,8 @@ deploy/terraform/.terraform.lock.hcl
 deploy/terraform/*.tfstate
 deploy/terraform/.terraform
 deploy/terraform/terraform.tfstate.backup
+
+# Sops
+*.dec.*
+*.enc.tmp.*
+**/*.tmp.yaml

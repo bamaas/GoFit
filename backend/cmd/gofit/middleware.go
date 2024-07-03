@@ -17,34 +17,34 @@ func (app *application) authenticate(next http.Handler) http.Handler {
 
 		// Check if the authorization header is empty
 		if authHeader == "" {
-			app.writeJSON(w, http.StatusUnauthorized, "authorization header required")
+			app.writeJSON(w, http.StatusUnauthorized, envelope{"error": "authorization header required"})
 			return
 		}
 
 		// Split the authorization header
 		headerParts := strings.Split(authHeader, " ")
 		if len(headerParts) != 2 {
-			app.writeJSON(w, http.StatusUnauthorized, "invalid authorization header")
+			app.writeJSON(w, http.StatusUnauthorized, envelope{"error": "invalid authorization header"})
 			return
 		}
 
 		// Check if the authorization type is not Bearer
 		if headerParts[0] != "Bearer" {
-			app.writeJSON(w, http.StatusUnauthorized, "authorization header must be a bearer token")
+			app.writeJSON(w, http.StatusUnauthorized, envelope{"error": "authorization header must be a bearer token"})
 			return
 		}
 
 		// Check if the token is empty
 		token := headerParts[1]
 		if token == "" {
-			app.writeJSON(w, http.StatusUnauthorized, "authorization token required")
+			app.writeJSON(w, http.StatusUnauthorized, envelope{"error": "authorization token required"})
 			return
 		}
 
 		// Get user for token
 		user, err := app.models.Users.GetForToken(data.ScopeAuthentication, token)
 		if err != nil {		// TODO: implement better error handling
-			app.writeJSON(w, http.StatusUnauthorized, "error fetching user from token")
+			app.writeJSON(w, http.StatusUnauthorized, envelope{"error": "error fetching user from token"})
 			return
 		}
 

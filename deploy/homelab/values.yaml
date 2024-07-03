@@ -1,7 +1,3 @@
-users:
-  - email: "demo@gofit.nl"
-    password: "gofit123"
-
 persistence:
   enabled: true
   size: 100Mi

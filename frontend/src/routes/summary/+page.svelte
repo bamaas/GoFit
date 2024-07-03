@@ -7,8 +7,9 @@
     import { PUBLIC_BACKEND_BASE_URL } from "$env/static/public";
 	import { onMount } from "svelte";
 	import { request } from "$lib/functions/request.js";
-	import { goal } from "$lib/stores/profile.js";
 	import { Chart, Svg, Axis, TooltipItem, Tooltip, Highlight, Spline } from 'layerchart';
+
+	let user: Promise<any> = new Promise(() => {});
 
 	// Current average weight
     let apiDataAverageWeight: Promise<any> = new Promise(() => {});
@@ -36,15 +37,15 @@
 	}
 
 	function getColorClass(goal: string, weight: number): string | undefined{
-		// gain
-		if (goal == "gain" && weight >= 0){
+		// bulk
+		if (goal == "bulk" && weight >= 0){
 			return "green"
-		} else if (goal == "gain") {
+		} else if (goal == "bulk") {
 			return "red"
-		// lose
-		} else if (goal == "lose" && weight < 0) {
+		// cut
+		} else if (goal == "cut" && weight < 0) {
 			return "green"
-		} else if (goal == "lose") {
+		} else if (goal == "cut") {
 			return "red"
 		// maintain
 		} else if (goal == "maintain" && weight == 0) {
@@ -55,13 +56,13 @@
 	}
 
 	function goalMet(goal: string, weight: number): boolean | undefined {
-		if (goal == "gain" && weight > 0) {
+		if (goal == "bulk" && weight > 0) {
 			return true
-		} else if (goal == "gain") {
+		} else if (goal == "bulk") {
 			return false
-		} else if (goal == "lose" && weight < 0) {
+		} else if (goal == "cut" && weight < 0) {
 			return true
-		} else if (goal == "lose") {
+		} else if (goal == "cut") {
 			return false
 		} else if (goal == "maintain" && weight == 0) {
 			return true
@@ -71,10 +72,9 @@
 	}
 
     onMount(() => {
+		user = request(`${PUBLIC_BACKEND_BASE_URL}/v1/users`)
 		apiDataAverageWeight = request(`${PUBLIC_BACKEND_BASE_URL}/v1/stats/weight-average?start_time=${sevenDaysAgo}&end_time=${today}`)
-
 		apiDataAllTimeWeightDifference = request(`${PUBLIC_BACKEND_BASE_URL}/v1/stats/weight-difference`)
-
 		apiDataAverageWeightThisWeek = request(`${PUBLIC_BACKEND_BASE_URL}/v1/stats/weight-average?start_time=${lastMonday}&end_time=${today}`)
 		apiDataAverageWeightLastWeek = request(`${PUBLIC_BACKEND_BASE_URL}/v1/stats/weight-average?start_time=${previousWeekModay}&end_time=${previousWeekSunday}`)
 		Promise.all([apiDataAverageWeightThisWeek, apiDataAverageWeightLastWeek]).then((results) => {
@@ -82,7 +82,6 @@
 				resolve(results[0].weight_average - results[1].weight_average)
 			})
 		})
-
 		apiDataWeeklyAverageWeight = request(`${PUBLIC_BACKEND_BASE_URL}/v1/stats/weight-average-by-week`)
     });
 
@@ -101,37 +100,40 @@
 <div class="container max-w-screen-2xl items-center py-8">
 	<div class="grid gap-3 md:grid-cols-2 lg:grid-cols-3">
 		<Card.Root>
+			{#await user then user}
+			{#await apiDataAverageWeight then data}
 			<Card.Header class="flex flex-row items-center justify-between space-y-0 pb-2">
 				<Card.Title class="text-sm font-medium">Current average weight</Card.Title>
 				<RocketIcon class="text-muted-foreground h-4 w-4" />
 			</Card.Header>
 			<Card.Content>
-				{#await apiDataAverageWeight then data}
 					<div class="text-2xl font-bold">
 						{Math.abs(Number(data.weight_average)).toFixed(1)} kg
 					</div>
 					<p class="text-muted-foreground text-xs">Keep it up!</p>
-				{/await}
 			</Card.Content>
+			{/await}
+			{/await}
 		</Card.Root>
 		<Card.Root>
+			{#await user then user}
 			{#await apiDataAverageWeightDifference then data}
 			<Card.Header class="flex flex-row items-center justify-between space-y-0 pb-2">
 				<Card.Title class="text-sm font-medium">
-					{#if $goal == "gain"}
+					{#if user.goal == "gain"}
 						Gained this week
-					{:else if $goal == "lose"}
+					{:else if user.goal == "lose"}
 						Lost this week
 					{/if}
 				</Card.Title>
 				<TrendingDownIcon class="text-muted-foreground h-4 w-4" />
 			</Card.Header>
 			<Card.Content>
-					<div class="text-2xl font-bold {getColorClass($goal, data)}">
+					<div class="text-2xl font-bold {getColorClass(user.goal, data)}">
 						{#if data > 0}+{/if}{Number(data).toFixed(1)} kg
 					</div>
 					<p class="text-muted-foreground text-xs">
-						{#if goalMet($goal, data)}
+						{#if goalMet(user.goal, data)}
 							Good work!
 						{:else}
 							Time to pull yourself together...
@@ -139,31 +141,34 @@
 					</p>
 			</Card.Content>
 			{/await}
+			{/await}
 		</Card.Root>
 		<Card.Root>
+			{#await user then user}
 			{#await apiDataAllTimeWeightDifference then data}
 			<Card.Header class="flex flex-row items-center justify-between space-y-0 pb-2">
 				<Card.Title class="text-sm font-medium">
-					{#if $goal == "gain"}
+					{#if user.goal == "gain"}
 						Gained all time
-					{:else if $goal == "lose"}
+					{:else if user.goal == "lose"}
 						Lost all time
 					{/if}
 				</Card.Title>
 				<AwardIcon class="text-muted-foreground h-4 w-4" />
 			</Card.Header>
 			<Card.Content>
-					<div class="text-2xl font-bold {getColorClass($goal, data.weight_difference)}">
+					<div class="text-2xl font-bold {getColorClass(user.goal, data.weight_difference)}">
 						{#if data.weight_difference > 0}+{/if}{Number(data.weight_difference).toFixed(1)} kg
 					</div>
 					<p class="text-muted-foreground text-xs">
-						{#if goalMet($goal, data.weight_difference)}
+						{#if goalMet(user.goal, data.weight_difference)}
 							Amazing!
 						{:else}
 							Regain focus...
 						{/if}
 					</p>
 			</Card.Content>
+			{/await}
 			{/await}
 		</Card.Root>
 	</div>

@@ -5,5 +5,5 @@ CREATE TABLE IF NOT EXISTS users (
 		password_hash BYTEA NOT NULL,
 		activated BOOL NOT NULL,
 		version INTEGER NOT NULL DEFAULT 1,
-		goal TEXT CHECK( goal IN ('lose', 'gain', 'maintain') )
+		goal TEXT CHECK( goal IN ('cut', 'bulk', 'maintain') )
 );
