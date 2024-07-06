@@ -33,11 +33,19 @@ type UserModel struct {
 func (m *UserModel) Insert(user *User) error {
 
 	query := `
-	INSERT INTO users (email, password_hash, activated, version) 
-	VALUES (?, ?, ?, ?) 
+	INSERT INTO users (email, password_hash, activated, version, goal) 
+	VALUES (?, ?, ?, ?, ?) 
 	RETURNING id, created_at, version;`
 
-	err := m.DB.QueryRow(query, user.Email, user.Password.Hash, user.Activated, user.Version).Scan(&user.ID, &user.CreatedAt, &user.Version)
+	args := []any{
+		user.Email,
+		user.Password.Hash,
+		user.Activated,
+		user.Version,
+		user.Goal,
+	}
+
+	err := m.DB.QueryRow(query, args...).Scan(&user.ID, &user.CreatedAt, &user.Version)
 	if err != nil {
 		// TODO: Check for duplicate email
 		return err
@@ -117,7 +125,7 @@ func (m *UserModel) GetForToken(tokenScope, tokenPlaintext string) (*User, error
 	tokenHash := sha256.Sum256([]byte(tokenPlaintext))
 
 	query := `
-	SELECT users.id, users.created_at, users.email, users.password_hash, users.activated, users.version 
+	SELECT users.id, users.created_at, users.email, users.password_hash, users.activated, users.version, users.goal 
 	FROM users
 	INNER JOIN tokens
 	ON users.id = tokens.user_id
@@ -125,7 +133,11 @@ func (m *UserModel) GetForToken(tokenScope, tokenPlaintext string) (*User, error
 	AND tokens.scope = $2 
 	AND tokens.expiry > $3
 	`
-	args := []any{tokenHash[:], tokenScope, time.Now()}
+	args := []any{
+		tokenHash[:], 
+		tokenScope, 
+		time.Now(),
+	}
 
 	var user User
 	err := m.DB.QueryRow(query, args...).Scan(
@@ -135,6 +147,7 @@ func (m *UserModel) GetForToken(tokenScope, tokenPlaintext string) (*User, error
 		&user.Password.Hash, 
 		&user.Activated, 
 		&user.Version,
+		&user.Goal,
 	)
 	if err != nil {
 		switch {

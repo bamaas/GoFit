@@ -72,7 +72,9 @@
 	}
 
     onMount(() => {
-		user = request(`${PUBLIC_BACKEND_BASE_URL}/v1/users`)
+		user = request(`${PUBLIC_BACKEND_BASE_URL}/v1/users/me`).then((response) => {
+			return response.data
+		})
 		apiDataAverageWeight = request(`${PUBLIC_BACKEND_BASE_URL}/v1/stats/weight-average?start_time=${sevenDaysAgo}&end_time=${today}`)
 		apiDataAllTimeWeightDifference = request(`${PUBLIC_BACKEND_BASE_URL}/v1/stats/weight-difference`)
 		apiDataAverageWeightThisWeek = request(`${PUBLIC_BACKEND_BASE_URL}/v1/stats/weight-average?start_time=${lastMonday}&end_time=${today}`)
@@ -100,7 +102,6 @@
 <div class="container max-w-screen-2xl items-center py-8">
 	<div class="grid gap-3 md:grid-cols-2 lg:grid-cols-3">
 		<Card.Root>
-			{#await user then user}
 			{#await apiDataAverageWeight then data}
 			<Card.Header class="flex flex-row items-center justify-between space-y-0 pb-2">
 				<Card.Title class="text-sm font-medium">Current average weight</Card.Title>
@@ -113,16 +114,15 @@
 					<p class="text-muted-foreground text-xs">Keep it up!</p>
 			</Card.Content>
 			{/await}
-			{/await}
 		</Card.Root>
 		<Card.Root>
 			{#await user then user}
 			{#await apiDataAverageWeightDifference then data}
 			<Card.Header class="flex flex-row items-center justify-between space-y-0 pb-2">
 				<Card.Title class="text-sm font-medium">
-					{#if user.goal == "gain"}
+					{#if user.goal == "bulk"}
 						Gained this week
-					{:else if user.goal == "lose"}
+					{:else if user.goal == "cut"}
 						Lost this week
 					{/if}
 				</Card.Title>
@@ -148,9 +148,9 @@
 			{#await apiDataAllTimeWeightDifference then data}
 			<Card.Header class="flex flex-row items-center justify-between space-y-0 pb-2">
 				<Card.Title class="text-sm font-medium">
-					{#if user.goal == "gain"}
+					{#if user.goal == "bulk"}
 						Gained all time
-					{:else if user.goal == "lose"}
+					{:else if user.goal == "cut"}
 						Lost all time
 					{/if}
 				</Card.Title>

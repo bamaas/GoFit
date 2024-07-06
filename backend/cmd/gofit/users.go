@@ -13,6 +13,7 @@ func (app * application) registerUserHandler(w http.ResponseWriter, r *http.Requ
 	var input struct {
 		Email string 	`json:"email"`
 		Password string `json:"password"`
+		Goal string 	`json:"goal"`
 	}
 
 	err := app.readJSON(w, r, &input)
@@ -59,12 +60,12 @@ func (app *application) getUserHandler(w http.ResponseWriter, r *http.Request) {
 	app.writeJSON(w, http.StatusOK, envelope{"data": user})
 }
 
-func (app *application) setUserGoalHandler(w http.ResponseWriter, r *http.Request) {
+func (app *application) updateUserHandler(w http.ResponseWriter, r *http.Request) {
 	user := app.contextGetUser(r)
 
 	// Get the input
 	var input struct {
-		Goal string `json:"goal"`
+		Goal string 	`json:"goal"`
 	}
 
 	err := app.readJSON(w, r, &input)
@@ -88,7 +89,6 @@ func (app *application) setUserGoalHandler(w http.ResponseWriter, r *http.Reques
 
 	// Update the user
 	user.Goal = input.Goal
-
 	err = app.models.Users.Update(user)
 	if err != nil {
 		app.logger.Error(err.Error())
@@ -99,3 +99,44 @@ func (app *application) setUserGoalHandler(w http.ResponseWriter, r *http.Reques
 	// Respond
 	app.writeJSON(w, http.StatusOK, envelope{"data": user})
 }
+
+// func (app *application) setUserGoalHandler(w http.ResponseWriter, r *http.Request) {
+// 	user := app.contextGetUser(r)
+
+// 	// Get the input
+// 	var input struct {
+// 		Goal string `json:"goal"`
+// 	}
+
+// 	err := app.readJSON(w, r, &input)
+// 	if err != nil {
+// 		app.writeJSON(w, http.StatusBadRequest, envelope{"error": "failed to read input"})
+// 		return
+// 	}
+
+// 	// Validate the input
+// 	validGoals := map[string]bool{
+// 		"cut": true,
+// 		"bulk": true,
+// 		"maintain": true,
+// 	}
+// 	v := validator.New()
+// 	v.Check(validGoals[input.Goal], "goal", "must be 'cut', 'bulk', or 'maintain'");
+// 	if !v.Valid() {
+// 		app.writeJSON(w, http.StatusBadRequest, envelope{"error": v.Errors})
+// 		return
+// 	}
+
+// 	// Update the user
+// 	user.Goal = input.Goal
+
+// 	err = app.models.Users.Update(user)
+// 	if err != nil {
+// 		app.logger.Error(err.Error())
+// 		app.writeJSON(w, http.StatusInternalServerError, envelope{"error": "error updating record"})
+// 		return
+// 	}
+
+// 	// Respond
+// 	app.writeJSON(w, http.StatusOK, envelope{"data": user})
+// }

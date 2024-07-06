@@ -8,19 +8,13 @@ import (
 	"github.com/google/uuid"
 )
 
-func (app *application) injectUser(email string, password string) error {
+func (app *application) injectUser(user *data.User) error {
 
 	// Check if user already exists
-	_, err := app.models.Users.GetByEmail(email)
+	_, err := app.models.Users.GetByEmail(user.Email)
 	if err != nil {
 		switch {
 			case errors.Is(err, data.ErrRecordNotFound):
-				// Insert user
-				user := &data.User{
-					Email:     email,
-					Activated: true,
-				}
-				user.Password.Set(password)
 				return app.models.Users.Insert(user)
 			default:
 				return err
@@ -61,7 +55,12 @@ func (app *application) Bootstrap() error {
 
 	// Inject users
 	for _, u := range app.config.Users {
-		err := app.injectUser(u.Email, u.Password)
+		user := data.User{
+			Email:     u.Email,
+			Goal: 	   "cut",
+		}
+		user.Password.Set(u.Password)
+		err := app.injectUser(&user)
 		if err != nil {
 			return err
 		}

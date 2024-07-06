@@ -27,8 +27,9 @@ func (app *application) routes() *http.ServeMux {
 
 	// Users
 	mux.HandleFunc("POST /api/v1/users", app.registerUserHandler)
-	mux.Handle("GET /api/v1/users", app.authenticate(http.HandlerFunc(app.getUserHandler)))
-	mux.Handle("PUT /api/v1/users/goal", app.authenticate(http.HandlerFunc(app.setUserGoalHandler)))
+	mux.Handle("GET /api/v1/users/me", app.authenticate(http.HandlerFunc(app.getUserHandler)))
+	mux.Handle("PUT /api/v1/users/me", app.authenticate(http.HandlerFunc(app.updateUserHandler)))
+	// mux.Handle("PUT /api/v1/users/goal", app.authenticate(http.HandlerFunc(app.setUserGoalHandler)))
 
 	// Authentication
 	mux.HandleFunc("POST /api/v1/tokens/authentication", app.createAuthenticationTokenHandler)
