@@ -124,6 +124,10 @@
 						Gained this week
 					{:else if user.goal == "cut"}
 						Lost this week
+					{:else if user.goal == "maintain" && data == 0}
+						Maintained this week
+					{:else if user.goal == "maintain" && data != 0}
+						Changed this week
 					{/if}
 				</Card.Title>
 				<TrendingDownIcon class="text-muted-foreground h-4 w-4" />
@@ -152,6 +156,8 @@
 						Gained all time
 					{:else if user.goal == "cut"}
 						Lost all time
+					{:else if user.goal == "maintain"}
+						Changed all time
 					{/if}
 				</Card.Title>
 				<AwardIcon class="text-muted-foreground h-4 w-4" />

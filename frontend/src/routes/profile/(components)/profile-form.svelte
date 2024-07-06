@@ -12,6 +12,8 @@
     import { zodClient } from "sveltekit-superforms/adapters";
     import LoaderCircleIcon from "lucide-svelte/icons/loader-circle";
     import * as Select from "$lib/components/ui/select";
+	  import { request } from '$lib/functions/request';
+    import { capitalizeFirstLetter } from "$lib/functions/string";
 
     let buttonDisabled: boolean = true;
  
@@ -42,7 +44,7 @@
       onChange: () => {validateForm()},
       onUpdate: async ({form}) => {
         try {
-          await fetch(`${PUBLIC_BACKEND_BASE_URL}/v1/users/me`, {
+          await request(`${PUBLIC_BACKEND_BASE_URL}/v1/users/me`, {
             method: "PUT",
             headers: {
               "Content-Type": "application/json",
@@ -56,6 +58,14 @@
     });
   
     const { form: formData, enhance, delayed } = form;
+
+    $: selectedGoal = $formData.goal
+    ? {
+        label: capitalizeFirstLetter($formData.goal),
+        value: $formData.goal,
+      }
+    : undefined;
+
 </script>
 
 <style>
@@ -71,26 +81,31 @@
   }
 }
 </style>
- 
-<Select.Root
->
-  <Select.Trigger class="w-full mb-3">
-    <Select.Value placeholder="Goal" />
-  </Select.Trigger>
-  <Select.Content>
-    <Select.Item value="cut">Cut</Select.Item>
-    <Select.Item value="bulk">Bulk</Select.Item>
-    <Select.Item value="maintain">Maintain</Select.Item>
-  </Select.Content>
-</Select.Root>
 
 <form method="POST" use:enhance>
-  <!-- <Form.Field {form} name="goal" class="pb-5">
+  <Form.Field {form} name="goal" class="pb-5">
       <Form.Control let:attrs>
-        <Input placeholder="Goal" {...attrs} bind:value={$formData.goal} />
+        <Form.Label>Goal</Form.Label>
+        <Select.Root
+        selected={selectedGoal}
+        onSelectedChange={(v) => {
+          v && ($formData.goal = v.value);
+        }}
+        >
+          <Select.Trigger class="w-full mb-3">
+            <Select.Value placeholder="Goal" />
+          </Select.Trigger>
+          <Select.Content>
+            <Select.Item value="cut">Cut</Select.Item>
+            <Select.Item value="bulk">Bulk</Select.Item>
+            <Select.Item value="maintain">Maintain</Select.Item>
+          </Select.Content>
+        </Select.Root>
+        <Input style="display: none;" {...attrs} bind:value={$formData.goal} />
       </Form.Control>
+      <Form.Description>What is the goal you try to archieve?</Form.Description>
       <Form.FieldErrors />
-  </Form.Field> -->
+  </Form.Field>
 <Form.Button class="w-full" disabled={buttonDisabled || $delayed}>
   {#if $delayed}
     <LoaderCircleIcon class="spinner"/>

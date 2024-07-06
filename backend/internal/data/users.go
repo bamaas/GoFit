@@ -68,6 +68,7 @@ func (m *UserModel) Update(user *User) error {
 		user.Password.Hash,
 		user.Activated,
 		user.Goal,
+		user.ID,
 	}
 
 	return m.DB.QueryRow(q, args...).Scan(&user.Version)

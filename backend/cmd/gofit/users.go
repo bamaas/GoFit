@@ -89,6 +89,7 @@ func (app *application) updateUserHandler(w http.ResponseWriter, r *http.Request
 
 	// Update the user
 	user.Goal = input.Goal
+	app.logger.Info("Updating user", "user", user)
 	err = app.models.Users.Update(user)
 	if err != nil {
 		app.logger.Error(err.Error())
