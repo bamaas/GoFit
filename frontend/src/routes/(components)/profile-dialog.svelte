@@ -81,6 +81,10 @@
                     body: JSON.stringify(form.data),
                 });
                 profileDialogOpen = false;
+                toast.info("Got ya!", {
+                    description: "Profile saved.",
+                    cancel: {label: "X", onClick: () => {}}
+                });
             } catch (e) {
                 showErrors(form);
             }
