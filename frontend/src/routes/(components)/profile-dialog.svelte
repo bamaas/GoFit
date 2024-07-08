@@ -2,6 +2,8 @@
     import { UserRoundIcon } from "lucide-svelte"
     import * as Avatar from "$lib/components/ui/avatar/index.js";
     import { authenticated } from "$lib/stores/auth";
+    import * as Form from "$lib/components/ui/form";
+    import LoaderCircleIcon from "lucide-svelte/icons/loader-circle";
     import { Button } from "$lib/components/ui/button/index.js";
     import * as Dialog from "$lib/components/ui/dialog/index.js";
     import { Input } from "$lib/components/ui/input/index.js";
@@ -12,20 +14,31 @@
 	import { PUBLIC_BACKEND_BASE_URL } from "$env/static/public";
     import { capitalizeFirstLetter } from "$lib/functions/string";
     import * as Select from "$lib/components/ui/select";
+    import { toast } from 'svelte-sonner';
+    import { formSchema, type FormSchema } from "./schema";
+    import { type SuperValidated, type Infer, superForm } from "sveltekit-superforms";
+	import { zod } from "sveltekit-superforms/adapters";
+    import { defaults } from 'sveltekit-superforms';
+    import { Skeleton } from "$lib/components/ui/skeleton/index.js";
 
-    let saveProfileChangesButtonDisabled: boolean = true;
     let profileDialogOpen: boolean = false;
-
-    let iets: any = "";
-
-    $: selectedGoal = iets ? {value: iets, label: capitalizeFirstLetter(iets)} : null;
 
     let user: Promise<any> = new Promise(() => {});
 
-    function onOpen(){
-        request(`${PUBLIC_BACKEND_BASE_URL}/v1/users/me`).then((response) => {
-            user = response.data;
-        })
+    function handleDialogStateChange(open: boolean){
+        if (open) {
+            user = request(`${PUBLIC_BACKEND_BASE_URL}/v1/users/me`).then((response) => {
+                user = response.data;
+                preFillForm(response.data);
+            });
+        } else {
+            buttonDisabled = true;
+        }
+    }
+
+    function preFillForm(user: any){
+        // TODO: add more fields
+        $formData.goal = user.goal;
     }
 
     function logout(){
@@ -39,24 +52,61 @@
         });
     }
 
-    function updateProfile(){
-        request(`${PUBLIC_BACKEND_BASE_URL}/v1/users/me`, {
-            method: "PUT",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({
-                goal: selectedGoal?.value
-            }),
-          }).then(() => {
-              profileDialogOpen = false;
-          });
+    let changes: number = 0;
+    let buttonDisabled: boolean = true;
+
+    const { form: formData, enhance, delayed }  = superForm(defaults(zod(formSchema)), {
+        SPA: true,
+        validators: zod(formSchema),
+        resetForm: false,
+        delayMs: 1000,
+        onChange: () => {
+            changes++;
+            if (changes === 1) return;
+            try {
+                formSchema.parse($formData)
+                buttonDisabled = false;
+                changes++;
+            } catch (e: any) {
+                buttonDisabled = true;
+            }
+        },
+        onUpdate: async ({form}) => {
+            try {
+                await request(`${PUBLIC_BACKEND_BASE_URL}/v1/users/me`, {
+                    method: "PUT",
+                    headers: {
+                    "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify(form.data),
+                });
+                profileDialogOpen = false;
+            } catch (e) {
+                showErrors(form);
+            }
+        }
+    });
+
+    function showErrors(form: SuperValidated<Infer<FormSchema>>): void {
+        form.errors.goal = ["Invalid goal"];
+        toast.error("Oops!", {
+            description: "Something went wrong.",
+            cancel: {label: "X", onClick: () => {}}
+        });
     }
 
+    $: selectedGoal = $formData.goal
+    ? {
+        label: capitalizeFirstLetter($formData.goal),
+        value: $formData.goal,
+      }
+    : undefined;
+
+    $: handleDialogStateChange(profileDialogOpen);
 
 </script>
 
-<Dialog.Root onOpenChange={onOpen} bind:open={profileDialogOpen}>
+<Dialog.Root bind:open={profileDialogOpen}>
     <Dialog.Trigger on:click={() => (profileDialogOpen = true)}>
         {#if $authenticated}
         <Avatar.Root class="items-center h-8 w-8 border">
@@ -73,18 +123,24 @@
         <Dialog.Description>Hello, how are you doing?</Dialog.Description>
     </Dialog.Header>
     <div class="grid gap-4 py-4">
-        {#await user then user}
         <div class="grid grid-cols-4 items-center gap-4">
             <Label for="email" class="text-right">Email</Label>
+            {#await user}
+            <Skeleton class="h-10 col-span-3" />
+            {:then user}
             <Input disabled id="email" value={user.email} class="col-span-3" />
+            {/await}
         </div>
         <div class="grid grid-cols-4 items-center gap-4">
             <Label for="goal" class="text-right">Goal</Label>
+            {#await user}
+            <Skeleton class="h-10 col-span-3" />
+            {:then user}
             <div class="col-span-3">
                 <Select.Root
                 selected={selectedGoal}
                 onSelectedChange={(v) => {
-                v && (v.value);
+                    v && ($formData.goal = v.value);
                 }}
                 >
                 <Select.Trigger class="w-full">
@@ -97,12 +153,20 @@
                 </Select.Content>
                 </Select.Root>
             </div>
+            {/await}
         </div>
-        {/await}
     </div>
     <Dialog.Footer>
         <Button variant="outline" on:click={logout}>Logout</Button>
-        <Button type="submit" on:click={updateProfile}>Save changes</Button>
+        <form method="POST" use:enhance>
+            <Form.Button disabled={buttonDisabled || $delayed} class="sm:w-auto w-full mb-4 sm:mb-0">
+                {#if $delayed}
+                <LoaderCircleIcon class="spinner"/>
+                {:else}
+                Save profile
+                {/if}
+            </Form.Button>
+        </form>
     </Dialog.Footer>
     </Dialog.Content>
 </Dialog.Root>
