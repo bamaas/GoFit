@@ -10,7 +10,7 @@
 	import { goto } from "$app/navigation";
     import { Skeleton } from "$lib/components/ui/skeleton/index.js";
     import { page } from '$app/stores';
-    import WeightDifference from "./weight-diff-column.svelte";
+    import WeightDifferenceColumn from "./weight-diff-column.svelte";
     import { request } from "$lib/functions/request";
     import moment from "moment";
 
@@ -131,7 +131,7 @@
         table.column({
             accessor: "weight_difference",
             header: "Difference",
-            cell: ({ value }) => createRender(WeightDifference, { weightDiff: value }),
+            cell: ({ value }) => createRender(WeightDifferenceColumn, { weightDiff: value }),
         }),
         table.column({
             id: "movingAvg",
@@ -179,7 +179,6 @@
     import { cn } from "$lib/utils.js";
     import { RangeCalendar } from "$lib/components/ui/range-calendar/index.js";
     import * as Popover from "$lib/components/ui/popover/index.js";
-	import { date } from "zod";
 
     let rangeCalendarOpen: boolean = false;
     const df = new DateFormatter("en-US", {

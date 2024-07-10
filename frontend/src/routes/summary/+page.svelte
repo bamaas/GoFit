@@ -8,6 +8,7 @@
 	import { onMount } from "svelte";
 	import { request } from "$lib/functions/request.js";
 	import { Chart, Svg, Axis, TooltipItem, Tooltip, Highlight, Spline } from 'layerchart';
+	import { profileStore } from "$lib/stores/profile";
 
 	let user: Promise<any> = new Promise(() => {});
 
@@ -72,9 +73,11 @@
 	}
 
     onMount(() => {
-		user = request(`${PUBLIC_BACKEND_BASE_URL}/v1/users/me`).then((response) => {
-			return response.data
-		})
+		profileStore.subscribe((userProfile) => {
+			user = new Promise((resolve) => {
+				resolve(userProfile)
+			})
+		});
 		apiDataAverageWeight = request(`${PUBLIC_BACKEND_BASE_URL}/v1/stats/weight-average?start_time=${sevenDaysAgo}&end_time=${today}`)
 		apiDataAllTimeWeightDifference = request(`${PUBLIC_BACKEND_BASE_URL}/v1/stats/weight-difference`)
 		apiDataAverageWeightThisWeek = request(`${PUBLIC_BACKEND_BASE_URL}/v1/stats/weight-average?start_time=${lastMonday}&end_time=${today}`)
@@ -83,7 +86,7 @@
 			apiDataAverageWeightDifference = new Promise((resolve) => {
 				resolve(results[0].weight_average - results[1].weight_average)
 			})
-		})
+		});
 		apiDataWeeklyAverageWeight = request(`${PUBLIC_BACKEND_BASE_URL}/v1/stats/weight-average-by-week`)
     });
 

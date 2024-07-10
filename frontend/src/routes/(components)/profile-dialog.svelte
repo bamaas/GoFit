@@ -20,26 +20,32 @@
 	import { zod } from "sveltekit-superforms/adapters";
     import { defaults } from 'sveltekit-superforms';
     import { Skeleton } from "$lib/components/ui/skeleton/index.js";
-
+    import { profileStore } from "$lib/stores/profile";
+    import type { UserProfile } from "$lib/stores/profile";
+	import { fetchUserProfile } from "$lib/functions/profile";
+	import { onMount } from "svelte";
+    
     let profileDialogOpen: boolean = false;
 
-    let user: Promise<any> = new Promise(() => {});
+    let user: Promise<UserProfile> = new Promise(() => {});
 
     function handleDialogStateChange(open: boolean){
         if (open) {
-            user = request(`${PUBLIC_BACKEND_BASE_URL}/v1/users/me`).then((response) => {
-                user = response.data;
-                preFillForm(response.data);
-            });
+            fetchUserProfile();
         } else {
             buttonDisabled = true;
         }
     }
 
-    function preFillForm(user: any){
-        // TODO: add more fields
-        $formData.goal = user.goal;
-    }
+    onMount(() => {
+        profileStore.subscribe((userProfile) => {
+            if (!userProfile) return;
+			user = new Promise((resolve) => {
+				resolve(userProfile)
+			});
+            $formData.goal = userProfile.goal;
+        });
+    });
 
     function logout(){
         request(`${PUBLIC_BACKEND_BASE_URL}/v1/tokens/retract-all`, {method: 'DELETE'}, false)
@@ -47,6 +53,7 @@
             if (response.ok){
                 deleteCookie("token")
                 authenticated.set(false);
+                profileStore.set(undefined);
                 goto("/login");
             }
         });
@@ -73,13 +80,21 @@
         },
         onUpdate: async ({form}) => {
             try {
-                await request(`${PUBLIC_BACKEND_BASE_URL}/v1/users/me`, {
+                const response = await request(`${PUBLIC_BACKEND_BASE_URL}/v1/users/me`, {
                     method: "PUT",
                     headers: {
                     "Content-Type": "application/json",
                     },
                     body: JSON.stringify(form.data),
                 });
+                const user: UserProfile = {
+                    id: response.data.id,
+                    email: response.data.email,
+                    goal: response.data.goal,
+                    activated: response.data.activated,
+                    createdAt: response.data.created_at,
+                }
+                profileStore.set(user);
                 profileDialogOpen = false;
                 toast.info("Got ya!", {
                     description: "Profile saved.",
