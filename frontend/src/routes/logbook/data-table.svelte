@@ -193,7 +193,7 @@
     });
     let prevDateRangerFilter: DateRange | undefined = undefined;
     let dateRangeFilter: DateRange | undefined = initDateRangeFilter();
-    $: dateRangeFilter: renameThisFunction(dateRangeFilter);
+    $: renameThisFunction(dateRangeFilter);
 
     function initDateRangeFilter(): DateRange | undefined {
         if (startTime != null && endTime != null) {
@@ -222,6 +222,9 @@
     }
 
     function renameThisFunction(d: DateRange | undefined): void {
+        if (d?.start == undefined || d?.end == undefined) {
+            resetDateRangeFilter();
+        }
         if ((d?.start && d?.end) && prevDateRangerFilter != d) {
             prevDateRangerFilter = d;
             startTime = d?.start?.toString();
