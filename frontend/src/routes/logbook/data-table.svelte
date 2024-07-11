@@ -1,7 +1,7 @@
 <script lang="ts">
     import { createTable, Render, Subscribe, createRender} from "svelte-headless-table";
     import * as Table from "$lib/components/ui/table";
-    import { onMount } from "svelte";
+    import { onDestroy, onMount } from "svelte";
     import { PUBLIC_BACKEND_BASE_URL } from "$env/static/public";
     import { apiData, checkIns, type CheckIn, type Metadata, type ApiResponse } from "./store";
     import { Button } from "$lib/components/ui/button/index.js";
@@ -13,6 +13,7 @@
     import WeightDifferenceColumn from "./weight-diff-column.svelte";
     import { request } from "$lib/functions/request";
     import moment from "moment";
+    import type { Unsubscriber } from "svelte/motion";
 
     let startTime: string | null = $page.url.searchParams.get('start_time');
     let endTime: string | null = $page.url.searchParams.get('end_time');
@@ -29,6 +30,8 @@
     $: showPageNav = false;
 
     let promise: Promise<ApiResponse> = new Promise(() => {});
+
+    let unsubApiData: Unsubscriber;
 
     onMount(() => {
 
@@ -62,7 +65,7 @@
             fetchData(pageNumber, null, null);
         }
 
-        apiData.subscribe((data) => {
+        unsubApiData = apiData.subscribe((data) => {
 
             // Check if records are present
             if (data.data.length == 0) {
@@ -91,6 +94,10 @@
             }
             lastPage = data.metadata.last_page;
         });
+    });
+
+    onDestroy(() => {
+        unsubApiData();
     });
 
     function fetchData(pageNumber: number, startTime: string | null, endTime: string | null): void {
