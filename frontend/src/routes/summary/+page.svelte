@@ -5,10 +5,11 @@
 	import CalendarIcon from "lucide-svelte/icons/calendar";
     import RocketIcon from "lucide-svelte/icons/rocket";
     import { PUBLIC_BACKEND_BASE_URL } from "$env/static/public";
-	import { onMount } from "svelte";
+	import { onDestroy, onMount } from "svelte";
 	import { request } from "$lib/functions/request.js";
 	import { Chart, Svg, Axis, TooltipItem, Tooltip, Highlight, Spline } from 'layerchart';
 	import { profileStore } from "$lib/stores/profile";
+	import type { Unsubscriber } from "svelte/store";
 
 	let user: Promise<any> = new Promise(() => {});
 
@@ -72,12 +73,13 @@
 		}
 	}
 
+	const unsubProfileStore: Unsubscriber = profileStore.subscribe((userProfile) => {
+		user = new Promise((resolve) => {
+			resolve(userProfile)
+		})
+	});
+
     onMount(() => {
-		profileStore.subscribe((userProfile) => {
-			user = new Promise((resolve) => {
-				resolve(userProfile)
-			})
-		});
 		apiDataAverageWeight = request(`${PUBLIC_BACKEND_BASE_URL}/v1/stats/weight-average?start_time=${sevenDaysAgo}&end_time=${today}`)
 		apiDataAllTimeWeightDifference = request(`${PUBLIC_BACKEND_BASE_URL}/v1/stats/weight-difference`)
 		apiDataAverageWeightThisWeek = request(`${PUBLIC_BACKEND_BASE_URL}/v1/stats/weight-average?start_time=${lastMonday}&end_time=${today}`)
@@ -89,6 +91,10 @@
 		});
 		apiDataWeeklyAverageWeight = request(`${PUBLIC_BACKEND_BASE_URL}/v1/stats/weight-average-by-week`)
     });
+
+	onDestroy(() => {
+		unsubProfileStore();
+	});
 
 </script>
 

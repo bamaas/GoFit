@@ -3,12 +3,14 @@
     import MoveDownIcon from "lucide-svelte/icons/move-down";
     import MinusIcon from "lucide-svelte/icons/minus";
     import { profileStore } from "$lib/stores/profile";
+	import type { Unsubscriber } from "svelte/store";
+	import { onDestroy } from "svelte";
 
     export let weightDiff: number;
     let moveDownIconColor: string = "white";
     let moveUpIconColor: string = "white";
 
-    profileStore.subscribe((userProfile) => {
+    const unsubProfileStore: Unsubscriber= profileStore.subscribe((userProfile) => {
         if (!userProfile) return;
         const goal = userProfile.goal;
         if (goal == "cut"){
@@ -21,6 +23,10 @@
             moveUpIconColor = "red";
             moveDownIconColor = "red";
         }
+    });
+
+    onDestroy(() => {
+        unsubProfileStore();
     });
 
 </script>

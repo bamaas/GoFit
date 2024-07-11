@@ -23,7 +23,8 @@
     import { profileStore } from "$lib/stores/profile";
     import type { UserProfile } from "$lib/stores/profile";
 	import { fetchUserProfile } from "$lib/functions/profile";
-	import { onMount } from "svelte";
+	import { onDestroy } from "svelte";
+	import type { Unsubscriber } from "svelte/store";
     
     let profileDialogOpen: boolean = false;
 
@@ -37,14 +38,16 @@
         }
     }
 
-    onMount(() => {
-        profileStore.subscribe((userProfile) => {
-            if (!userProfile) return;
-			user = new Promise((resolve) => {
-				resolve(userProfile)
-			});
-            $formData.goal = userProfile.goal;
+    const unsubProfileStore: Unsubscriber = profileStore.subscribe((userProfile) => {
+        if (!userProfile) return;
+        user = new Promise((resolve) => {
+            resolve(userProfile)
         });
+        $formData.goal = userProfile.goal;
+    });
+
+    onDestroy(() => {
+        unsubProfileStore();
     });
 
     function logout(){

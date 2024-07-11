@@ -4,6 +4,20 @@
 	import HeaderComponent from "./header.svelte";
 	import ToolbarComponent from "./toolbar.svelte";
 	import { page } from '$app/stores';
+	import { fetchUserProfile } from "$lib/functions/profile.js";
+	import { profileStore } from "$lib/stores/profile.js";
+	import type { Unsubscriber } from "svelte/store";
+	import { onDestroy } from "svelte";
+
+	const unsubProfileStore: Unsubscriber = profileStore.subscribe(userProfile => {
+		if (!userProfile) {
+			fetchUserProfile();
+		}
+	});
+
+	onDestroy(() => {
+		unsubProfileStore();
+	});
 
 	function getHeaderTitleFromPathname(pathname: string): string {
 		let title: string = pathname.split('/')[1];

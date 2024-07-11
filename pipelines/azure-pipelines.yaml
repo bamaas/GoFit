@@ -6,7 +6,7 @@ trigger:
 pool:
   vmImage: ubuntu-latest
 
-container: docker.io/bamaas/devcontainer:2f03e7ccfb73871b7deb353e63081b806e79de94
+# container: docker.io/bamaas/devcontainer:2f03e7ccfb73871b7deb353e63081b806e79de94
 
 steps:
 
