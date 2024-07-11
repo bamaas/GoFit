@@ -223,7 +223,16 @@
 
     function renameThisFunction(d: DateRange | undefined): void {
         if (d?.start == undefined || d?.end == undefined) {
-            resetDateRangeFilter();
+            let query = new URLSearchParams($page.url.searchParams.toString());
+            startTime = null;
+            endTime = null;
+            pageNumber = 1;
+            query.delete("start_time");
+            query.delete("end_time");
+            query.delete("page")
+            goto(`?${query.toString()}`);
+            fetchData(pageNumber, startTime, endTime);
+            // resetDateRangeFilter();      // This way you need to double click to set new date FIX THIS
         }
         if ((d?.start && d?.end) && prevDateRangerFilter != d) {
             prevDateRangerFilter = d;
