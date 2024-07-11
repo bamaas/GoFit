@@ -58,7 +58,6 @@
           const token = r.authentication_token.token;
           document.cookie = `token=${token}; expires=${expires};path=/`;
           authenticated.set(true);
-          fetchUserProfile();
           goto("/logbook");
         } catch (e) {
           showErrors(form);

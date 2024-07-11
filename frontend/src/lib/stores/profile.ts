@@ -1,4 +1,4 @@
-import { writable } from 'svelte/store';
+import { derived, writable } from 'svelte/store';
 
 export type UserProfile = {
     id: number;
@@ -9,3 +9,7 @@ export type UserProfile = {
 };
 
 export const profileStore = writable<UserProfile | undefined>(undefined);
+
+export const profileReadable = derived(profileStore, ($profileStore) => {
+    return $profileStore;
+});
