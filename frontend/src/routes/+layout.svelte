@@ -10,7 +10,8 @@
 	import { onDestroy } from "svelte";
 
 	const unsubPageStore: Unsubscriber = page.subscribe(page => {
-		if (page.url.pathname !== "/login" && $profileReadable === undefined) {
+		const paths: string[] = ["/", "/login"]
+		if(paths.indexOf(page.url.pathname) === -1 && $profileReadable === undefined) {
 			fetchUserProfile();
 		}
 	})
