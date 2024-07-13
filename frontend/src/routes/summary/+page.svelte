@@ -93,7 +93,7 @@
 			})
 		});
 		apiDataWeeklyAverageWeight = request(`${PUBLIC_BACKEND_BASE_URL}/v1/stats/weight-average-by-week`).then((data) => {
-			minYAxis = Math.min(...data.map((item: { weight: any; }) => item.weight)) - 10
+			minYAxis = Math.min(...data.map((item: { weight: any; }) => item.weight)) - 5
 			return data;
 		});
     });
