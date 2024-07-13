@@ -23,11 +23,8 @@ spec:
       targetRevision: HEAD
       helm:
         valueFiles:
-          - $values/deploy/homelab/values.yaml
-          - secrets://$values/deploy/homelab/secret.values.enc.yaml
-    - repoURL: 'https://github.com/bamaas/gofit'
-      targetRevision: HEAD
-      ref: values
+          - ../../../deploy/homelab/values.yaml
+          - secrets://../../../deploy/homelab/secret.values.enc.yaml
   project: default
   syncPolicy:
     automated:
