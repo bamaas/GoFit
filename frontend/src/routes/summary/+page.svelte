@@ -31,6 +31,9 @@
 	let previousWeekModay: string = getMonday(new Date(Date.now() - 7 * 24 * 60 * 60 * 1000)).toISOString().split("T")[0]
 	let previousWeekSunday: string = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString().split("T")[0]
 
+	// Chart
+	let minYAxis: number = 0;
+
 	function getMonday(d: Date) {
 		d = new Date(d);
 		var day = d.getDay(),
@@ -89,7 +92,10 @@
 				resolve(results[0].weight_average - results[1].weight_average)
 			})
 		});
-		apiDataWeeklyAverageWeight = request(`${PUBLIC_BACKEND_BASE_URL}/v1/stats/weight-average-by-week`)
+		apiDataWeeklyAverageWeight = request(`${PUBLIC_BACKEND_BASE_URL}/v1/stats/weight-average-by-week`).then((data) => {
+			minYAxis = Math.min(...data.map((item: { weight: any; }) => item.weight)) - 10
+			return data;
+		});
     });
 
 	onDestroy(() => {
@@ -199,7 +205,7 @@
                   data={dateSeriesData}
                   x="week"
                   y="weight"
-                  yDomain={[0, null]}
+                  yDomain={[minYAxis, null]}
                   yNice
                   padding={{ left: 16, bottom: 24 }}
                   tooltip={{ mode: "bisect-x" }}
