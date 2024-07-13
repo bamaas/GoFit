@@ -23,7 +23,7 @@
 	function getHeaderTitleFromPathname(pathname: string): string {
 		let title: string = pathname.split('/')[1];
 		// Capitalize first letter
-		title =  title.charAt(0).toUpperCase() + title.slice(1); 
+		title =  title.charAt(0).toUpperCase() + title.slice(1);
 		if (title === "") {
 			title = "GoFit"
 		}
@@ -37,6 +37,7 @@
 </script>
 
 <svelte:head>
+	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
 	<title>{$page.data.title} • GoFit</title>
 </svelte:head>
 
