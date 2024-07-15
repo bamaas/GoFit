@@ -29,10 +29,16 @@
 	let lastMonday: string = getMonday(new Date()).toISOString().split("T")[0]
 	let sevenDaysAgo: string = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString().split("T")[0]
 	let previousWeekModay: string = getMonday(new Date(Date.now() - 7 * 24 * 60 * 60 * 1000)).toISOString().split("T")[0]
-	let previousWeekSunday: string = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString().split("T")[0]
+	let previousWeekSunday: string = getLastSunday(new Date(Date.now())).toISOString().split("T")[0]
 
 	// Chart
 	let minYAxis: number = 0;
+
+	function getLastSunday(d: Date) {
+		var t = new Date(d);
+		t.setDate(t.getDate() - t.getDay());
+		return t;
+	}
 
 	function getMonday(d: Date) {
 		d = new Date(d);
@@ -88,7 +94,10 @@
 		apiDataAverageWeightThisWeek = request(`${PUBLIC_BACKEND_BASE_URL}/v1/stats/weight-average?start_time=${lastMonday}&end_time=${today}`)
 		apiDataAverageWeightLastWeek = request(`${PUBLIC_BACKEND_BASE_URL}/v1/stats/weight-average?start_time=${previousWeekModay}&end_time=${previousWeekSunday}`)
 		Promise.all([apiDataAverageWeightThisWeek, apiDataAverageWeightLastWeek]).then((results) => {
+			console.log(apiDataAverageWeightLastWeek)
 			apiDataAverageWeightDifference = new Promise((resolve) => {
+				console.log(results[0])
+				console.log(results[1])
 				resolve(results[0].weight_average - results[1].weight_average)
 			})
 		});
