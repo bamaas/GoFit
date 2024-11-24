@@ -13,7 +13,7 @@ type Config struct {
 }
 
 // Default configuration values
-var defaultLogLevel = "DEBUG"
+var defaultLogLevel = "INFO"
 var defaultDevelopmentMode = "false"
 
 func getEnv(key, fallback string) string {
