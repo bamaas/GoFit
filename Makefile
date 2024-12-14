@@ -27,10 +27,7 @@ LOG_LEVEL=debug
 help:           																			## Show this help.
 	@fgrep -h "##" $(MAKEFILE_LIST) | fgrep -v fgrep | sed -e 's/\\$$//' | sed -e 's/:.*##/;/' | column -t -s';'
 
-development/setup: direnv_allow frontend/install_deps										## Setup development environment
-
-direnv_allow:																				## Allow direnv to load environment variables
-	direnv allow .
+development/setup: frontend/install_deps													## Setup development environment
 
 # -------------- Backend --------------
 backend/build:																				## Build backend application binary

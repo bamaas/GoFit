@@ -19,7 +19,8 @@
 	// ],
 
 	"mounts": [
-		"source=/var/run/docker.sock,target=/var/run/docker.sock,type=bind"
+		"source=/var/run/docker.sock,target=/var/run/docker.sock,type=bind",
+		"type=bind,source=${localEnv:HOME}/.ssh,target=/root/.ssh,readonly"
 	],
 	"runArgs": [
 		"--add-host=host.docker.internal:host-gateway",
@@ -27,7 +28,8 @@
 	],
 
 	// Use 'postCreateCommand' to run commands after the container is created.
-	"postCreateCommand": "/bin/zsh -c 'source ~/.zshrc && direnv allow .'",
+	// "postCreateCommand": "/bin/zsh -c 'source ~/.zshrc && direnv allow .'",
+	"postCreateCommand": "/bin/zsh -c 'mise trust && mise install && source ~/.zshrc' && make development/setup",
 
 	// Configure tool-specific properties.
 	// "customizations": {},
