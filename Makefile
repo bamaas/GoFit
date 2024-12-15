@@ -27,7 +27,7 @@ LOG_LEVEL=debug
 help:           																			## Show this help.
 	@fgrep -h "##" $(MAKEFILE_LIST) | fgrep -v fgrep | sed -e 's/\\$$//' | sed -e 's/:.*##/;/' | column -t -s';'
 
-development/setup: frontend/install_deps													## Setup development environment
+development/setup:																			## Setup development environment
 
 # -------------- Backend --------------
 backend/build:																				## Build backend application binary
@@ -59,11 +59,12 @@ image/run:																					## Run the image
 	docker run -e USERS='${USERS}' --rm -p 8080:8080 ${IMAGE}
 
 # -------------- Frontend --------------
-frontend/build:																				## Build frontend application
+frontend/build:	frontend/install_deps														## Build frontend application
 	cd frontend && \
+	npm run ci && \
 	npm run build
 
-frontend/run:																				## Run frontend application in development mode
+frontend/run: frontend/install_deps															## Run frontend application in development mode
 	cd frontend && \
 	npm run dev -- --host --open
 
