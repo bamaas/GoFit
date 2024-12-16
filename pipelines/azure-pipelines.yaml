@@ -6,7 +6,7 @@ trigger:
 pool:
   vmImage: ubuntu-latest
 
-container: ubuntu:22.04
+container: ubuntu:$(Build.SourceVersion)
 
 steps:
 
