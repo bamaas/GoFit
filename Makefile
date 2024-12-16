@@ -3,7 +3,7 @@
 
 # Build env
 SHELL = /bin/bash
-ARCHITECTURE?=arm64
+ARCHITECTURE?=amd64
 OS?=$(shell uname -s | tr '[:upper:]' '[:lower:]')
 
 # App

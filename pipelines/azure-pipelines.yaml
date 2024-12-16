@@ -1,12 +1,12 @@
 ---
 
 trigger:
-  - main
+  - "*"
 
 pool:
   vmImage: ubuntu-latest
 
-container: docker.io/bamaas/devcontainer:10f749ea9e0c7a4bc9dc1663f00cf98ceabfaa34
+# container: docker.io/bamaas/devcontainer:10f749ea9e0c7a4bc9dc1663f00cf98ceabfaa34
 
 steps:
 
