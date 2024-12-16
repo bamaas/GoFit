@@ -6,7 +6,9 @@ trigger:
 pool:
   vmImage: ubuntu-latest
 
-container: docker.io/bamaas/devcontainer:eeabfca45959074660bd15c00aa9536569d2a802
+container: 
+  image: docker.io/bamaas/devcontainer:10f749ea9e0c7a4bc9dc1663f00cf98ceabfaa34
+  options: --entrypoint ""
 
 steps:
 
