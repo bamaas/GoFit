@@ -3,14 +3,12 @@
 
 # Build env
 SHELL = /bin/bash
-GO_BINARY=$(shell which go)
+ARCHITECTURE?=arm64
+OS?=$(shell uname -s | tr '[:upper:]' '[:lower:]')
 
 # App
 APP_NAME=gofit
 APP_VERSION?=0.0.3
-
-# Backend
-GO_VERSION=1.22
 
 # Image
 # IMAGE_REGISTRY=docker.io
@@ -27,12 +25,33 @@ LOG_LEVEL=debug
 help:           																			## Show this help.
 	@fgrep -h "##" $(MAKEFILE_LIST) | fgrep -v fgrep | sed -e 's/\\$$//' | sed -e 's/:.*##/;/' | column -t -s';'
 
-development/setup:																			## Setup development environment
+development/setup:																			## Install development tools
+	mise trust && \
+	mise install
+
+# -------------- Binary --------------
+
+iets: binary image
+
+binary: binary/build																		## Alias for binary/build
+
+binary/build: frontend/build backend/build													## Build the application
+
+binary/compress:																			## Compress backend application binary
+	upx --best --lzma ./backend/bin/${APP_NAME}
 
 # -------------- Backend --------------
 backend/build:																				## Build backend application binary
+	rm -rf ./backend/internal/assets/static/* && \
+	cp -a ./frontend/build/* ./backend/internal/assets/static/ && \
 	cd ./backend && \
-	go build -o ./bin/${APP_NAME} ./cmd/${APP_NAME}
+	env GOOS=${OS} \
+	GOARCH=${ARCHITECTURE} \
+	CGO_ENABLED=0 \
+	go build \
+	-o ./bin/${APP_NAME} \
+	-a -ldflags='-s -w -extldflags "-static"' \
+	./cmd/${APP_NAME}
 
 backend/run:																				## Run backend application
 	cd ./backend && \
@@ -43,8 +62,18 @@ backend/migrate/create:																		## Create database migration
 	migrate create -ext=.sql -dir=./internal/assets/migrations ${NAME}
 
 # -------------- Image --------------
+
+image: image/build																			## Alias for image/build
+
+DOCKERFILE=${PWD}/Dockerfile
 image/build:																				## Build an application container image
-	docker build -t ${IMAGE} .
+	$(eval DEVCONTAINER_TAG=$(shell grep DEVCONTAINER_TAG .devcontainer/Dockerfile | head -n 1 | cut -d '=' -f 2))
+	export DOCKER_DEFAULT_PLATFORM=linux/${ARCHITECTURE} && \
+	docker build \
+	-t ${IMAGE} \
+	--build-arg DEVCONTAINER_TAG=${DEVCONTAINER_TAG} \
+	-f ${DOCKERFILE} \
+	.
 
 image/get:																					## Get the image name
 	@echo ${IMAGE}
@@ -61,7 +90,7 @@ image/run:																					## Run the image
 # -------------- Frontend --------------
 frontend/build:	frontend/install_deps														## Build frontend application
 	cd frontend && \
-	npm run ci && \
+	npm ci && \
 	npm run build
 
 frontend/run: frontend/install_deps															## Run frontend application in development mode

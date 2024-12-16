@@ -1,0 +1,15 @@
+# Create run user
+FROM alpine:3.21 AS user
+RUN apk add --no-cache upx
+RUN addgroup -S gofit && \
+    adduser -S -u 1001 -g gofit gofit
+RUN mkdir /data
+
+# Final
+FROM scratch AS final
+COPY --from=user /etc/passwd /etc/passwd
+COPY --from=user /etc/group /etc/group
+USER gofit
+COPY --from=user --chown=gofit:gofit /data /data
+COPY --chown=gofit:gofit ./backend/bin/gofit /usr/local/bin/gofit
+ENTRYPOINT ["/usr/local/bin/gofit"]
