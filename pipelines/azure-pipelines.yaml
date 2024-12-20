@@ -16,9 +16,7 @@ variables:
 steps:
 
   - script: |
-      #!/bin/zsh 
-      eval "$(/root/.local/bin/mise activate zsh)" && \ 
-      make development/setup
+      /bin/zsh -c "mise trust && mise install"
     displayName: Make development/setup
 
   - task: Docker@2
