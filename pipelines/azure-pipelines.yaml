@@ -17,7 +17,7 @@ steps:
 
   - script: |
       #!/bin/zsh 
-      eval "$(~/.local/bin/mise activate zsh)" && \ 
+      eval "$(/root/.local/bin/mise activate zsh)" && \ 
       make development/setup
     displayName: Make development/setup
 
