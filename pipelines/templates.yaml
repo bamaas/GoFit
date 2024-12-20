@@ -1,0 +1,37 @@
+parameters:
+  - name: docker_image_name
+    type: string
+    displayName: 'The name of the Docker image to build. Example: klaur-testing.'
+  - name: additional_docker_build_args
+    type: string
+    default: ''
+    displayName: 'Additional arguments to pass to the docker build command. Example: --build-arg SOME_ARG=some_value.'
+  - name: dockerfile_path
+    type: string
+    default: 'Dockerfile'
+    displayName: 'The path to the Dockerfile to use. Example: Dockerfile.'
+  - name: docker_build_context
+    type: string
+    default: '.'
+    displayName: 'The path to the directory to use as the build context. Example: .'
+
+steps:
+  - task: Cache@2
+    displayName: Cache Docker layers
+    inputs:
+      key: '"docker" | "$(Agent.OS)" | "$" | $'
+      restoreKeys: |
+        "docker" | "$(Agent.OS)" | "$"
+      path: $(Pipeline.Workspace)/docker_cache
+
+  - script: |
+      docker buildx create --name builder --driver docker-container --use
+      docker buildx build \
+        --cache-from=type=local,src=$(Pipeline.Workspace)/docker_cache \
+        --cache-to=type=local,dest=$(Pipeline.Workspace)/docker_cache,mode=max \
+        --file ${{ parameters.dockerfile_path }} \
+        --output=type=docker,name=${{ parameters.docker_image_name }} \
+        ${{ parameters.docker_build_context }}
+    displayName: Build Docker image
+    env:
+      DOCKER_BUILDKIT: 1

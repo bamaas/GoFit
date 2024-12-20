@@ -6,71 +6,106 @@ trigger:
 pool:
   vmImage: ubuntu-latest
 
-container: 
-  image: docker.io/bamaas/devcontainer:latest-minimal
-  options: --entrypoint ""
-
 variables:
   SHELLOPTS: errexit:pipefail
 
-steps:
+jobs:
+  - job: Setup
+    displayName: Setup
+    steps:
+      - task: Docker@2
+        displayName: Login to DockerHub
+        inputs:
+          command: login
+          containerRegistry: dockerhub
 
-  - script: |
-      #!/bin/zsh 
-      eval "$(/root/.local/bin/mise activate zsh)" && \ 
-      make development/setup
-    displayName: Make development/setup
 
-  - task: Docker@2
-    displayName: Login to DockerHub
-    inputs:
-      command: login
-      containerRegistry: dockerhub
-
-  - script: make image/build
-    displayName: Build image
-    env:
-      IMAGE_TAG: $(Build.SourceVersion)
-
-  - ${{ if eq( variables['Build.SourceBranch'], 'refs/heads/main' ) }}:
-      - script: make image/retag-to-latest
-        displayName: Retag image to latest
-        env:
-          IMAGE_TAG: $(Build.SourceVersion)
-
-      - script: make image/push
-        displayName: Push image with tag $(Build.SourceVersion)
-        env:
-          IMAGE_TAG: $(Build.SourceVersion)
-
-      - script: make image/push
-        displayName: Push image with latest tag
-        env:
-          IMAGE_TAG: latest
+      - task: DevcontainersCi@0
+        inputs:
+          runCmd: make backend/build
 
       - script: |
-          echo "##vso[task.setvariable variable=image]$(make image/get)"
-          echo "Defined backend image task variable value: ${image}"
-        displayName: Define image task variable
+          docker build \
+          -t docker.io/bamaas/devcontainer:gofit-latest \
+          -f ./.devcontainer/Dockerfile \
+          --cache-from docker.io/bamaas/devcontainer:gofit-latest \
+          --cache-to type=inline \
+          . && \
+          docker push docker.io/bamaas/devcontainer:gofit-latest
+        displayName: Build and push devcontainer image
+
+      # - template: templates.yaml
+      #   parameters:
+      #     docker_image_name: 'docker.io/bamaas/devcontainer:gofit-latest'
+      #     dockerfile_path: './.devcontainer/Dockerfile'
+      #     docker_build_context: '.'
+
+
+  - job: Build
+    displayName: Build
+    dependsOn: Setup
+    container:
+      image: docker.io/bamaas/devcontainer:gofit-latest
+      options: --entrypoint "" --user 0:0
+    steps:
+      - script: |
+            source ~/.profile && mise trust && mise install
+        displayName: Make development/setup
+      
+      - script: |
+          source ~/.profile && helm
+        displayName: Use Python
+
+      - task: Docker@2
+        displayName: Login to DockerHub
+        inputs:
+          command: login
+          containerRegistry: dockerhub
+
+      - script: make image/build
+        displayName: Build image
         env:
           IMAGE_TAG: $(Build.SourceVersion)
 
-      - task: AzureWebAppContainer@1
-        displayName: Deploy backend
-        inputs:
-          azureSubscription: gofit-ARM
-          appName: gofit-api
-          containers: $(image)
+      - ${{ if eq( variables['Build.SourceBranch'], 'refs/heads/main' ) }}:
+          - script: make image/retag-to-latest
+            displayName: Retag image to latest
+            env:
+              IMAGE_TAG: $(Build.SourceVersion)
 
-      # TODO: fix this
-      # - script: |
-      #     # TODO: set PUBLIC_BACKEND_BASE_URL="https://gofit-api.azurewebsites.net/api" in ./frontend/.env.production
-      #   displayName: Build frontend
+          - script: make image/push
+            displayName: Push image with tag $(Build.SourceVersion)
+            env:
+              IMAGE_TAG: $(Build.SourceVersion)
 
-      - task: AzureStaticWebApp@0
-        displayName: Deploy frontend
-        inputs:
-          app_location: '/frontend'
-          output_location: '/build'
-          azure_static_web_apps_api_token: $(DEPLOYMENT_TOKEN)
-          production_branch: main
+          - script: make image/push
+            displayName: Push image with latest tag
+            env:
+              IMAGE_TAG: latest
+
+          - script: |
+              echo "##vso[task.setvariable variable=image]$(make image/get)"
+              echo "Defined backend image task variable value: ${image}"
+            displayName: Define image task variable
+            env:
+              IMAGE_TAG: $(Build.SourceVersion)
+
+          - task: AzureWebAppContainer@1
+            displayName: Deploy backend
+            inputs:
+              azureSubscription: gofit-ARM
+              appName: gofit-api
+              containers: $(image)
+
+          # TODO: fix this
+          # - script: |
+          #     # TODO: set PUBLIC_BACKEND_BASE_URL="https://gofit-api.azurewebsites.net/api" in ./frontend/.env.production
+          #   displayName: Build frontend
+
+          - task: AzureStaticWebApp@0
+            displayName: Deploy frontend
+            inputs:
+              app_location: '/frontend'
+              output_location: '/build'
+              azure_static_web_apps_api_token: $(DEPLOYMENT_TOKEN)
+              production_branch: main

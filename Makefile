@@ -2,7 +2,7 @@
 .EXPORT_ALL_VARIABLES:
 
 # Build env
-SHELL = /bin/bash
+SHELL = /bin/zsh
 ARCHITECTURE?=$(shell uname -a | grep 'arm64' &>/dev/null && echo arm64 || echo amd64)	# Assume it's either arm64 or amd64
 OS?=$(shell uname -s | tr '[:upper:]' '[:lower:]')
 
