@@ -1,2 +1,10 @@
-ARG DEVCONTAINER_TAG=10f749ea9e0c7a4bc9dc1663f00cf98ceabfaa34
+ARG DEVCONTAINER_TAG=latest-minimal
 FROM bamaas/devcontainer:${DEVCONTAINER_TAG}
+COPY ./mise.toml mise.toml
+RUN mise trust && \
+    mise install
+# WORKDIR /builder
+# COPY  . .
+# RUN make development/setup
+# WORKDIR /src
+# RUN rm -rf /builder

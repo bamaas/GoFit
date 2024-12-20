@@ -3,7 +3,7 @@
 
 # Build env
 SHELL = /bin/bash
-ARCHITECTURE?=amd64
+ARCHITECTURE?=$(shell uname -a | grep 'arm64' &>/dev/null && echo arm64 || echo amd64)	# Assume it's either arm64 or amd64
 OS?=$(shell uname -s | tr '[:upper:]' '[:lower:]')
 
 # App
@@ -31,11 +31,12 @@ development/setup:																			## Install development tools
 
 # -------------- Binary --------------
 
-iets: binary image
-
 binary: binary/build																		## Alias for binary/build
 
 binary/build: frontend/build backend/build													## Build the application
+
+binary/run:																					## Run the compiled binary
+	./backend/bin/${APP_NAME}
 
 binary/compress:																			## Compress backend application binary
 	upx --best --lzma ./backend/bin/${APP_NAME}
@@ -65,13 +66,17 @@ backend/migrate/create:																		## Create database migration
 
 image: image/build																			## Alias for image/build
 
-DOCKERFILE=${PWD}/Dockerfile
+NODE_VERSION=`cat .nvmrc | cut -d 'v' -f2`
+GO_VERSION=`cat .go-version`
+DOCKERFILE?=${PWD}/Dockerfile
 image/build:																				## Build an application container image
 	$(eval DEVCONTAINER_TAG=$(shell grep DEVCONTAINER_TAG .devcontainer/Dockerfile | head -n 1 | cut -d '=' -f 2))
 	export DOCKER_DEFAULT_PLATFORM=linux/${ARCHITECTURE} && \
 	docker build \
 	-t ${IMAGE} \
 	--build-arg DEVCONTAINER_TAG=${DEVCONTAINER_TAG} \
+	--build-arg GO_VERSION=${GO_VERSION} \
+	--build-arg NODE_VERSION=${NODE_VERSION} \
 	-f ${DOCKERFILE} \
 	.
 

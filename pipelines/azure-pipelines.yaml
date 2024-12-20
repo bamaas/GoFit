@@ -7,10 +7,13 @@ pool:
   vmImage: ubuntu-latest
 
 container: 
-  image: docker.io/bamaas/devcontainer:10f749ea9e0c7a4bc9dc1663f00cf98ceabfaa34
+  image: docker.io/bamaas/devcontainer:latest-minimal
   options: --entrypoint ""
 
 steps:
+
+  - script: make development/setup
+    displayName: Make development/setup
 
   - task: Docker@2
     displayName: Login to DockerHub
