@@ -112,8 +112,7 @@ frontend/install_deps:																		## Install frontend dependencies
 	npm install
 
 # -------------- Helm --------------
-CHART_NAME=gofit
-CHART_PATH="./deploy/chart/${CHART_NAME}"
+CHART_PATH="./deploy/chart/gofit"
 CHART_RELEASE_NAME=${APP_NAME}
 NAMESPACE?=default
 
@@ -134,6 +133,12 @@ helm/uninstall:																				## Uninstall helm chart
 HELM_REGISTRY?=${IMAGE_REGISTRY}		# TODO: change this
 helm/push:																					## Push helm chart to registry
 	helm push ${PATH_TO_CHART_ARTIFACT} oci://${HELM_REGISTRY}
+
+CHART_VERSION=`cat ${CHART_PATH}/Chart.yaml | yq -r '.version'`
+CHART_NAME=`cat ${CHART_PATH}/Chart.yaml | yq -r '.name'`
+CHART_ARTIFACT_DIR_PATH=${ARTIFACTS_ROOT_DIR}/helm-chart-${CHART_NAME}-${CHART_VERSION}/
+helm/package:
+	helm package ${CHART_PATH} -d ${CHART_ARTIFACT_DIR_PATH}
 
 # -------------- Kind --------------
 CLUSTER_NAME=${APP_NAME}

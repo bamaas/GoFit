@@ -61,7 +61,7 @@ stages:
       #       displayName: Lint Go files
 
       - job: LintYaml
-        displayName: Lint yaml
+        displayName: Lint Yaml
         steps:
 
           - script: make install/yamllint
