@@ -13,7 +13,7 @@ variables:
 
 jobs:
 
-  - ${{ if eq( variables['Build.SourceBranch'], 'refs/heads/master' ) }}:     ## Only allow to run from master branch.
+  - ${{ if eq( variables['Build.SourceBranch'], 'refs/heads/main' ) }}:     ## Only allow to run from master branch.
       - job: SkipCheck
         displayName: Check if run should be skipped
         steps:
