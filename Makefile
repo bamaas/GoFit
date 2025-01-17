@@ -199,8 +199,8 @@ endif
 lint/yaml: install/yamllint																	## Lint yaml files.
 	yamllint -c .lint/yamllint.yaml .
 
-lint_commit_messages_from_head_to_master:													## Lint already created commit messages.
-	cz check --rev-range origin/master..HEAD
+lint_commit_messages_from_head_to_main:														## Lint already created commit messages.
+	cz check --rev-range origin/main..HEAD
 
 commit-msg-check: install/commitizen                                       					## Validate that the commit message is according to the expected format.
 	@echo "Checking if commit message is according to expected format"
