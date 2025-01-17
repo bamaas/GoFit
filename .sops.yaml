@@ -1,3 +1,4 @@
+---
 creation_rules:
   - path_regex: enc.*\.yaml(.dec)?$
     azure_keyvault: https://sops-3caeb0533c5a473f.vault.azure.net/keys/sops-key/b2031a08aea14a50ab6d8e72548eb4f9

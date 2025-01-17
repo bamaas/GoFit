@@ -1,0 +1,26 @@
+---
+
+steps:
+  - checkout: self
+    persistCredentials: true
+    fetchDepth: 0
+
+  # - template: set-python-version.yaml
+  #   parameters:
+  #     ommitPatchVersion: true
+
+  - script: |
+      git config --global user.email "GoFit@test.test"
+      git config --global user.name "GoFit"
+    displayName: Set Git config
+
+  - script: make install/commitizen
+    displayName: Install Commitizen
+
+  - script: make bump
+    displayName: Bump version
+    # On pull requests and on master branch build non-dev releases.
+    # Else build dev releases.
+    ${{ if and( ne(variables['Build.Reason'], 'PullRequest'), ne(variables['Build.SourceBranchName'], 'master') ) }}:
+      env:
+        DEVRELEASE: $(build.buildid)

@@ -1,18 +1,19 @@
+---
 image:
   name: bamaas/gofit
   pullPolicy: IfNotPresent
   tag: "0.0.1"
 
 persistence:
-    enabled: true
-    size: 100Mi
-    storageClass: longhorn
+  enabled: true
+  size: 100Mi
+  storageClass: longhorn
 
 ingress:
   enabled: true
   annotations:
-      kubernetes.io/ingress.class: nginx
-      cert-manager.io/cluster-issuer: letsencrypt-prd
+    kubernetes.io/ingress.class: nginx
+    cert-manager.io/cluster-issuer: letsencrypt-prd
   hosts:
     - host: gofit.kubernetes.lan.basmaas.nl
       paths:

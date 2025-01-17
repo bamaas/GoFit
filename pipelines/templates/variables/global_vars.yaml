@@ -1,0 +1,11 @@
+---
+
+# Prefix variables defined here with 'global_' to avoid variable naming collision.
+
+variables:
+  global_imageArtifactName: container-image-gofit
+  global_chartArtifactName: helm-chart-gofit
+
+  # Git
+  global_gitConfigPipelineName: GoFit
+  global_gitConfigPipelineEmail: GoFit@test.test

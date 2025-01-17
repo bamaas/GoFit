@@ -1,0 +1,44 @@
+---
+
+trigger: none
+
+pool:
+  vmImage: ubuntu-latest
+
+resources:
+  pipelines:
+    - pipeline: releasePipeline
+      source: "GoFit - Release"
+      trigger:
+        branches:
+          include:
+            - main
+
+jobs:
+
+  - job:
+    displayName: Deploy backend on Azure
+    steps:
+
+      - script: |
+          echo "##vso[task.setvariable variable=fullImageNameAndTag]$(make image/get)"
+          echo "Defined backend image task variable value: ${fullImageNameAndTag}"
+        displayName: Define fullImageNameAndTag task variable
+
+      - task: AzureWebAppContainer@1
+        displayName: Deploy backend
+        inputs:
+          azureSubscription: gofit-ARM
+          appName: gofit-api
+          containers: $(fullImageNameAndTag)
+
+  - job:
+    displayName: Deploy frontend on Azure
+    steps:
+      - task: AzureStaticWebApp@0
+        displayName: Deploy frontend
+        inputs:
+          app_location: '/frontend'
+          output_location: '/build'
+          azure_static_web_apps_api_token: $(DEPLOYMENT_TOKEN)
+          production_branch: main

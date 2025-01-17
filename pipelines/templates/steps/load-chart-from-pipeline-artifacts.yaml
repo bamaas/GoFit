@@ -1,0 +1,51 @@
+---
+
+parameters:
+  - name: chartName
+    type: string
+
+  - name: downloadArtifactFrom
+    type: string    ## options: 'currentPipeline', 'buildPipeline'
+
+steps:
+  - script: |
+      PARAM_VALUE=${{ parameters.downloadArtifactFrom }}
+      if [ "${PARAM_VALUE}" == "buildPipeline" ] || [ "${PARAM_VALUE}" == "currentPipeline" ]; then
+          exit 0
+      else
+          echo "ERROR: '${PARAM_VALUE}' is an unsupported value for 'downloadArtifactFrom' parameter. Supported values are: 'currentPipeline', 'buildPipeline'"
+          exit 1
+      fi
+    displayName: Validate 'downloadArtifactFrom' parameter value is valid
+
+  - script: |
+      aName="helm-chart-${{ parameters.chartName }}"
+      echo "##vso[task.setvariable variable=artifactName]${aName}"
+      echo "Set artifactName task variable value: ${aName}"
+    displayName: Set artifactName task variable
+
+  - script: |
+      target="$(Build.SourcesDirectory)/.artifacts/$(artifactName)"
+      echo "##vso[task.setvariable variable=targetPath]${target}"
+      echo "Defined targetPath task variable value: ${target}"
+    displayName: Define targetPath task variable
+
+  - task: DownloadPipelineArtifact@2
+    displayName: Download ${{ parameters.chartName }} Helm chart build artifact
+    inputs:
+      targetPath: $(targetPath)
+      artifactName: $(artifactName)
+      ${{ if eq(parameters.downloadArtifactFrom, 'buildPipeline') }}:
+        buildType: specific
+        specificBuildWithTriggering: true
+        project: $(resources.pipeline.buildPipeline.ProjectID)
+        definition: $(resources.pipeline.buildPipeline.pipelineID)
+        buildVersionToDownload: specific
+        pipelineId: $(resources.pipeline.buildPipeline.runID)
+
+  - script: |
+        cPath=$(find $(targetPath) -type f)
+        echo "##vso[task.setvariable variable=chartPath]${cPath}"
+        echo "Defined chartPath task variable value: ${cPath}"
+        test -f ${cPath} || (echo "ERROR: chartPath variable ${cPath} is not pointing to a file."; exit 1)
+    displayName: Define chartPath task variable

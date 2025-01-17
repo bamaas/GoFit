@@ -1,0 +1,68 @@
+---
+repos:
+  - repo: local
+    hooks:
+
+      - id: LintYaml
+        name: Lint Yaml
+        entry: make
+        args: ['lint/yaml']
+        pass_filenames: false
+        language: system
+        stages: [pre-commit]
+
+      - id: LintDockerfiles
+        name: Lint Dockerfiles
+        entry: make
+        args: ['lint/dockerfiles']
+        pass_filenames: false
+        language: system
+        stages: [pre-commit]
+
+      - id: LintHelmChart
+        name: Lint Helm Chart
+        entry: make
+        args: ['lint/helm']
+        pass_filenames: false
+        language: system
+        stages: [pre-commit]
+
+      - id: LintMarkdownFiles
+        name: Lint Markdown files
+        entry: make
+        args: ['lint/markdown']
+        pass_filenames: false
+        language: system
+        stages: [pre-commit]
+
+      # - id: LintGoLang
+      #   name: Lint Go code
+      #   entry: make
+      #   args: ['lint/go']
+      #   pass_filenames: false
+      #   language: system
+      #   stages: [commit]
+
+      - id: commitizen
+        name: Commit message validation
+        entry: make
+        args: ['commit-msg-check']
+        pass_filenames: false
+        language: system
+        stages: [commit-msg]
+
+      # - id: VerifyVersionFileIsUntouched
+      #   name: Verify version file is untouched
+      #   entry: make
+      #   args: ['verify_version_file_is_untouched']
+      #   pass_filenames: false
+      #   language: system
+      #   stages: [pre-commit]
+
+      - id: LintCommitedMessages
+        name: Lint commit messages from HEAD to master
+        entry: make
+        args: ['lint_commit_messages_from_head_to_master']
+        pass_filenames: false
+        language: system
+        stages: [pre-push]
