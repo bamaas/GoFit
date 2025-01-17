@@ -19,8 +19,8 @@ steps:
 
   - script: make bump
     displayName: Bump version
-    # On pull requests and on master branch build non-dev releases.
+    # On pull requests and on main branch build non-dev releases.
     # Else build dev releases.
-    ${{ if and( ne(variables['Build.Reason'], 'PullRequest'), ne(variables['Build.SourceBranchName'], 'master') ) }}:
+    ${{ if and( ne(variables['Build.Reason'], 'PullRequest'), ne(variables['Build.SourceBranchName'], 'main') ) }}:
       env:
         DEVRELEASE: $(build.buildid)
