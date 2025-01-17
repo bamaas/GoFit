@@ -1,0 +1,76 @@
+---
+
+trigger:
+  branches:
+    include:
+      - master
+
+pool:
+  vmImage: Ubuntu-latest
+
+variables:
+  - template: templates/variables/global_vars.yaml
+
+jobs:
+
+  - ${{ if eq( variables['Build.SourceBranch'], 'refs/heads/master' ) }}:     ## Only allow to run from master branch.
+      - job: SkipCheck
+        displayName: Check if run should be skipped
+        steps:
+
+          - checkout: self
+            persistCredentials: true
+            fetchTags: true
+            fetchDepth: 0
+
+          - script: |
+              if [[ "$(Build.SourceVersionMessage)" == *"[skip ci]"* ]]; then
+                echo "[skip CI] detected in commit message."
+                echo "Following pipeline steps will be skipped."
+                echo "##vso[task.setvariable variable=skipCI;isOutput=true]true"
+              else
+                echo "##vso[task.setvariable variable=skipCI;isOutput=true]false"
+              fi
+            displayName: Check if run should be skipped
+            name: check
+
+      - job: Bump
+        displayName: Bump version
+        dependsOn: SkipCheck
+        condition: and(succeeded(), eq(dependencies.SkipCheck.outputs['check.skipCI'], 'false'))
+        steps:
+
+          - checkout: self
+            persistCredentials: true
+            fetchTags: true
+            fetchDepth: 0
+
+          - script: |
+              git config --global user.name "$(global_gitConfigPipelineName)"
+              git config --global user.email "$(global_gitConfigPipelineName)"
+            displayName: Set Git config
+
+          # - template: templates/steps/set-python-version.yaml
+          #   parameters:
+          #     ommitPatchVersion: true
+
+          - script: make install/commitizen
+            displayName: Install Commitizen
+
+          - script: make bump
+            displayName: Bump version
+
+          - script: |
+              if make verify_version_file_is_untouched >> /dev/null 2>&1; then
+                  echo "No changes in .version file."
+                  echo "##vso[task.setvariable variable=versionFileChanged]false"
+              else
+                  echo "Changes detected in .version file."
+                  echo "##vso[task.setvariable variable=versionFileChanged]true"
+              fi
+            displayName: Check if .version file has changed
+
+          - script: |
+              git push origin main
+            displayName: Push branch to remote
+            condition: and(succeeded(), eq(variables.versionFileChanged, 'true'))

@@ -1,0 +1,85 @@
+---
+
+trigger: none
+
+resources:
+  pipelines:
+    - pipeline: buildPipeline
+      source: "GoFit - Build"
+      trigger:
+        tags:
+          - release
+
+pool:
+  vmImage: Ubuntu-latest
+
+variables:
+  - template: templates/variables/global_vars.yaml
+  - name: downloadArtifactsFrom
+    value: buildPipeline
+
+jobs:
+
+  - job:
+    displayName: Release image with version tag
+    steps:
+      - template: steps/load-image-from-pipeline-artifacts.yaml
+        parameters:
+          image: $(global_imageArtifactName)
+          downloadArtifactFrom: ${{ variables.downloadArtifactsFrom }}
+
+      - task: Docker@2
+        displayName: Login to Docker Hub
+        inputs:
+          containerRegistry: dockerhub
+          command: login
+
+      - script: make push_image
+        displayName: Push to registry
+        env:
+          FULL_IMAGE_NAME: $(fullImageNameAndTag)   ## Defined in load-image-from-pipeline-artifacts.yaml
+
+  # - job:
+  #   displayName: Release image as latest tag
+  #   steps:
+  #     - template: steps/load-image-from-pipeline-artifacts.yaml
+  #       parameters:
+  #         artifact: $(global_imageArtifactName)
+  #         downloadArtifactFrom: ${{ variables.downloadArtifactsFrom }}
+
+  #     - task: Docker@2
+  #       displayName: Login to Docker Hub
+  #       inputs:
+  #         containerRegistry: dockerhub
+  #         command: login
+
+  #     - script: make image/tag
+  #       displayName: Tag image to latest
+  #       env:
+  #         OLD_TAG: $(imageTag)
+  #         NEW_TAG: latest
+
+  #     - script: make image/push
+  #       displayName: Push image with latest tag
+  #       env:
+  #         IMAGE_TAG: latest
+
+  - job:
+    displayName: Release Helm chart
+    steps:
+
+      - template: templates/steps/load-chart-from-pipeline-artifacts.yaml
+        parameters:
+          artifact: $(global_chartArtifactName)
+          downloadArtifactFrom: ${{ variables.downloadArtifactsFrom }}
+
+      - task: Docker@2
+        displayName: Login to Docker Hub
+        inputs:
+          command: login
+          containerRegistry: dockerhub
+
+      - script: make helm/push
+        displayName: Release chart
+        env:
+          PATH_TO_CHART_ARTIFACT: $(chartPath)  ## chartPath variable defined in load-chart-from-pipeline-artifacts.yaml

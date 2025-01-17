@@ -1,0 +1,30 @@
+---
+run:
+  # Number of CPUs to use when running golangci-lint.
+  # Default: the number of logical CPUs in the machine
+  timeout: 3m #Increased due to the inventory-lint test timeout error
+  concurrency: 4
+
+issues:
+  exclude-rules: []
+    # - path: (.+)_test.go
+    #   linters: []
+
+linters-settings:
+
+  govet:
+    enable-all: true
+
+  gofmt:
+    # simplify code: gofmt with `-s` option, true by default
+    simplify: true
+
+linters:
+  disable-all: true
+  # Please do not change these without consulting the team first
+  enable:
+    - govet
+    - staticcheck
+    - revive
+    - predeclared
+    - errcheck

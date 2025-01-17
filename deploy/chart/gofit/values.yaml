@@ -1,3 +1,4 @@
+---
 users: []
   # - email: "user@gofit.nl"
   #   password: "gofit123"
@@ -16,7 +17,7 @@ podLabels: {}
 persistence:
   enabled: false
   size: 10Mi
-  accessModes: 
+  accessModes:
     - ReadWriteOnce
   storageClass: ""
 

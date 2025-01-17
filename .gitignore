@@ -1,5 +1,7 @@
 gofit.db
 test.sh
+.artifacts/*
+.venv
 
 # backend
 backend/bin/*
