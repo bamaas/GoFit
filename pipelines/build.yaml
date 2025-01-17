@@ -84,7 +84,7 @@ stages:
               command: login
               containerRegistry: dockerhub
 
-          - template: steps/bump-version.yaml
+          - template: templates/steps/bump-version.yaml
 
           - script: make image/build
             displayName: Build image
@@ -110,7 +110,7 @@ stages:
         displayName: Chart
         steps:
 
-          - template: steps/bump-version.yaml
+          - template: templates/steps/bump-version.yaml
 
           - script: make helm/package
             displayName: Package Helm chart
