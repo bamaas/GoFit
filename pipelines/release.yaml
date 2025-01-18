@@ -27,7 +27,7 @@ jobs:
     steps:
       - template: templates/steps/load-image-from-pipeline-artifacts.yaml
         parameters:
-          image: $(global_imageArtifactName)
+          image: $(global_imageName)
           downloadArtifactFrom: ${{ variables.downloadArtifactsFrom }}
 
       - task: Docker@2
@@ -72,7 +72,7 @@ jobs:
 
       - template: templates/steps/load-chart-from-pipeline-artifacts.yaml
         parameters:
-          chartName: $(global_chartArtifactName)
+          chartName: $(global_chartName)
           downloadArtifactFrom: ${{ variables.downloadArtifactsFrom }}
 
       - task: Docker@2
