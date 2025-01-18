@@ -71,11 +71,11 @@ jobs:
             displayName: Check if .version file has changed
 
           - script: |
-              git push origin HEAD:main --force
+              git push origin HEAD:main
             displayName: Push commit to remote
             condition: and(succeeded(), eq(variables.versionFileChanged, 'true'))
 
           - script: |
-              git push --tags --force
+              git push --tags
             displayName: Push version tag to remote
             condition: and(succeeded(), eq(variables.versionFileChanged, 'true'))

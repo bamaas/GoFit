@@ -70,7 +70,7 @@ jobs:
 
       - template: templates/steps/load-chart-from-pipeline-artifacts.yaml
         parameters:
-          artifact: $(global_chartArtifactName)
+          chartName: $(global_chartArtifactName)
           downloadArtifactFrom: ${{ variables.downloadArtifactsFrom }}
 
       - task: Docker@2
