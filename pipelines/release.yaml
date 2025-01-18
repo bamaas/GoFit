@@ -23,7 +23,7 @@ jobs:
   - job:
     displayName: Release image with version tag
     steps:
-      - template: steps/load-image-from-pipeline-artifacts.yaml
+      - template: templates/steps/load-image-from-pipeline-artifacts.yaml
         parameters:
           image: $(global_imageArtifactName)
           downloadArtifactFrom: ${{ variables.downloadArtifactsFrom }}
