@@ -2,6 +2,8 @@
 
 trigger: none
 
+pr: none
+
 resources:
   pipelines:
     - pipeline: buildPipeline
