@@ -3,8 +3,8 @@
 # Prefix variables defined here with 'global_' to avoid variable naming collision.
 
 variables:
-  global_imageArtifactName: gofit
-  global_chartArtifactName: gofit
+  global_imageName: gofit
+  global_chartName: gofit
 
   # Git
   global_gitConfigPipelineName: GoFit

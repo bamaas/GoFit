@@ -104,7 +104,7 @@ stages:
 
           - publish: '$(Build.ArtifactStagingDirectory)'
             displayName: Publish image as pipeline artifact
-            artifact: $(global_imageArtifactName)
+            artifact: container-image-$(global_imageName)
 
       - job:
         displayName: Chart
@@ -126,4 +126,4 @@ stages:
 
           - publish: '$(Build.ArtifactStagingDirectory)'
             displayName: Publish Helm chart as pipeline artifact
-            artifact: $(global_chartArtifactName)
+            artifact: helm-chart-$(global_chartName)
