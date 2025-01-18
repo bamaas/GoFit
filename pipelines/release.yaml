@@ -23,7 +23,7 @@ variables:
 jobs:
 
   - job:
-    displayName: Release image with version tag
+    displayName: Release container image
     steps:
       - template: templates/steps/load-image-from-pipeline-artifacts.yaml
         parameters:
