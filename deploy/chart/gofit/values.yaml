@@ -10,7 +10,7 @@ replicaCount: 1
 image:
   repository: bamaas/gofit
   pullPolicy: IfNotPresent
-  tag: "0.0.3"
+  tag: "0.0.4"
 
 podLabels: {}
 
