@@ -1,3 +1,9 @@
+## 0.0.22 (2025-01-19)
+
+### Fix
+
+- omit package-path option from cr cli
+
 ## 0.0.21 (2025-01-19)
 
 ### Fix
