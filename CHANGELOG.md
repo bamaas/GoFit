@@ -1,3 +1,9 @@
+## 0.0.9 (2025-01-19)
+
+### Fix
+
+- **release-chart.yaml**: fix pipeline trigger
+
 ## 0.0.8 (2025-01-19)
 
 ### Fix
