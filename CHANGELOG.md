@@ -1,3 +1,9 @@
+## 0.0.10 (2025-01-19)
+
+### Fix
+
+- create Github releases with Helm chart and upload to Github pages
+
 ## 0.0.9 (2025-01-19)
 
 ### Fix
