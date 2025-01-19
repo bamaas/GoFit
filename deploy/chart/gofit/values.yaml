@@ -8,6 +8,7 @@ logLevel: info
 replicaCount: 1
 
 image:
+  registry: ghcr.io
   repository: bamaas/gofit
   pullPolicy: IfNotPresent
   tag: "0.0.7"

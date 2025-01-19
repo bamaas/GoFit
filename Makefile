@@ -55,7 +55,7 @@ backend/migrate/create:																		## Create database migration
 	migrate create -ext=.sql -dir=./internal/assets/migrations ${NAME}
 
 # -------------- Image --------------
-IMAGE_REGISTRY=docker.io
+IMAGE_REGISTRY=ghcr.io
 IMAGE_REPOSITORY=bamaas/${APP_NAME}
 IMAGE_TAG?=${VERSION}
 IMAGE=${APP_NAME}
