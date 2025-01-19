@@ -107,7 +107,7 @@ jobs:
           tar xvf ./chart-releaser_1.7.0_linux_amd64.tar.gz
           mv cr .bin/
           chmod +x .bin/cr
-          export PATH=${BUILD_SOURCESDIRECTORY}/.bin:$PATH
+          export PATH="$BUILD_SOURCESDIRECTORY/.bin:$PATH"
         displayName: Install Helm chart releaser
 
       - script: make cr/upload
