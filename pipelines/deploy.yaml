@@ -12,9 +12,8 @@ resources:
     - pipeline: releasePipeline
       source: "GoFit - Release"
       trigger:
-        branches:
-          include:
-            - main
+        tags:
+          - demo
 
 jobs:
 

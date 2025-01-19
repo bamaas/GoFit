@@ -22,6 +22,16 @@ variables:
 
 jobs:
 
+  # Tag job is only executed when a tag is pushed to the repository.
+  - ${{ if and( eq(variables['Build.Reason'], 'ResourceTrigger'), startsWith(variables['Build.SourceBranch'], 'refs/tags/') ) }}:
+      - job: Tag
+        displayName: Tag pipeline build
+        steps:
+          - checkout: none
+          - script: |
+              echo "##vso[build.addbuildtag]demo"
+            displayName: Add pipeline build tag 'demo'
+
   - job:
     displayName: Release container image
     steps:
