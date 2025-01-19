@@ -145,6 +145,7 @@ helm/release:
 	git config --global user.name "GoFit" && \
 	git config --global user.email "GoFit@test.test" && \
 	git config --global --add safe.directory /src && \
+	cr upload \
 	--owner ${GIT_REPO_OWNER} \
 	--git-repo ${GIT_REPO_NAME} \
 	--packages-with-index \
