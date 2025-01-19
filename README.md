@@ -1,1 +1,0 @@
-# Helm registry for GoFit
