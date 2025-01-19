@@ -28,6 +28,7 @@ stages:
           - job: Tag
             displayName: Tag pipeline build
             steps:
+              - checkout: none
               - script: |
                   echo "##vso[build.addbuildtag]release"
                 displayName: Add pipeline build tag 'release'
