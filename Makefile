@@ -156,7 +156,6 @@ cr/index:
 	--owner ${GIT_REPO_OWNER} \
 	--git-repo ${GIT_REPO_NAME} \
 	--packages-with-index \
-	--package-path ./charts/ \
 	--token ${GITHUB_TOKEN} \
 	--release-name-template "{{ .Version }}"
 
