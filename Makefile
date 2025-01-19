@@ -141,7 +141,7 @@ helm/package:
 	helm package ${CHART_PATH} -d ${CHART_ARTIFACT_DIR_PATH}
 
 cr/upload:
-	cr upload \
+	./cr upload \
 	--owner ${GIT_REPO_OWNER} \
 	--git-repo ${GIT_REPO_NAME} \
 	--packages-with-index \
@@ -151,7 +151,7 @@ cr/upload:
 	--release-name-template "{{ .Version }}"
 
 cr/index:
-	cr index \
+	./cr index \
 	--index-path . \
 	--owner ${GIT_REPO_OWNER} \
 	--git-repo ${GIT_REPO_NAME} \
