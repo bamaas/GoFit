@@ -36,7 +36,7 @@ jobs:
           containerRegistry: dockerhub
           command: login
 
-      - script: make push_image
+      - script: make image/push
         displayName: Push to registry
         env:
           FULL_IMAGE_NAME: $(fullImageNameAndTag)   ## Defined in load-image-from-pipeline-artifacts.yaml
@@ -66,22 +66,22 @@ jobs:
   #       env:
   #         IMAGE_TAG: latest
 
-  - job:
-    displayName: Release Helm chart
-    steps:
+  # - job:
+  #   displayName: Release Helm chart
+  #   steps:
 
-      - template: templates/steps/load-chart-from-pipeline-artifacts.yaml
-        parameters:
-          chartName: $(global_chartName)
-          downloadArtifactFrom: ${{ variables.downloadArtifactsFrom }}
+  #     - template: templates/steps/load-chart-from-pipeline-artifacts.yaml
+  #       parameters:
+  #         chartName: $(global_chartName)
+  #         downloadArtifactFrom: ${{ variables.downloadArtifactsFrom }}
 
-      - task: Docker@2
-        displayName: Login to Docker Hub
-        inputs:
-          command: login
-          containerRegistry: dockerhub
+  #     - task: Docker@2
+  #       displayName: Login to Docker Hub
+  #       inputs:
+  #         command: login
+  #         containerRegistry: dockerhub
 
-      - script: make helm/push
-        displayName: Release chart
-        env:
-          PATH_TO_CHART_ARTIFACT: $(chartPath)  ## chartPath variable defined in load-chart-from-pipeline-artifacts.yaml
+  #     - script: make helm/push
+  #       displayName: Release chart
+  #       env:
+  #         PATH_TO_CHART_ARTIFACT: $(chartPath)  ## chartPath variable defined in load-chart-from-pipeline-artifacts.yaml
