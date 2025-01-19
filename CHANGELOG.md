@@ -1,3 +1,9 @@
+## 0.0.14 (2025-01-19)
+
+### Fix
+
+- set Git config in release pipeline for Helm chart
+
 ## 0.0.13 (2025-01-19)
 
 ### Fix
