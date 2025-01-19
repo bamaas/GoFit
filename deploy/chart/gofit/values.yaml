@@ -11,7 +11,7 @@ image:
   registry: ghcr.io
   repository: bamaas/gofit
   pullPolicy: IfNotPresent
-  tag: "0.0.16"
+  tag: "0.0.17"
 
 podLabels: {}
 
