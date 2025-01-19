@@ -1,3 +1,9 @@
+## 0.0.12 (2025-01-19)
+
+### Fix
+
+- docker run command for chart releaser
+
 ## 0.0.11 (2025-01-19)
 
 ### Fix
