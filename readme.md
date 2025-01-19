@@ -1,1 +1,1 @@
-# Helm registry
+# Helm registry for GoFit
