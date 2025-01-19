@@ -2,7 +2,7 @@
 commitizen:
   bump_message: "release $current_version \u2192 $new_version [skip ci]"
   name: cz_conventional_commits
-  version: 0.0.10
+  version: 0.0.11
   version_files:
   - deploy/chart/gofit/Chart.yaml:version
   - deploy/chart/gofit/Chart.yaml:appVersion
