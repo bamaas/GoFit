@@ -140,11 +140,7 @@ CHART_ARTIFACT_DIR_PATH=${ARTIFACTS_ROOT_DIR}/helm-chart-${CHART_NAME}-${CHART_V
 helm/package:
 	helm package ${CHART_PATH} -d ${CHART_ARTIFACT_DIR_PATH}
 
-helm/release:
-	docker run -v ${PWD}:/src --rm --entrypoint /bin/sh quay.io/helmpack/chart-releaser:v1.7.0 -c 'cd /src && \
-	git config --global user.name "GoFit" && \
-	git config --global user.email "GoFit@test.test" && \
-	git config --global --add safe.directory /src && \
+cr/upload:
 	cr upload \
 	--owner ${GIT_REPO_OWNER} \
 	--git-repo ${GIT_REPO_NAME} \
@@ -154,11 +150,7 @@ helm/release:
 	--package-path ./charts/ \
 	--release-name-template "{{ .Version }}"'
 
-helm/index:
-	docker run -v ${PWD}:/src --rm --entrypoint /bin/sh quay.io/helmpack/chart-releaser:v1.7.0 -c 'cd /src && \
-	git config --global user.name "GoFit" && \
-	git config --global user.email "GoFit@test.test" && \
-	git config --global --add safe.directory /src && \
+cr/index:
 	cr index \
 	--index-path . \
 	--owner ${GIT_REPO_OWNER} \

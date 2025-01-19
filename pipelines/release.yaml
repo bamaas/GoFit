@@ -100,14 +100,24 @@ jobs:
           mv $(chartPath) $(Build.SourcesDirectory)/charts
         displayName: Move Helm chart from artifacts directory to charts directory
 
-      - script: make helm/release
+      # TODO: Make this neath.
+      - script: |
+          mkdir ./.bin/
+          wget https://github.com/helm/chart-releaser/releases/download/v1.7.0/chart-releaser_1.7.0_linux_amd64.tar.gz
+          tar xvf ./chart-releaser_1.7.0_linux_amd64.tar.gz
+          mv cr .bin/
+          chmod +x .bin/cr
+          export PATH=${BUILD_SOURCESDIRECTORY}/.bin:$PATH 
+        displayName: Install Helm chart releaser
+
+      - script: make cr/upload
         displayName: Create GitHub release with Helm chart
         env:
           GITHUB_TOKEN: $(GITHUB_TOKEN)
           GIT_REPO_OWNER: bamaas
           GIT_REPO_NAME: GoFit
 
-      - script: make helm/index
+      - script: make cr/index
         displayName: Create Helm index.yaml file for GitHub pages
         env:
           GITHUB_TOKEN: $(GITHUB_TOKEN)
