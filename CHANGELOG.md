@@ -1,3 +1,9 @@
+## 0.0.13 (2025-01-19)
+
+### Fix
+
+- add exception /src dir in chart releaser
+
 ## 0.0.12 (2025-01-19)
 
 ### Fix
