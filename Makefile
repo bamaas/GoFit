@@ -148,7 +148,7 @@ cr/upload:
 	--token ${GITHUB_TOKEN} \
 	--skip-existing \
 	--package-path ./charts/ \
-	--release-name-template "{{ .Version }}"'
+	--release-name-template "{{ .Version }}"
 
 cr/index:
 	cr index \
@@ -158,7 +158,7 @@ cr/index:
 	--packages-with-index \
 	--package-path ./charts/ \
 	--token ${GITHUB_TOKEN} \
-	--release-name-template "{{ .Version }}"'
+	--release-name-template "{{ .Version }}"
 
 # -------------- Kind --------------
 CLUSTER_NAME=${APP_NAME}
