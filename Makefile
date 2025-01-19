@@ -140,6 +140,26 @@ CHART_ARTIFACT_DIR_PATH=${ARTIFACTS_ROOT_DIR}/helm-chart-${CHART_NAME}-${CHART_V
 helm/package:
 	helm package ${CHART_PATH} -d ${CHART_ARTIFACT_DIR_PATH}
 
+helm/release:
+	docker run -v ${PWD}:/src --rm --entrypoint /bin/sh quay.io/helmpack/chart-releaser:1.7.0 -c 'cd /src && cr upload  \
+	--owner ${GIT_REPO_OWNER} \
+	--git-repo ${GIT_REPO_NAME} \
+	--packages-with-index \
+	--token ${GITHUB_TOKEN} \
+	--skip-existing \
+	--package-path ./charts/ \
+	--release-name-template "{{ .Version }}"'
+
+helm/index:
+	docker run -v ${PWD}:/src --rm --entrypoint /bin/sh quay.io/helmpack/chart-releaser:1.7.0 -c 'cd /src && cr index  \
+	--index-path . \
+	--owner ${GIT_REPO_OWNER} \
+	--git-repo ${GIT_REPO_NAME} \
+	--packages-with-index \
+	--package-path ./charts/ \
+	--token ${GITHUB_TOKEN} \
+	--release-name-template "{{ .Version }}"'
+
 # -------------- Kind --------------
 CLUSTER_NAME=${APP_NAME}
 kind/create:																				## Create a kind cluster

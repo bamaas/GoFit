@@ -31,7 +31,7 @@ docker run \
 --name gofit \
 -v ${DATA_DIR}:/data \
 -p 8080:8080 \
-bamaas/gofit:latest
+ghcr.io/bamaas/gofit:0.0.10
 
 docker logs -f gofit
 ```
