@@ -1,3 +1,9 @@
+## 0.0.16 (2025-01-19)
+
+### Fix
+
+- Makefile helm/release target
+
 ## 0.0.15 (2025-01-19)
 
 ### Fix
