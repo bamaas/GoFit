@@ -40,6 +40,10 @@ docker logs -f gofit
 
 A Helm chart is available at [deploy/chart/gofit](deploy/chart/gofit)
 
+## How to contribute
+
+To add.
+
 ## TODO
 
 * Fix issue when initializing app with 1 user.
