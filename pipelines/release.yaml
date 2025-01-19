@@ -85,6 +85,11 @@ jobs:
         fetchTags: true
         fetchDepth: 0
 
+      - script: |
+          git config --global user.name "$(global_gitConfigPipelineName)"
+          git config --global user.email "$(global_gitConfigPipelineName)"
+        displayName: Set Git config
+
       - template: templates/steps/load-chart-from-pipeline-artifacts.yaml
         parameters:
           chartName: $(global_chartName)
