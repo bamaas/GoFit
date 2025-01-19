@@ -1,8 +1,0 @@
-CREATE TABLE IF NOT EXISTS checkins (
-		uuid STRING NOT NULL PRIMARY KEY,
-		user_id INTEGER NOT NULL,
-		datetime INTEGER NOT NULL,
-		weight FLOAT NOT NULL,
-		notes STRING,
-		FOREIGN KEY(user_id) REFERENCES users(id) ON DELETE CASCADE
-);
