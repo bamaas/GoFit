@@ -89,19 +89,19 @@ jobs:
         parameters:
           chartName: $(global_chartName)
           downloadArtifactFrom: ${{ variables.downloadArtifactsFrom }}
-      
+
       - script: |
           mkdir -p $(Build.SourcesDirectory)/charts
           mv $(chartPath) $(Build.SourcesDirectory)/charts
         displayName: Move Helm chart from artifacts directory to charts directory
-      
+
       - script: make helm/release
         displayName: Create GitHub release with Helm chart
         env:
           GITHUB_TOKEN: $(GITHUB_TOKEN)
           GIT_REPO_OWNER: bamaas
           GIT_REPO_NAME: GoFit
-      
+
       - script: make helm/index
         displayName: Create Helm index.yaml file for GitHub pages
         env:
@@ -113,5 +113,5 @@ jobs:
           git checkout gh-pages
           git add .
           git commit -m "Release GoFit Helm chart."
-          git push origin HEAD:gh-pages 
+          git push origin HEAD:gh-pages
         displayName: Push Helm index and chart to GitHub pages
