@@ -1,3 +1,9 @@
+## 0.0.19 (2025-01-19)
+
+### Fix
+
+- install cr in release pipeline
+
 ## 0.0.18 (2025-01-19)
 
 ### Fix
