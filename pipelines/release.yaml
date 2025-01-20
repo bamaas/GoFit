@@ -33,7 +33,7 @@ jobs:
             displayName: Add pipeline build tag 'demo'
 
   - job:
-    displayName: Release container image
+    displayName: Push image to ghcr.io
     steps:
       - template: templates/steps/load-image-from-pipeline-artifacts.yaml
         parameters:
@@ -77,7 +77,23 @@ jobs:
   #         IMAGE_TAG: latest
 
   - job:
-    displayName: Release Helm chart
+    displayName: Create GitHub release
+    steps:
+      - checkout: self
+
+      - template: templates/steps/load-chart-from-pipeline-artifacts.yaml
+        parameters:
+          chartName: $(global_chartName)
+          downloadArtifactFrom: ${{ variables.downloadArtifactsFrom }}
+
+      - script: make gh/release
+        displayName: Create GitHub release with Helm chart
+        env:
+          GITHUB_TOKEN: $(GITHUB_TOKEN)
+          RELEASE_ASSET: $(chartPath)
+
+  - job:
+    displayName: Put Helm chart to GitHub pages
     steps:
 
       - checkout: self
@@ -90,6 +106,9 @@ jobs:
           git config --global user.email "$(global_gitConfigPipelineName)"
         displayName: Set Git config
 
+      - script: git checkout gh-pages
+        displayName: Checkout gh-pages branch
+
       - template: templates/steps/load-chart-from-pipeline-artifacts.yaml
         parameters:
           chartName: $(global_chartName)
@@ -100,31 +119,12 @@ jobs:
           mv $(chartPath) $(Build.SourcesDirectory)/charts
         displayName: Move Helm chart from artifacts directory to charts directory
 
-      # TODO: Make this neath.
-      - script: |
-          wget https://github.com/helm/chart-releaser/releases/download/v1.7.0/chart-releaser_1.7.0_linux_amd64.tar.gz
-          tar xvf ./chart-releaser_1.7.0_linux_amd64.tar.gz
-          chmod +x ./cr
-        displayName: Install Helm chart releaser
-
-      - script: make cr/upload
-        displayName: Create GitHub release with Helm chart
-        env:
-          GITHUB_TOKEN: $(GITHUB_TOKEN)
-          GIT_REPO_OWNER: bamaas
-          GIT_REPO_NAME: GoFit
-
-      - script: make cr/index
+      - script: helm repo index .
         displayName: Create Helm index.yaml file for GitHub pages
-        env:
-          GITHUB_TOKEN: $(GITHUB_TOKEN)
-          GIT_REPO_OWNER: bamaas
-          GIT_REPO_NAME: GoFit
 
       - script: |
-          git checkout gh-pages
           git add index.yaml
           git add charts/*
-          git commit -m "Release GoFit Helm chart."
+          git commit -m "Release GoFit Helm chart to GitHub pages Helm registry."
           git push origin HEAD:gh-pages
         displayName: Push Helm index and chart to GitHub pages

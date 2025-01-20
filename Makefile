@@ -140,25 +140,6 @@ CHART_ARTIFACT_DIR_PATH=${ARTIFACTS_ROOT_DIR}/helm-chart-${CHART_NAME}-${CHART_V
 helm/package:
 	helm package ${CHART_PATH} -d ${CHART_ARTIFACT_DIR_PATH}
 
-cr/upload:
-	./cr upload \
-	--owner ${GIT_REPO_OWNER} \
-	--git-repo ${GIT_REPO_NAME} \
-	--packages-with-index \
-	--token ${GITHUB_TOKEN} \
-	--skip-existing \
-	--package-path ./charts/ \
-	--release-name-template "{{ .Version }}"
-
-cr/index:
-	./cr index \
-	--index-path . \
-	--owner ${GIT_REPO_OWNER} \
-	--git-repo ${GIT_REPO_NAME} \
-	--packages-with-index \
-	--token ${GITHUB_TOKEN} \
-	--release-name-template "{{ .Version }}"
-
 # -------------- Kind --------------
 CLUSTER_NAME=${APP_NAME}
 kind/create:																				## Create a kind cluster
@@ -261,7 +242,14 @@ lint/go:																					## Lint Go code.
 
 ## -------------- Versioning --------------
 
-VERSION=`yq -r '.commitizen.version' .cz.yaml`
+VERSION?=`yq -r '.commitizen.version' .cz.yaml`
+
+gh/release:
+	gh config set prompt disabled
+	gh release create ${VERSION} \
+	-t ${VERSION} \
+	--verify-tag \
+	${RELEASE_ASSET}
 
 install/commitizen:
 ifeq (, $(shell which cz))
