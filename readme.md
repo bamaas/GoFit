@@ -31,14 +31,24 @@ docker run \
 --name gofit \
 -v ${DATA_DIR}:/data \
 -p 8080:8080 \
-ghcr.io/bamaas/gofit:0.0.10
+ghcr.io/bamaas/gofit:0.0.1
 
 docker logs -f gofit
 ```
 
 ### Kubernetes
 
-A Helm chart is available at [deploy/chart/gofit](deploy/chart/gofit)
+A Helm chart is available.
+
+```bash
+helm repo add gofit https://bamaas.github.io/GoFit/
+helm repo update
+helm install gofit gofit/gofit
+```
+
+### Development setup
+
+Start the devcontainer from within VSCode and you are good to go.
 
 ## TODO
 
