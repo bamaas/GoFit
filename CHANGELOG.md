@@ -1,3 +1,9 @@
+## 0.0.23 (2025-01-20)
+
+### Fix
+
+- seperate pipeline job for helm chart to gh pages
+
 ## 0.0.22 (2025-01-19)
 
 ### Fix
