@@ -222,12 +222,6 @@ commit-msg-check: install/commitizen                                       					
 	@echo "-------"
 	@cz check --commit-msg-file .git/COMMIT_EDITMSG
 
-verify_version_file_is_untouched:															## Verify the .version file is untouched.
-	@git --no-pager diff --exit-code HEAD .version || \
-	(echo "ERROR: .version file has changed, that's not allowed. Bumping happens automatically on merge to main"; exit 1)
-	@git --no-pager diff --exit-code origin/main...HEAD .version || \
-	(echo "ERROR: .version file has changed, that's not allowed. Bumping happens automatically on merge to main"; exit 1)
-
 # Always make sure to have the golangci-lint image containing the same Go version as the project.
 lint/go:																					## Lint Go code.
 	docker run \
