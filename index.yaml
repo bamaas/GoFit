@@ -1,0 +1,14 @@
+apiVersion: v1
+entries:
+  gofit:
+  - apiVersion: v2
+    appVersion: 0.0.1
+    created: "2025-01-20T12:15:50.153117389Z"
+    description: A Helm chart for Kubernetes
+    digest: 4988713955112fad3162f21a9d79fbb030e79665013e005c7cd52e572afa71ca
+    name: gofit
+    type: application
+    urls:
+    - charts/gofit-0.0.1.tgz
+    version: 0.0.1
+generated: "2025-01-20T12:15:50.152522174Z"
