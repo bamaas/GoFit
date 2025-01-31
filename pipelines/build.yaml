@@ -128,3 +128,35 @@ stages:
           - publish: '$(Build.ArtifactStagingDirectory)'
             displayName: Publish Helm chart as pipeline artifact
             artifact: helm-chart-$(global_chartName)
+
+
+  - stage: Test
+    displayName: Test
+    dependsOn: Build
+    jobs:
+      - job: Test
+        displayName: Run tests
+        steps:
+
+          - template: templates/steps/bump-version.yaml
+
+          - template: templates/steps/load-image-from-pipeline-artifacts.yaml
+            parameters:
+              image: $(global_imageName)
+              downloadArtifactFrom: currentPipeline
+
+          - template: templates/steps/load-chart-from-pipeline-artifacts.yaml
+            parameters:
+              chartName: $(global_chartName)
+              downloadArtifactFrom: currentPipeline
+
+          - script: make cluster
+            displayName: Create KinD cluster
+
+          - script: make kind/load_image
+            displayName: Load image to KinD cluster
+
+          - script: make helm/install
+            displayName: Install Helm chart in KinD cluster
+            env:
+              CHART_PATH: $(chartPath)  # Variable set in the load-chart-from-pipeline-artifacts.yaml template

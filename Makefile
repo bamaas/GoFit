@@ -114,6 +114,7 @@ frontend/install_deps:																		## Install frontend dependencies
 # -------------- Helm --------------
 CHART_PATH="./deploy/chart/gofit"
 CHART_RELEASE_NAME=${APP_NAME}
+CHART_VALUES_PATH=${CHART_PATH}/values.yaml
 NAMESPACE?=default
 
 helm/template:																				## Render helm chart
@@ -123,8 +124,7 @@ helm/template:																				## Render helm chart
 helm/install:																				## Install helm chart
 	helm upgrade --install ${CHART_RELEASE_NAME} ${CHART_PATH} \
 	-n ${NAMESPACE} \
-	-f test/chart/values.yaml \
-	--set image.tag=${IMAGE_TAG} \
+	-f ${CHART_VALUES_PATH}
 
 helm/uninstall:																				## Uninstall helm chart
 	helm uninstall ${CHART_RELEASE_NAME} \
@@ -150,7 +150,7 @@ kind/delete:																				## Delete kind cluster
 	kind delete cluster --name ${CLUSTER_NAME}
 
 kind/load_image:																			## Load image into kind cluster
-	kind load docker-image ${IMAGE} --name ${CLUSTER_NAME}
+	kind load docker-image ${FULL_IMAGE_NAME} --name ${CLUSTER_NAME}
 
 kind/full_install: kind/create image/build kind/load_image helm/install						## Create kind cluster, build image, load image into cluster and install helm chart
 
