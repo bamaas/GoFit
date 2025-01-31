@@ -150,7 +150,7 @@ stages:
               chartName: $(global_chartName)
               downloadArtifactFrom: currentPipeline
 
-          - script: make cluster
+          - script: make kind/create
             displayName: Create KinD cluster
 
           - script: make kind/load_image
