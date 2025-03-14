@@ -40,6 +40,9 @@ stages:
       - job: LintHelm
         displayName: Lint Helm chart
         steps:
+          - script: make dev/install/tools
+            displayName: Install all the tools
+
           - script: make lint/helm
             displayName: Lint Helm chart
 
@@ -64,10 +67,9 @@ stages:
       - job: LintYaml
         displayName: Lint Yaml
         steps:
-
-          - script: make install/yamllint
-            displayName: Install yamllint
-
+          - script: make dev/install/tools
+            displayName: Install all the tools
+            
           - script: make lint/yaml
             displayName: Run yamllint
 

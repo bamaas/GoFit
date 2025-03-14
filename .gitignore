@@ -2,6 +2,7 @@ gofit.db
 test.sh
 .artifacts/*
 .venv
+.mise
 
 # backend
 backend/bin/*

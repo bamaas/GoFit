@@ -5,8 +5,6 @@
 SHELL = /bin/bash
 GO_BINARY=$(shell which go)
 ARTIFACTS_ROOT_DIR?=.artifacts
-VENV_DIR?=.venv/python-`python3 -V | cut -d ' ' -f 2 | awk -F. '{print $$1"."($$2)""}'`
-RUN_IN_VENV_IF_PRESENT=test -d ${VENV_DIR} && source ${VENV_DIR}/bin/activate
 
 # App
 APP_NAME=gofit
@@ -25,34 +23,34 @@ help:           																			## Show this help.
 
 ## -------------- Development --------------
 
-development/setup: githooks																	## Setup development environment
+MISE=bin/mise
+MISE_EXEC=${MISE} exec --
 
-venv:                                														## Create Python virtualenv.
-	test -d ${VENV_DIR} || python3 -m venv ${VENV_DIR}
+dev: dev/install/tools dev/install/githooks													## Setup development environment
 
-install_dependencies:																		## Install project dependencies.
-	${RUN_IN_VENV_IF_PRESENT}; \
-	pip3 install -r requirements.txt
+dev/install/tools:																			## Install development tools
+	${MISE} use -g uv
+	${MISE} trust
+	${MISE} install
 
-githooks:																					## Setup Git hooks with Python pre-commit package.
+dev/install/githooks:																		## Setup Git hooks with Python pre-commit package.
 	cd .git/hooks && \
 	ln -sf ../../.githooks/post-commit post-commit && \
 	ln -sf ../../.githooks/prepare-commit-msg prepare-commit-msg
-	${RUN_IN_VENV_IF_PRESENT}; \
-	pre-commit install --hook-type pre-commit --hook-type commit-msg --hook-type pre-push
+	${MISE_EXEC} pre-commit install --hook-type pre-commit --hook-type commit-msg --hook-type pre-push
 
 # -------------- Backend --------------
 backend/build:																				## Build backend application binary
 	cd ./backend && \
-	go build -o ./bin/${APP_NAME} ./cmd/${APP_NAME}
+	../${MISE_EXEC} go build -o ./bin/${APP_NAME} ./cmd/${APP_NAME}
 
 backend/run:																				## Run backend application
 	cd ./backend && \
-	go run ./cmd/${APP_NAME}/
+	../${MISE_EXEC} go run ./cmd/${APP_NAME}/
 
 backend/migrate/create:																		## Create database migration
 	cd ./backend && \
-	migrate create -ext=.sql -dir=./internal/assets/migrations ${NAME}
+	../${MISE_EXEC} migrate create -ext=.sql -dir=./internal/assets/migrations ${NAME}
 
 # -------------- Image --------------
 IMAGE_REGISTRY=ghcr.io
@@ -100,16 +98,16 @@ image/load: 																				## Load Docker image from .tar.gz file.
 # -------------- Frontend --------------
 frontend/build:	frontend/install_deps														## Build frontend application
 	cd frontend && \
-	npm run ci && \
-	npm run build
+	../${MISE_EXEC} npm run ci && \
+	../${MISE_EXEC} npm run build
 
 frontend/run: frontend/install_deps															## Run frontend application in development mode
 	cd frontend && \
-	npm run dev -- --host --open
+	../${MISE_EXEC} npm run dev -- --host --open
 
 frontend/install_deps:																		## Install frontend dependencies
 	cd frontend && \
-	npm install
+	../${MISE_EXEC} npm install
 
 # -------------- Helm --------------
 CHART_PATH="./deploy/chart/gofit"
@@ -118,39 +116,39 @@ CHART_VALUES_PATH=${CHART_PATH}/values.yaml
 NAMESPACE?=default
 
 helm/template:																				## Render helm chart
-	helm template ${CHART_RELEASE_NAME} ${CHART_PATH} \
+	${MISE_EXEC} helm template ${CHART_RELEASE_NAME} ${CHART_PATH} \
 	-n ${NAMESPACE}
 
 helm/install:																				## Install helm chart
-	helm upgrade --install ${CHART_RELEASE_NAME} ${CHART_PATH} \
+	${MISE_EXEC} helm upgrade --install ${CHART_RELEASE_NAME} ${CHART_PATH} \
 	-n ${NAMESPACE} \
 	-f ${CHART_VALUES_PATH}
 
 helm/uninstall:																				## Uninstall helm chart
-	helm uninstall ${CHART_RELEASE_NAME} \
+	${MISE_EXERC} helm uninstall ${CHART_RELEASE_NAME} \
 	-n ${NAMESPACE}
 
 HELM_REGISTRY?=${IMAGE_REGISTRY}		# TODO: change this
 helm/push:																					## Push helm chart to registry
-	helm push ${PATH_TO_CHART_ARTIFACT} oci://${HELM_REGISTRY}
+	${MISE_EXEC} helm push ${PATH_TO_CHART_ARTIFACT} oci://${HELM_REGISTRY}
 
 CHART_VERSION=`cat ${CHART_PATH}/Chart.yaml | yq -r '.version'`
 CHART_NAME=`cat ${CHART_PATH}/Chart.yaml | yq -r '.name'`
 CHART_ARTIFACT_DIR_PATH=${ARTIFACTS_ROOT_DIR}/helm-chart-${CHART_NAME}-${CHART_VERSION}/
 helm/package:
-	helm package ${CHART_PATH} -d ${CHART_ARTIFACT_DIR_PATH}
+	${MISE_EXEC} helm package ${CHART_PATH} -d ${CHART_ARTIFACT_DIR_PATH}
 
 # -------------- Kind --------------
 CLUSTER_NAME=${APP_NAME}
 kind/create:																				## Create a kind cluster
-	kind get clusters | grep -e "^${CLUSTER_NAME}$$" && exit 0 || \
-	(kind create cluster --name ${CLUSTER_NAME})
+	${MISE_EXEC} kind get clusters | grep -e "^${CLUSTER_NAME}$$" && exit 0 || \
+	(${MISE_EXEC} kind create cluster --name ${CLUSTER_NAME})
 
 kind/delete:																				## Delete kind cluster
-	kind delete cluster --name ${CLUSTER_NAME}
+	${MISE_EXEC} kind delete cluster --name ${CLUSTER_NAME}
 
 kind/load_image:																			## Load image into kind cluster
-	kind load docker-image ${FULL_IMAGE_NAME} --name ${CLUSTER_NAME}
+	${MISE_EXEC} kind load docker-image ${FULL_IMAGE_NAME} --name ${CLUSTER_NAME}
 
 kind/full_install: kind/create image/build kind/load_image helm/install						## Create kind cluster, build image, load image into cluster and install helm chart
 
@@ -158,29 +156,29 @@ kind/full_install: kind/create image/build kind/load_image helm/install						## 
 TERRAFORM_DIR="./deploy/terraform"
 
 terraform/init:																				## Initialize terraform
-	terraform -chdir=${TERRAFORM_DIR} init
+	${MISE_EXEC} terraform -chdir=${TERRAFORM_DIR} init
 
 terraform/plan:																				## Plan terraform
-	terraform -chdir=${TERRAFORM_DIR} plan
+	${MISE_EXEC} terraform -chdir=${TERRAFORM_DIR} plan
 
 terraform/apply:																			## Apply terraform resources
-	terraform -chdir=${TERRAFORM_DIR} apply
+	${MISE_EXEC} terraform -chdir=${TERRAFORM_DIR} apply
 
 terraform/fmt:																				## Format terraform files
-	terraform -chdir=${TERRAFORM_DIR} fmt
+	${MISE_EXEC} terraform -chdir=${TERRAFORM_DIR} fmt
 
 terraform/validate:																			## Validate terraform files
-	terraform -chdir=${TERRAFORM_DIR} validate
+	${MISE_EXEC} terraform -chdir=${TERRAFORM_DIR} validate
 
 terraform/destroy:																			## Delete terraform resources
-	terraform -chdir=${TERRAFORM_DIR} destroy
+	${MISE_EXEC} terraform -chdir=${TERRAFORM_DIR} destroy
 
 # -------------- Linting --------------
 
 lint: lint/helm lint/dockerfiles lint/markdown lint/yaml									## Lint all
 
 lint/helm:																					## Lint helm chart
-	helm lint ${CHART_PATH}
+	${MISE_EXEC} helm lint ${CHART_PATH}
 
 lint/dockerfiles:																			## Lint dockerfiles with Hadolint.
 	@find . -type f -name "*Dockerfile" -print0 | \
@@ -195,19 +193,13 @@ lint/markdown:																				## Lint markdown files.
 	-c .lint/markdownlint.yaml \
 	**/*.md
 
-install/yamllint:
-ifeq (, $(shell command yamllint --help))
-	$(eval YAMLLINT_VERSION=$(shell grep "yamllint" ./requirements.txt | cut -d '=' -f 3))
-	pip3 install yamllint==${YAMLLINT_VERSION}
-endif
-
-lint/yaml: install/yamllint																	## Lint yaml files.
-	yamllint -c .lint/yamllint.yaml .
+lint/yaml:																					## Lint yaml files.
+	${MISE_EXEC} yamllint -c .lint/yamllint.yaml .
 
 lint_commit_messages_from_head_to_main:														## Lint already created commit messages.
-	cz check --rev-range origin/main..HEAD
+	${MISE_EXEC} cz check --rev-range origin/main..HEAD
 
-commit-msg-check: install/commitizen                                       					## Validate that the commit message is according to the expected format.
+commit-msg-check:                                       									## Validate that the commit message is according to the expected format.
 	@echo "Checking if commit message is according to expected format"
 	@echo "-------"
 	@echo "fix: A bug fix. Correlates with PATCH in SemVer"
@@ -239,19 +231,13 @@ lint/go:																					## Lint Go code.
 VERSION?=`yq -r '.commitizen.version' .cz.yaml`
 
 gh/release:
-	gh config set prompt disabled
-	gh release create ${VERSION} \
+	${MISE_EXEC} gh config set prompt disabled
+	${MISE_EXEC} gh release create ${VERSION} \
 	-t ${VERSION} \
 	--verify-tag \
 	${RELEASE_ASSET}
 
-install/commitizen:
-ifeq (, $(shell which cz))
-	$(eval COMMITIZEN_VERSION=$(shell grep "commitizen" ./requirements.txt | cut -d '=' -f 3))
-	pip3 install commitizen==${COMMITIZEN_VERSION}
-endif
-
-BUMP_CMD=cz -nr 21,3 bump --version-scheme semver --check-consistency --changelog
+BUMP_CMD=${MISE_EXEC} cz -nr 21,3 bump --version-scheme semver --check-consistency --changelog
 bump:																						## Bump version.
 	@test -v ${DEVRELEASE} && \
 	${BUMP_CMD} || \
