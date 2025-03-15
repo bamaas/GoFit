@@ -15,3 +15,5 @@ ignore:
   - .cz.yaml
   - deploy/chart/gofit/charts/
   - deploy/chart/gofit/templates/
+  - frontend/node_modules/
+  - .mise

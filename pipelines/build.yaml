@@ -33,6 +33,27 @@ stages:
                   echo "##vso[build.addbuildtag]release"
                 displayName: Add pipeline build tag 'release'
 
+  - stage: Something
+    displayName: Something
+    dependsOn: []
+    jobs:
+    - job: Something
+      displayName: Something
+      steps:
+        - checkout: none
+        - script: |
+            curl https://mise.run | sh
+            echo '##vso[task.prependpath]$HOME/.local/share/mise/bin'
+            echo '##vso[task.prependpath]$HOME/.local/share/mise/shims'
+          displayName: Install Mise
+        - script: |
+            mise use -g uv
+            mise trust
+            mise install
+          displayName: Something
+        - script: migrate --version
+          displayName: Something
+
   - stage: Lint
     displayName: Lint
     dependsOn: []
@@ -69,7 +90,7 @@ stages:
         steps:
           - script: make dev/install/tools
             displayName: Install all the tools
-            
+
           - script: make lint/yaml
             displayName: Run yamllint
 

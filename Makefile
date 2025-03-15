@@ -23,7 +23,7 @@ help:           																			## Show this help.
 
 ## -------------- Development --------------
 
-MISE=bin/mise
+MISE?=bin/mise
 MISE_EXEC=${MISE} exec --
 
 dev: dev/install/tools dev/install/githooks													## Setup development environment
@@ -38,6 +38,22 @@ dev/install/githooks:																		## Setup Git hooks with Python pre-commit
 	ln -sf ../../.githooks/post-commit post-commit && \
 	ln -sf ../../.githooks/prepare-commit-msg prepare-commit-msg
 	${MISE_EXEC} pre-commit install --hook-type pre-commit --hook-type commit-msg --hook-type pre-push
+
+dev/uninstall/mise:																			## Completly undo local Mise installation
+	${MISE} implode
+
+dev/uninstall/githooks:																		## Undo githooks
+	cd .git/hooks && rm post-commit prepare-commit-msg
+	${MISE_EXEC} pre-commit uninstall \
+	-t pre-commit \
+	-t pre-merge-commit \
+	-t pre-push \
+	-t prepare-commit-msg \
+	-t commit-msg \
+	-t post-commit \
+	-t post-checkout \
+	-t post-merge \
+	-t post-rewrite
 
 # -------------- Backend --------------
 backend/build:																				## Build backend application binary
@@ -190,6 +206,8 @@ lint/markdown:																				## Lint markdown files.
 	ghcr.io/igorshubovych/markdownlint-cli:v0.39.0 \
 	-i ./deploy/chart/${CHART_NAME}/charts/* \
 	-i ./CHANGELOG.md \
+	-i ./frontend/node_modules/* \
+	-i ./.mise \
 	-c .lint/markdownlint.yaml \
 	**/*.md
 
