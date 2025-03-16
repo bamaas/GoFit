@@ -37,14 +37,14 @@ stages:
     displayName: Prepare
     dependsOn: []
     jobs:
-    - job: InstallTools
-      displayName: Install tools
-      steps:
-        - script: |
-            mise use -g uv
-            mise trust
-            mise install
-          displayName: iets
+      - job: InstallTools
+        displayName: Install tools
+        steps:
+          - script: |
+              mise use -g uv
+              mise trust
+              mise install
+            displayName: iets
       # steps:
       #   - script: |
       #       curl https://mise.run | sh
