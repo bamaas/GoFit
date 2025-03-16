@@ -17,21 +17,20 @@ pool:
 container: docker.io/bamaas/devcontainer:latest-minimal
 
 stages:
-
-  # Tag stage is only executed when a tag is pushed to the repository.
-  - ${{ if and( eq(variables['Build.Reason'], 'IndividualCI'), startsWith(variables['Build.SourceBranch'], 'refs/tags/') ) }}:
-      - stage: Tag
-        displayName: Tag
-        dependsOn: []
-        condition: or( eq(variables.buildRequestedForPipeline, 'false'), startsWith(variables['Build.SourceBranch'], 'refs/tags/') )
-        jobs:
-          - job: Tag
-            displayName: Tag pipeline build
-            steps:
-              - checkout: none
-              - script: |
-                  echo "##vso[build.addbuildtag]release"
-                displayName: Add pipeline build tag 'release'
+  # # Tag stage is only executed when a tag is pushed to the repository.
+  # - ${{ if and( eq(variables['Build.Reason'], 'IndividualCI'), startsWith(variables['Build.SourceBranch'], 'refs/tags/') ) }}:
+  #     - stage: Tag
+  #       displayName: Tag
+  #       dependsOn: []
+  #       condition: or( eq(variables.buildRequestedForPipeline, 'false'), startsWith(variables['Build.SourceBranch'], 'refs/tags/') )
+  #       jobs:
+  #         - job: Tag
+  #           displayName: Tag pipeline build
+  #           steps:
+  #             - checkout: none
+  #             - script: |
+  #                 echo "##vso[build.addbuildtag]release"
+  #               displayName: Add pipeline build tag 'release'
 
   - stage: Prepare
     displayName: Prepare
