@@ -33,12 +33,12 @@ stages:
 
   - stage: Prepare
     displayName: Prepare
-    container:
-      image: docker.io/bamaas/devcontainer:latest-minimal
     dependsOn: []
     jobs:
       - job: InstallTools
         displayName: Install tools
+        container:
+          image: docker.io/bamaas/devcontainer:latest-minimal
         steps:
           - script: |
               mise use -g uv
