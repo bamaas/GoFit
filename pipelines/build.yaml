@@ -8,8 +8,8 @@ trigger:
     include:
       - "*.*.*"
 
-pool:
-  vmImage: ubuntu-latest
+# pool:
+#   vmImage: ubuntu-latest
 
 container: docker.io/bamaas/devcontainer:latest-minimal
 
