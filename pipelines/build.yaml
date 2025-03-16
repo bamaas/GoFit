@@ -8,13 +8,13 @@ trigger:
     include:
       - "*.*.*"
 
-# pool:
-  # vmImage: ubuntu-latest
-
-# container: docker.io/bamaas/devcontainer:latest-minimal
-
 variables:
   - template: templates/variables/global_vars.yaml
+
+pool:
+  vmImage: ubuntu-latest
+
+container: docker.io/bamaas/devcontainer:latest-minimal
 
 stages:
 
