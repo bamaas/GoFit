@@ -40,17 +40,23 @@ stages:
     - job: Something
       displayName: Something
       steps:
-        - checkout: none
         - script: |
             curl https://mise.run | sh
             echo '##vso[task.prependpath]$HOME/.local/share/mise/bin'
             echo '##vso[task.prependpath]$HOME/.local/share/mise/shims'
           displayName: Install Mise
+          env:
+            MISE_DATA_DIR: ./.mise
+
         - script: |
             mise use -g uv
             mise trust
             mise install
           displayName: Something
+
+        - script: ls -la .mise
+          displayName: Ls .mise
+
         - script: migrate --version
           displayName: Something
 
