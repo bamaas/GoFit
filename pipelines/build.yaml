@@ -11,9 +11,9 @@ trigger:
 variables:
   - template: templates/variables/global_vars.yaml
 
-pool:
-  vmImage: ubuntu-latest
-  container: docker.io/bamaas/devcontainer:latest-minimal
+# pool:
+#   vmImage: ubuntu-latest
+#   container: docker.io/bamaas/devcontainer:latest-minimal
 
 stages:
   # # Tag stage is only executed when a tag is pushed to the repository.
@@ -33,6 +33,8 @@ stages:
 
   - stage: Prepare
     displayName: Prepare
+    container:
+      image: docker.io/bamaas/devcontainer:latest-minimal
     dependsOn: []
     jobs:
       - job: InstallTools
