@@ -13,8 +13,7 @@ variables:
 
 pool:
   vmImage: ubuntu-latest
-
-container: docker.io/bamaas/devcontainer:latest-minimal
+  container: docker.io/bamaas/devcontainer:latest-minimal
 
 stages:
   # # Tag stage is only executed when a tag is pushed to the repository.
