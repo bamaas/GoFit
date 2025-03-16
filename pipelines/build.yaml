@@ -11,7 +11,7 @@ trigger:
 pool:
   vmImage: ubuntu-latest
 
-# container: docker.io/bamaas/devcontainer:2f03e7ccfb73871b7deb353e63081b806e79de94
+container: docker.io/bamaas/devcontainer:latest-minimal
 
 variables:
   - template: templates/variables/global_vars.yaml
@@ -33,36 +33,42 @@ stages:
                   echo "##vso[build.addbuildtag]release"
                 displayName: Add pipeline build tag 'release'
 
-  - stage: Something
-    displayName: Something
+  - stage: Prepare
+    displayName: Prepare
     dependsOn: []
     jobs:
-    - job: Something
-      displayName: Something
+    - job: Install tools
+      displayName: Install tools
       steps:
-        - script: |
-            curl https://mise.run | sh
-            echo '##vso[task.prependpath]$HOME/.local/share/mise/bin'
-            echo '##vso[task.prependpath]$HOME/.local/share/mise/shims'
-          displayName: Install Mise
-          env:
-            MISE_DATA_DIR: ./.mise
-
         - script: |
             mise use -g uv
             mise trust
             mise install
-          displayName: Something
+          displayName: iets
+        # - script: |
+        #     curl https://mise.run | sh
+        #     echo '##vso[task.prependpath]$HOME/.local/share/mise/bin'
+        #     echo '##vso[task.prependpath]$HOME/.local/share/mise/shims'
+        #   displayName: Install Mise
+        #   env:
+        #     MISE_DATA_DIR: ./.mise
 
-        - script: ls -la .mise
-          displayName: Ls .mise
+        # - script: |
+        #     mise doctor
+        #     mise use -g uv
+        #     mise trust
+        #     mise install
+        #   displayName: Something
 
-        - script: migrate --version
-          displayName: Something
+        # - script: ls -la .mise
+        #   displayName: Ls .mise
+
+        # - script: migrate --version
+        #   displayName: Something
 
   - stage: Lint
     displayName: Lint
-    dependsOn: []
+    dependsOn: Prepare
     jobs:
       - job: LintHelm
         displayName: Lint Helm chart
@@ -102,7 +108,7 @@ stages:
 
   - stage: Build
     displayName: Build
-    dependsOn: []
+    dependsOn: Prepare
     jobs:
       - job:
         displayName: Image
