@@ -11,7 +11,7 @@ trigger:
 # pool:
   # vmImage: ubuntu-latest
 
-container: docker.io/bamaas/devcontainer:latest-minimal
+# container: docker.io/bamaas/devcontainer:latest-minimal
 
 variables:
   - template: templates/variables/global_vars.yaml
