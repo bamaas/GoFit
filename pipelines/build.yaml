@@ -38,7 +38,7 @@ stages:
       - job: InstallTools
         displayName: Install tools
         container:
-          image: docker.io/bamaas/devcontainer:latest-minimal
+          image: docker.io/jdxcode/mise:latest
         steps:
           - script: |
               mise use -g uv
