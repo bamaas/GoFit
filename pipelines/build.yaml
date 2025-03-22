@@ -67,21 +67,21 @@ stages:
     dependsOn: Prepare
     jobs:
       - job: LintHelm
-        container: $(containerJobImage)
+        container: ${{ variables.containerJobImage }}
         displayName: Lint Helm chart
         steps:
           - script: make lint/helm
             displayName: Lint Helm chart
 
       - job: LintDockerfiles
-        container: $(containerJobImage)
+        container: ${{ variables.containerJobImage }}
         displayName: Lint Dockerfiles
         steps:
           - script: make lint/dockerfiles
             displayName: Run Dockerfile linter
 
       - job: LintMarkdown
-        container: $(containerJobImage)
+        container: ${{ variables.containerJobImage }}
         displayName: Lint Markdown files
         steps:
           - script: make lint/markdown
@@ -94,14 +94,14 @@ stages:
       #       displayName: Lint Go files
 
       - job: LintYaml
-        container: $(containerJobImage)
+        container: ${{ variables.containerJobImage }}
         displayName: Lint Yaml
         steps:
           - script: make lint/yaml
             displayName: Lint yaml files
 
       - job: LintSpelling
-        container: $(containerJobImage)
+        container: ${{ variables.containerJobImage }}
         displayName: Lint spelling
         steps:
           - script: make lint/spelling
@@ -113,7 +113,7 @@ stages:
     jobs:
       - job:
         displayName: Image
-        container: $(containerJobImage)
+        container: ${{ variables.containerJobImage }}
         steps:
 
           - task: Docker@2
@@ -146,7 +146,7 @@ stages:
 
       - job:
         displayName: Chart
-        container: $(containerJobImage)
+        container: ${{ variables.containerJobImage }}
         steps:
 
           - template: templates/steps/bump-version.yaml
@@ -172,7 +172,7 @@ stages:
     dependsOn: Build
     jobs:
       - job: Test
-        container: $(containerJobImage)
+        container: ${{ variables.containerJobImage }}
         displayName: Run tests
         steps:
 
