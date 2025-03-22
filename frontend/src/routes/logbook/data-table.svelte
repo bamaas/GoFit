@@ -174,7 +174,7 @@
         goto(`?${query.toString()}`);
     }
 
-    // Date range picker TODO: put in seperate component
+    // Date range picker TODO: put in separate component
     import CalendarIcon from "lucide-svelte/icons/calendar";
     import type { DateRange } from "bits-ui";
     import {

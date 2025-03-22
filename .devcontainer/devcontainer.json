@@ -13,26 +13,27 @@
 	// "features": {},
 
 	// Use 'forwardPorts' to make a list of ports inside the container available locally.
-	// "forwardPorts": [
-	// 	5173,
-	// 	8080
-	// ],
+	"forwardPorts": [
+		5173,
+		8080
+	],
 
 	"workspaceMount": "source=${localWorkspaceFolder},target=/${localWorkspaceFolder},type=bind",
 	"workspaceFolder": "/${localWorkspaceFolder}",
 
 	"mounts": [
 		"source=/var/run/docker.sock,target=/var/run/docker.sock,type=bind",
+		"source=${localWorkspaceFolder}/.devcontainer/bashrc,target=/root/.bashrc,type=bind",
 		"type=bind,source=${localEnv:HOME}/.ssh,target=/root/.ssh,readonly",
 		"type=bind,source=${localEnv:HOME}/.gitconfig,target=/root/.gitconfig,readonly"
 	],
 	"runArgs": [
-		"--add-host=host.docker.internal:host-gateway",
-		"--network=host"
+		// "--add-host=host.docker.internal:host-gateway",
+		// "--network=host"
 	],
 
 	// Use 'postCreateCommand' to run commands after the container is created.
-	"postCreateCommand": "/bin/zsh -c 'mise trust && source ~/.zshrc && make development/setup'",
+	"postCreateCommand": "mise trust && make dev",
 
 	// Configure tool-specific properties.
 	// "customizations": {},
@@ -41,6 +42,6 @@
 	"remoteUser": "root",
 
 	"containerEnv": {
-    	"SHELL": "/bin/zsh"
+    	// "SHELL": "/bin/zsh"
 	}
 }

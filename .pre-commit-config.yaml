@@ -27,6 +27,14 @@ repos:
         language: system
         stages: [pre-commit]
 
+      - id: LintSpelling
+        name: Lint spelling
+        entry: make
+        args: ['lint/spelling']
+        pass_filenames: false
+        language: system
+        stages: [pre-commit]
+
       - id: LintMarkdownFiles
         name: Lint Markdown files
         entry: make

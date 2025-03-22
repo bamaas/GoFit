@@ -8,16 +8,15 @@ trigger:
     include:
       - "*.*.*"
 
+variables:
+  - template: templates/variables/global_vars.yaml
+  # - name: SHELLOPTS
+  #   value: errexit:pipefail
+
 pool:
   vmImage: ubuntu-latest
 
-# container: docker.io/bamaas/devcontainer:2f03e7ccfb73871b7deb353e63081b806e79de94
-
-variables:
-  - template: templates/variables/global_vars.yaml
-
 stages:
-
   # Tag stage is only executed when a tag is pushed to the repository.
   - ${{ if and( eq(variables['Build.Reason'], 'IndividualCI'), startsWith(variables['Build.SourceBranch'], 'refs/tags/') ) }}:
       - stage: Tag
@@ -33,23 +32,51 @@ stages:
                   echo "##vso[build.addbuildtag]release"
                 displayName: Add pipeline build tag 'release'
 
-  - stage: Lint
-    displayName: Lint
+  - stage: Prepare
+    displayName: Prepare
     dependsOn: []
     jobs:
+      - job:
+        displayName: Build devcontainer
+        steps:
+          - task: Docker@2
+            displayName: Login to DockerHub
+            inputs:
+              command: login
+              containerRegistry: dockerhub
+
+          - script: |
+              make dev/container
+            displayName: Build devcontainer image
+            env:
+              IMAGE_TAG: $(Build.SourceVersion)
+
+          - script: |
+              make dev/container/push
+            displayName: Push devcontainer image
+            env:
+              IMAGE_TAG: $(Build.SourceVersion)
+
+  - stage: Lint
+    displayName: Lint
+    dependsOn: Prepare
+    jobs:
       - job: LintHelm
+        container: docker.io/bamaas/devcontainer:gofit-$(Build.SourceVersion)
         displayName: Lint Helm chart
         steps:
           - script: make lint/helm
             displayName: Lint Helm chart
 
       - job: LintDockerfiles
+        container: docker.io/bamaas/devcontainer:gofit-$(Build.SourceVersion)
         displayName: Lint Dockerfiles
         steps:
           - script: make lint/dockerfiles
             displayName: Run Dockerfile linter
 
       - job: LintMarkdown
+        container: docker.io/bamaas/devcontainer:gofit-$(Build.SourceVersion)
         displayName: Lint Markdown files
         steps:
           - script: make lint/markdown
@@ -62,21 +89,26 @@ stages:
       #       displayName: Lint Go files
 
       - job: LintYaml
+        container: docker.io/bamaas/devcontainer:gofit-$(Build.SourceVersion)
         displayName: Lint Yaml
         steps:
-
-          - script: make install/yamllint
-            displayName: Install yamllint
-
           - script: make lint/yaml
-            displayName: Run yamllint
+            displayName: Lint yaml files
+
+      - job: LintSpelling
+        container: docker.io/bamaas/devcontainer:gofit-$(Build.SourceVersion)
+        displayName: Lint spelling
+        steps:
+          - script: make lint/spelling
+            displayName: Run spelling linter
 
   - stage: Build
     displayName: Build
-    dependsOn: []
+    dependsOn: Prepare
     jobs:
       - job:
         displayName: Image
+        container: docker.io/bamaas/devcontainer:gofit-$(Build.SourceVersion)
         steps:
 
           - task: Docker@2
@@ -109,6 +141,7 @@ stages:
 
       - job:
         displayName: Chart
+        container: docker.io/bamaas/devcontainer:gofit-$(Build.SourceVersion)
         steps:
 
           - template: templates/steps/bump-version.yaml
@@ -129,12 +162,12 @@ stages:
             displayName: Publish Helm chart as pipeline artifact
             artifact: helm-chart-$(global_chartName)
 
-
   - stage: Test
     displayName: Test
     dependsOn: Build
     jobs:
       - job: Test
+        container: docker.io/bamaas/devcontainer:gofit-$(Build.SourceVersion)
         displayName: Run tests
         steps:
 
@@ -150,10 +183,10 @@ stages:
               chartName: $(global_chartName)
               downloadArtifactFrom: currentPipeline
 
-          - script: make kind/create
+          - script: make cluster
             displayName: Create KinD cluster
 
-          - script: make kind/load_image
+          - script: make cluster/load_image
             displayName: Load image to KinD cluster
 
           - script: make helm/install

@@ -103,7 +103,7 @@
         </Select.Root>
         <Input style="display: none;" {...attrs} bind:value={$formData.goal} />
       </Form.Control>
-      <Form.Description>What is the goal you try to archieve?</Form.Description>
+      <Form.Description>What is the goal you try to archive?</Form.Description>
       <Form.FieldErrors />
   </Form.Field>
 <Form.Button class="w-full" disabled={buttonDisabled || $delayed}>
