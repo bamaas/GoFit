@@ -52,10 +52,7 @@ jobs:
               git config --global user.email "$(global_gitConfigPipelineName)"
             displayName: Set Git config
 
-          # - template: templates/steps/set-python-version.yaml
-          #   parameters:
-          #     ommitPatchVersion: true
-
+          # TODO: Has a dependency on yq in the Makefile.
           - script: make install/commitizen
             displayName: Install Commitizen
 

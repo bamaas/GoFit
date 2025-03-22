@@ -17,8 +17,15 @@ pool:
 
 variables:
   - template: templates/variables/global_vars.yaml
+
+  - name: SHELLOPTS
+    value: errexit:pipefail
+
   - name: downloadArtifactsFrom
     value: buildPipeline
+
+  - name: containerJobImage
+    value: docker.io/bamaas/devcontainer:gofit-$(Build.TriggeredBy.BuildId)
 
 jobs:
 
@@ -33,7 +40,8 @@ jobs:
             displayName: Add pipeline build tag 'demo'
 
   - job:
-    displayName: Push image to ghcr.io
+    displayName: Release image with version tag
+    container: $(containerJobImage)
     steps:
       - template: templates/steps/load-image-from-pipeline-artifacts.yaml
         parameters:
@@ -51,33 +59,36 @@ jobs:
         env:
           FULL_IMAGE_NAME: $(fullImageNameAndTag)   ## Defined in load-image-from-pipeline-artifacts.yaml
 
-  # - job:
-  #   displayName: Release image as latest tag
-  #   steps:
-  #     - template: templates/steps/load-image-from-pipeline-artifacts.yaml
-  #       parameters:
-  #         artifact: $(global_imageArtifactName)
-  #         downloadArtifactFrom: ${{ variables.downloadArtifactsFrom }}
+  # TODO: Make this job better.
+  - job:
+    displayName: Release image with latest tag
+    container: $(containerJobImage)
+    steps:
+      - template: templates/steps/load-image-from-pipeline-artifacts.yaml
+        parameters:
+          artifact: $(global_imageArtifactName)
+          downloadArtifactFrom: ${{ variables.downloadArtifactsFrom }}
 
-  #     - task: Docker@2
-  #       displayName: Login to Docker Hub
-  #       inputs:
-  #         containerRegistry: dockerhub
-  #         command: login
+      - task: Docker@2
+        displayName: Login to Docker Hub
+        inputs:
+          containerRegistry: dockerhub
+          command: login
 
-  #     - script: make image/tag
-  #       displayName: Tag image to latest
-  #       env:
-  #         OLD_TAG: $(imageTag)
-  #         NEW_TAG: latest
+      - script: make image/tag
+        displayName: Tag image to latest
+        env:
+          OLD_TAG: $(imageTag)
+          NEW_TAG: latest
 
-  #     - script: make image/push
-  #       displayName: Push image with latest tag
-  #       env:
-  #         IMAGE_TAG: latest
+      - script: make image/push
+        displayName: Push image with latest tag
+        env:
+          IMAGE_TAG: latest
 
   - job:
     displayName: Create GitHub release
+    container: $(containerJobImage)
     steps:
       - checkout: self
 
@@ -93,7 +104,8 @@ jobs:
           RELEASE_ASSET: $(chartPath)
 
   - job:
-    displayName: Put Helm chart to GitHub pages
+    displayName: Release Helm chart
+    container: $(containerJobImage)
     steps:
 
       - checkout: self
