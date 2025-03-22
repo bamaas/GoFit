@@ -52,17 +52,6 @@ dev/uninstall/githooks:																		## Undo githooks
 	-t post-merge \
 	-t post-rewrite
 
-dev/container: dev/container/build 															## Alias for dev/container/build
-
-dev/container/build:
-	docker build \
-	-t docker.io/bamaas/devcontainer:gofit-${IMAGE_TAG} \
-	-f ./.devcontainer/Dockerfile \
-	.
-
-dev/container/push:
-	docker push docker.io/bamaas/devcontainer:gofit-${IMAGE_TAG}
-
 # -------------- Backend --------------
 backend/build:																				## Build backend application binary
 	cd ./backend && \
@@ -86,11 +75,14 @@ FULL_IMAGE_NAME?=${IMAGE_REGISTRY}/${IMAGE_REPOSITORY}:${IMAGE_TAG}
 image/get:
 	@echo ${FULL_IMAGE_NAME}
 
+image: image/build       																	## Alias for image/build
+
+DOCKER_FILE?=./Dockerfile
 image/build:																				## Build an application container image
 	docker build \
 	--build-arg GO_VERSION=${GO_VERSION} \
 	-t ${FULL_IMAGE_NAME} \
-	-f ./Dockerfile \
+	-f ${DOCKER_FILE} \
 	.
 
 image/push:																					## Push the image to the registry
@@ -283,6 +275,9 @@ gh/release:
 	-t ${VERSION} \
 	--verify-tag \
 	${RELEASE_ASSET}
+
+install/commitizen:																		## Install commitizen
+	which cz > /dev/null || pip install commitizen==`yq -r '.tools."pipx:commitizen"' mise.toml`
 
 BUMP_CMD=cz -nr 21,3 bump --version-scheme semver --check-consistency --changelog
 bump:																						## Bump version.

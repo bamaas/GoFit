@@ -10,8 +10,12 @@ trigger:
 
 variables:
   - template: templates/variables/global_vars.yaml
-  # - name: SHELLOPTS
-  #   value: errexit:pipefail
+
+  - name: SHELLOPTS
+    value: errexit:pipefail
+
+  - name: containerJobImage
+    value: docker.io/bamaas/devcontainer:gofit-$(Build.BuildId)
 
 pool:
   vmImage: ubuntu-latest
@@ -46,37 +50,38 @@ stages:
               containerRegistry: dockerhub
 
           - script: |
-              make dev/container
+              make image/build
             displayName: Build devcontainer image
             env:
-              IMAGE_TAG: $(Build.SourceVersion)
+              DOCKER_FILE: .devcontainer/Dockerfile
+              FULL_IMAGE_NAME: $(containerJobImage)
 
           - script: |
-              make dev/container/push
+              make image/push
             displayName: Push devcontainer image
             env:
-              IMAGE_TAG: $(Build.SourceVersion)
+              FULL_IMAGE_NAME: $(containerJobImage)
 
   - stage: Lint
     displayName: Lint
     dependsOn: Prepare
     jobs:
       - job: LintHelm
-        container: docker.io/bamaas/devcontainer:gofit-$(Build.SourceVersion)
+        container: $(containerJobImage)
         displayName: Lint Helm chart
         steps:
           - script: make lint/helm
             displayName: Lint Helm chart
 
       - job: LintDockerfiles
-        container: docker.io/bamaas/devcontainer:gofit-$(Build.SourceVersion)
+        container: $(containerJobImage)
         displayName: Lint Dockerfiles
         steps:
           - script: make lint/dockerfiles
             displayName: Run Dockerfile linter
 
       - job: LintMarkdown
-        container: docker.io/bamaas/devcontainer:gofit-$(Build.SourceVersion)
+        container: $(containerJobImage)
         displayName: Lint Markdown files
         steps:
           - script: make lint/markdown
@@ -89,14 +94,14 @@ stages:
       #       displayName: Lint Go files
 
       - job: LintYaml
-        container: docker.io/bamaas/devcontainer:gofit-$(Build.SourceVersion)
+        container: $(containerJobImage)
         displayName: Lint Yaml
         steps:
           - script: make lint/yaml
             displayName: Lint yaml files
 
       - job: LintSpelling
-        container: docker.io/bamaas/devcontainer:gofit-$(Build.SourceVersion)
+        container: $(containerJobImage)
         displayName: Lint spelling
         steps:
           - script: make lint/spelling
@@ -108,7 +113,7 @@ stages:
     jobs:
       - job:
         displayName: Image
-        container: docker.io/bamaas/devcontainer:gofit-$(Build.SourceVersion)
+        container: $(containerJobImage)
         steps:
 
           - task: Docker@2
@@ -141,7 +146,7 @@ stages:
 
       - job:
         displayName: Chart
-        container: docker.io/bamaas/devcontainer:gofit-$(Build.SourceVersion)
+        container: $(containerJobImage)
         steps:
 
           - template: templates/steps/bump-version.yaml
@@ -167,7 +172,7 @@ stages:
     dependsOn: Build
     jobs:
       - job: Test
-        container: docker.io/bamaas/devcontainer:gofit-$(Build.SourceVersion)
+        container: $(containerJobImage)
         displayName: Run tests
         steps:
 
