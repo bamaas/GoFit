@@ -71,7 +71,7 @@ func (m *TokenModel) New(UserID int64, ttl time.Duration, scope string) (*Token,
 		return nil, err
 	}
 
-	err = m.Insert(token)		// TODO: Verify this impelmentation
+	err = m.Insert(token)		// TODO: Verify this implementation
 	if err != nil {
 		return nil, err
 	}

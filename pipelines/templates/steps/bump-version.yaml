@@ -14,9 +14,6 @@ steps:
       git config --global user.name "GoFit"
     displayName: Set Git config
 
-  - script: make install/commitizen
-    displayName: Install Commitizen
-
   - script: make bump
     displayName: Bump version
     # On pull requests and on main branch build non-dev releases.

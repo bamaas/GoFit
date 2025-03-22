@@ -31,7 +31,7 @@
     function showErrors(form: SuperValidated<Infer<FormSchema>>): void {
       form.errors.email = ["Invalid credentials"];
       form.errors.password = ["Invalid credentials"];
-      toast.error("Invalid credentails.", {
+      toast.error("Invalid credentials.", {
         description: "Oops, was it a typo?",
         cancel: {label: "X", onClick: () => {}}
       });

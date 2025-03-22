@@ -36,7 +36,7 @@ steps:
         buildVersionToDownload: specific
         pipelineId: $(resources.pipeline.buildPipeline.runID)
 
-  # Be carefull changing the step variable $(fullImageNameAndTag), other templates might depent on it. For example: scan-image-from-pipeline-artifacts.yaml
+  # Be careful changing the step variable $(fullImageNameAndTag), other templates might depend on it. For example: scan-image-from-pipeline-artifacts.yaml
   - script: |
         img=$(make image/load)
         echo "Successfully loaded image: ${img}"

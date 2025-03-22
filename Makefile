@@ -5,8 +5,6 @@
 SHELL = /bin/bash
 GO_BINARY=$(shell which go)
 ARTIFACTS_ROOT_DIR?=.artifacts
-VENV_DIR?=.venv/python-`python3 -V | cut -d ' ' -f 2 | awk -F. '{print $$1"."($$2)""}'`
-RUN_IN_VENV_IF_PRESENT=test -d ${VENV_DIR} && source ${VENV_DIR}/bin/activate
 
 # App
 APP_NAME=gofit
@@ -25,21 +23,45 @@ help:           																			## Show this help.
 
 ## -------------- Development --------------
 
-development/setup: githooks																	## Setup development environment
+dev: dev/install/tools dev/install/githooks													## Setup development environment
 
-venv:                                														## Create Python virtualenv.
-	test -d ${VENV_DIR} || python3 -m venv ${VENV_DIR}
+dev/install/tools:																			## Install development tools
+	mise use -g uv
+	mise trust
+	mise install
 
-install_dependencies:																		## Install project dependencies.
-	${RUN_IN_VENV_IF_PRESENT}; \
-	pip3 install -r requirements.txt
-
-githooks:																					## Setup Git hooks with Python pre-commit package.
+dev/install/githooks:																		## Setup Git hooks with Python pre-commit package.
 	cd .git/hooks && \
 	ln -sf ../../.githooks/post-commit post-commit && \
 	ln -sf ../../.githooks/prepare-commit-msg prepare-commit-msg
-	${RUN_IN_VENV_IF_PRESENT}; \
 	pre-commit install --hook-type pre-commit --hook-type commit-msg --hook-type pre-push
+
+dev/uninstall/mise:																			## Completely undo local Mise installation
+	mise implode
+
+dev/uninstall/githooks:																		## Undo githooks
+	cd .git/hooks && rm post-commit prepare-commit-msg
+	pre-commit uninstall \
+	-t pre-commit \
+	-t pre-merge-commit \
+	-t pre-push \
+	-t prepare-commit-msg \
+	-t commit-msg \
+	-t post-commit \
+	-t post-checkout \
+	-t post-merge \
+	-t post-rewrite
+
+dev/container: dev/container/build 															## Alias for dev/container/build
+
+dev/container/build:
+	docker build \
+	-t docker.io/bamaas/devcontainer:gofit-${IMAGE_TAG} \
+	-f ./.devcontainer/Dockerfile \
+	.
+
+dev/container/push:
+	docker push docker.io/bamaas/devcontainer:gofit-${IMAGE_TAG}
 
 # -------------- Backend --------------
 backend/build:																				## Build backend application binary
@@ -127,7 +149,7 @@ helm/install:																				## Install helm chart
 	-f ${CHART_VALUES_PATH}
 
 helm/uninstall:																				## Uninstall helm chart
-	helm uninstall ${CHART_RELEASE_NAME} \
+	${MISE_EXERC} helm uninstall ${CHART_RELEASE_NAME} \
 	-n ${NAMESPACE}
 
 HELM_REGISTRY?=${IMAGE_REGISTRY}		# TODO: change this
@@ -142,17 +164,28 @@ helm/package:
 
 # -------------- Kind --------------
 CLUSTER_NAME=${APP_NAME}
-kind/create:																				## Create a kind cluster
-	kind get clusters | grep -e "^${CLUSTER_NAME}$$" && exit 0 || \
-	(kind create cluster --name ${CLUSTER_NAME})
+cluster: cluster/create																		## Alias for cluster/create
 
-kind/delete:																				## Delete kind cluster
+cluster/create: cluster/_create cluster/connect												## Create a kind cluster
+
+cluster/_create:																			## Create a kind cluster
+	kind get clusters | grep -e "^${CLUSTER_NAME}$$" && exit 0 || \
+	(kind create cluster --name ${CLUSTER_NAME} --config ./kind.yaml)
+
+cluster/connect:																			## Connect to kind cluster
+	$(eval CONTAINER_NAME=$(shell docker inspect `hostname` -f '{{.Name}}' | sed 's/\///'))
+	test -d ~/.kube || mkdir -p ~/.kube
+	kind get kubeconfig --internal -n ${CLUSTER_NAME} > ~/.kube/config
+	docker network inspect kind -f "{{range .Containers}}{{.Name}}{{end}}" | grep -q ${CONTAINER_NAME} || \
+	docker network connect kind ${CONTAINER_NAME}
+
+cluster/delete:																				## Delete kind cluster
 	kind delete cluster --name ${CLUSTER_NAME}
 
-kind/load_image:																			## Load image into kind cluster
+cluster/load_image:																			## Load image into kind cluster
 	kind load docker-image ${FULL_IMAGE_NAME} --name ${CLUSTER_NAME}
 
-kind/full_install: kind/create image/build kind/load_image helm/install						## Create kind cluster, build image, load image into cluster and install helm chart
+cluster/full_install: cluster/create image/build cluster/load_image helm/install				## Create kind cluster, build image, load image into cluster and install helm chart
 
 # -------------- Terraform --------------
 TERRAFORM_DIR="./deploy/terraform"
@@ -177,37 +210,43 @@ terraform/destroy:																			## Delete terraform resources
 
 # -------------- Linting --------------
 
-lint: lint/helm lint/dockerfiles lint/markdown lint/yaml									## Lint all
+LINT_CONFIG_DIR=.lint
+
+lint: lint/helm lint/dockerfiles lint/markdown lint/yaml lint/spelling						## Lint all
 
 lint/helm:																					## Lint helm chart
 	helm lint ${CHART_PATH}
 
+# TODO: Hadolint is not working in Az Pipeline: /proc/self/exemake: *** [Makefile:217: lint/dockerfiles] Error 123
+# lint/dockerfiles:																			## Lint dockerfiles with Hadolint.
+# 	@find . -type f -name "*Dockerfile" -print0 | \
+# 	xargs --replace="{}" -0 -n1 bash -c \
+# 	'printf "\nLinting: {}\n" && hadolint -c ${PWD}/.lint/hadolint.yaml {};'
+
 lint/dockerfiles:																			## Lint dockerfiles with Hadolint.
 	@find . -type f -name "*Dockerfile" -print0 | \
 	xargs --replace="{}" -0 -n1 bash -c \
-	'printf "\nLinting: {}\n" && docker run --rm -v ${PWD}/.lint/hadolint.yaml:/.config/hadolint.yaml -i ghcr.io/hadolint/hadolint:v2.12.0 < {};'
+	'printf "\nLinting: {}\n" && docker run -e HADOLINT_FAILURE_THRESHOLD=error --rm -i ghcr.io/hadolint/hadolint:v2.12.0 < {};'
 
 lint/markdown:																				## Lint markdown files.
-	docker run -v ${PWD}:/workdir --rm \
-	ghcr.io/igorshubovych/markdownlint-cli:v0.39.0 \
+	markdownlint \
 	-i ./deploy/chart/${CHART_NAME}/charts/* \
 	-i ./CHANGELOG.md \
-	-c .lint/markdownlint.yaml \
+	-i frontend/node_modules/* \
+	-i ./.mise \
+	-c ${LINT_CONFIG_DIR}/markdownlint.yaml \
 	**/*.md
 
-install/yamllint:
-ifeq (, $(shell command yamllint --help))
-	$(eval YAMLLINT_VERSION=$(shell grep "yamllint" ./requirements.txt | cut -d '=' -f 3))
-	pip3 install yamllint==${YAMLLINT_VERSION}
-endif
+lint/yaml:																					## Lint yaml files.
+	yamllint -c ${LINT_CONFIG_DIR}/yamllint.yaml .
 
-lint/yaml: install/yamllint																	## Lint yaml files.
-	yamllint -c .lint/yamllint.yaml .
+lint/spelling:																				## Lint spelling in files.
+	codespell --config ${LINT_CONFIG_DIR}/codespell.ini .
 
 lint_commit_messages_from_head_to_main:														## Lint already created commit messages.
 	cz check --rev-range origin/main..HEAD
 
-commit-msg-check: install/commitizen                                       					## Validate that the commit message is according to the expected format.
+commit-msg-check:                                       									## Validate that the commit message is according to the expected format.
 	@echo "Checking if commit message is according to expected format"
 	@echo "-------"
 	@echo "fix: A bug fix. Correlates with PATCH in SemVer"
@@ -232,7 +271,7 @@ lint/go:																					## Lint Go code.
 	-w /app \
 	--entrypoint /bin/sh \
 	golangci/golangci-lint:v1.58.1-alpine \
-	-c "go version && go mod download && golangci-lint run --config .lint/.golangci.yaml -v"
+	-c "go version && go mod download && golangci-lint run --config ${LINT_CONFIG_DIR}/.golangci.yaml -v"
 
 ## -------------- Versioning --------------
 
@@ -244,12 +283,6 @@ gh/release:
 	-t ${VERSION} \
 	--verify-tag \
 	${RELEASE_ASSET}
-
-install/commitizen:
-ifeq (, $(shell which cz))
-	$(eval COMMITIZEN_VERSION=$(shell grep "commitizen" ./requirements.txt | cut -d '=' -f 3))
-	pip3 install commitizen==${COMMITIZEN_VERSION}
-endif
 
 BUMP_CMD=cz -nr 21,3 bump --version-scheme semver --check-consistency --changelog
 bump:																						## Bump version.

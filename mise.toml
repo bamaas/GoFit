@@ -1,10 +1,20 @@
 [tools]
-gh = "latest"
+gh = "2.69.0"
 go = "1.22"
 gomigrate = "4.18.1"
+# hadolint = "2.12.0"   # Segmentation fault error on Darwin m1 && Doesn't work in Az Pipeline
 helm = "3.16.3"
 kind = "0.25.0"
 kubectl = "1.29.11"
 node = "20.10.0"
+"npm:markdownlint-cli" = "0.44.0"
+"pipx:commitizen" = "4.4.1"
+"pipx:pre-commit" = "4.1.0"
+"pipx:yamllint" = "1.36.0"
+"pipx:codespell" = "2.4.1"
 sops = "3.9.2"
 terraform = "1.10.1"
+yq = "4.44.5"
+
+[hooks]
+enter = "mise i -q"

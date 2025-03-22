@@ -23,9 +23,9 @@ COPY --from=frontend-builder /builder/build ./backend/internal/assets/static/
 WORKDIR /src/backend
 RUN go build \
     -ldflags="-s -w" \
-    -o /app/gofit ./cmd/gofit
-RUN upx --best --lzma /app/gofit
-RUN mkdir /data
+    -o /app/gofit ./cmd/gofit && \
+    upx --best --lzma /app/gofit && \
+    mkdir /data
 
 # Final
 FROM scratch AS final
