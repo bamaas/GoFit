@@ -36,8 +36,8 @@ stages:
                   echo "##vso[build.addbuildtag]release"
                 displayName: Add pipeline build tag 'release'
 
-  - stage: Prepare
-    displayName: Prepare
+  - stage: Setup
+    displayName: Setup
     dependsOn: []
     jobs:
       - job:
@@ -107,14 +107,6 @@ stages:
           - script: make lint/spelling
             displayName: Run spelling linter
 
-      - job: Scan
-        container: ${{ variables.containerJobImage }}
-        displayName: Scan filesystem
-        steps:
-          - script: make scan/fs
-            displayName: Scan filesystem for vulnerabilities
-            continueOnError: true
-
   - stage: Build
     displayName: Build
     dependsOn: Prepare
@@ -179,7 +171,18 @@ stages:
     displayName: Scan
     dependsOn: Build
     jobs:
-      - job: Scan
+
+      # Moved to the Scan stage for better visibility.
+      # When continueOnError is removed execute as early as possible in the pipeline for faster feedback.
+      - job:
+        container: ${{ variables.containerJobImage }}
+        displayName: Scan filesystem
+        steps:
+          - script: make scan/fs
+            displayName: Scan filesystem for vulnerabilities
+            continueOnError: true
+
+      - job:
         container: ${{ variables.containerJobImage }}
         displayName: Scan image
         steps:
