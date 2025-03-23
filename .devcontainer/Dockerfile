@@ -4,7 +4,7 @@ USER root
 COPY ./mise.toml mise.toml
 COPY ./Makefile Makefile
 RUN make dev/install/tools && \
-    rm -rf Makefile mise.toml
+    rm -rf Makefile
 
 # Install Docker CLI
 RUN apt-get update && \

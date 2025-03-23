@@ -9,9 +9,6 @@ ARTIFACTS_ROOT_DIR?=.artifacts
 # App
 APP_NAME=gofit
 
-# Backend
-GO_VERSION=`sed -En 's/^go (.*)$$/\1/p' backend/go.mod`
-
 # App config
 DEVELOPMENT_MODE=true
 USERS=[{"email": "demo@gofit.nl", "password": "gofit123"}, {"email": "test@gofit.nl", "password": "gofit123"}]
@@ -51,11 +48,24 @@ dev/uninstall/githooks:																		## Undo githooks
 	-t post-checkout \
 	-t post-merge \
 	-t post-rewrite
+ 
+dev/container: dev/container/build 															## Alias for dev/container/build
+
+dev/container/build:																		## Build devcontainer image
+	docker build \
+	-t docker.io/bamaas/devcontainer:gofit-${IMAGE_TAG} \
+	-f ./.devcontainer/Dockerfile \
+	.
 
 # -------------- Backend --------------
+
+backend: backend/build																		## Alias for backend/build
+
 backend/build:																				## Build backend application binary
 	cd ./backend && \
-	go build -o ./bin/${APP_NAME} ./cmd/${APP_NAME}
+	CGO_ENABLED=0 go build \
+    -ldflags="-s -w" \
+    -o ./bin/${APP_NAME} ./cmd/${APP_NAME}
 
 backend/run:																				## Run backend application
 	cd ./backend && \
@@ -77,12 +87,16 @@ image/get:
 
 image: image/build       																	## Alias for image/build
 
-DOCKER_FILE?=./Dockerfile
+DOCKERFILE?=./Dockerfile
+NODE_VERSION=`grep -E '^node = ' mise.toml | cut -d'"' -f2`
+GO_VERSION=`sed -En 's/^go (.*)$$/\1/p' backend/go.mod`
 image/build:																				## Build an application container image
 	docker build \
 	--build-arg GO_VERSION=${GO_VERSION} \
+	--build-arg NODE_VERSION=${NODE_VERSION} \
+	--build-arg GOFIT_VERSION=${VERSION} \
 	-t ${FULL_IMAGE_NAME} \
-	-f ${DOCKER_FILE} \
+	-f ${DOCKERFILE} \
 	.
 
 image/push:																					## Push the image to the registry
@@ -112,9 +126,11 @@ image/load: 																				## Load Docker image from .tar.gz file.
 	'docker load < {} | cut -d " " -f 3'
 
 # -------------- Frontend --------------
+frontend: frontend/build																	## Alias for frontend/build
+
 frontend/build:	frontend/install_deps														## Build frontend application
 	cd frontend && \
-	npm run ci && \
+	npm ci && \
 	npm run build
 
 frontend/run: frontend/install_deps															## Run frontend application in development mode
@@ -216,17 +232,14 @@ lint/helm:																					## Lint helm chart
 # 	'printf "\nLinting: {}\n" && hadolint -c ${PWD}/.lint/hadolint.yaml {};'
 
 lint/dockerfiles:																			## Lint dockerfiles with Hadolint.
-	@find . -type f -name "*Dockerfile" -print0 | \
+	@find . -type f -name "*Dockerfile" -not -path "./.git/*" -print0 | \
 	xargs --replace="{}" -0 -n1 bash -c \
 	'printf "\nLinting: {}\n" && docker run -e HADOLINT_FAILURE_THRESHOLD=error --rm -i ghcr.io/hadolint/hadolint:v2.12.0 < {};'
 
 lint/markdown:																				## Lint markdown files.
 	markdownlint \
-	-i ./deploy/chart/${CHART_NAME}/charts/* \
-	-i ./CHANGELOG.md \
-	-i frontend/node_modules/* \
-	-i ./.mise \
 	-c ${LINT_CONFIG_DIR}/markdownlint.yaml \
+	-p ${LINT_CONFIG_DIR}/.markdownlintignore \
 	**/*.md
 
 lint/yaml:																					## Lint yaml files.
@@ -276,7 +289,7 @@ gh/release:
 	--verify-tag \
 	${RELEASE_ASSET}
 
-install/commitizen:																		## Install commitizen
+install/commitizen:																			## Install commitizen
 	which cz > /dev/null || pip install commitizen==`yq -r '.tools."pipx:commitizen"' mise.toml`
 
 BUMP_CMD=cz -nr 21,3 bump --version-scheme semver --check-consistency --changelog
@@ -287,3 +300,13 @@ bump:																						## Bump version.
 
 get_version:																				## Prints the current project version.
 	@echo ${VERSION}
+
+## -------------- Vulnerability scanning --------------
+
+scan: scan/fs scan/image																	## Scan for vulnerabilities.
+
+scan/fs:																					## Scan for vulnerabilities.
+	trivy fs --exit-code 1 --severity HIGH,CRITICAL .
+
+scan/image:																					## Scan for vulnerabilities.
+	trivy image --exit-code 1 --severity HIGH,CRITICAL ${FULL_IMAGE_NAME}
