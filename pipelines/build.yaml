@@ -64,7 +64,7 @@ stages:
 
   - stage: Lint
     displayName: Lint
-    dependsOn: Prepare
+    dependsOn: Setup
     jobs:
       - job: LintHelm
         container: ${{ variables.containerJobImage }}
@@ -109,7 +109,7 @@ stages:
 
   - stage: Build
     displayName: Build
-    dependsOn: Prepare
+    dependsOn: Setup
     jobs:
       - job:
         displayName: Image
