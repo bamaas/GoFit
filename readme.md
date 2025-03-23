@@ -46,7 +46,7 @@ helm repo update
 helm install gofit gofit/gofit
 ```
 
-### Development setup
+## Development setup
 
 Start the devcontainer from within VSCode and you are good to go.
 

@@ -53,7 +53,7 @@ stages:
               make image/build
             displayName: Build devcontainer image
             env:
-              DOCKER_FILE: .devcontainer/Dockerfile
+              DOCKERFILE: .devcontainer/Dockerfile
               FULL_IMAGE_NAME: $(containerJobImage)
 
           - script: |
@@ -106,6 +106,14 @@ stages:
         steps:
           - script: make lint/spelling
             displayName: Run spelling linter
+
+      - job: Scan
+        container: ${{ variables.containerJobImage }}
+        displayName: Scan filesystem
+        steps:
+          - script: make scan/fs
+            displayName: Scan filesystem for vulnerabilities
+            continueOnError: true
 
   - stage: Build
     displayName: Build
@@ -166,6 +174,26 @@ stages:
           - publish: '$(Build.ArtifactStagingDirectory)'
             displayName: Publish Helm chart as pipeline artifact
             artifact: helm-chart-$(global_chartName)
+
+  - stage: Scan
+    displayName: Scan
+    dependsOn: Build
+    jobs:
+      - job: Scan
+        container: ${{ variables.containerJobImage }}
+        displayName: Scan image
+        steps:
+
+          - template: templates/steps/load-image-from-pipeline-artifacts.yaml
+            parameters:
+              image: $(global_imageName)
+              downloadArtifactFrom: currentPipeline
+
+          - script: make scan/image
+            displayName: Scan image for vulnerabilities
+            continueOnError: true
+            env:
+              FULL_IMAGE_NAME: $(fullImageNameAndTag)   ## Defined in load-image-from-pipeline-artifacts.yaml
 
   - stage: Test
     displayName: Test
