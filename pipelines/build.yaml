@@ -89,6 +89,7 @@ stages:
 
       - job: LintGoLang
         displayName: Lint Go files
+        container: ${{ variables.containerJobImage }}
         steps:
           - script: make lint/go
             displayName: Lint Go files
