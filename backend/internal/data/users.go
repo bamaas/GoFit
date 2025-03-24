@@ -11,13 +11,13 @@ import (
 )
 
 type User struct {
-	ID 		 	int64  		`json:"id"`
-	CreatedAt 	string 		`json:"created_at"`
 	Email 	 	string 		`json:"email"`
-	Password 	password 	`json:"-"`
-	Activated 	bool   		`json:"activated"`
-	Version 	int    		`json:"-"`
+	CreatedAt 	string 		`json:"created_at"`
 	Goal 	 	string 		`json:"goal"`
+	Password 	password 	`json:"-"`
+	ID 		 	int64  		`json:"id"`
+	Version 	int    		`json:"-"`
+	Activated 	bool   		`json:"activated"`
 }
 
 type password struct {

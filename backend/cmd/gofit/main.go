@@ -20,9 +20,9 @@ import (
 const version = "0.0.2"
 
 type application struct {
-	config   config.Config
 	logger   *slog.Logger
 	models   data.Models
+	config   config.Config
 }
 
 func setupDB(logger *slog.Logger, developmentMode bool) (*sql.DB, error) {

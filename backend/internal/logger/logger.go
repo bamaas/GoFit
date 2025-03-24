@@ -7,7 +7,7 @@ import (
 	"strings"
 )
 
-var logLevel map[string]slog.Level = map[string]slog.Level{
+var logLevel = map[string]slog.Level{
 	"DEBUG": slog.LevelDebug,
 	"INFO":  slog.LevelInfo,
 	"WARN":  slog.LevelWarn,

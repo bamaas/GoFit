@@ -15,11 +15,11 @@ const (
 )
 
 type Token struct {
+	Expiry 		time.Time 	`json:"expiry"`
 	Plaintext 	string 		`json:"token"`
+	Scope 		string 		`json:"-"`
 	Hash 		[]byte 		`json:"-"`
 	UserID 		int64 		`json:"-"`
-	Expiry 		time.Time 	`json:"expiry"`
-	Scope 		string 		`json:"-"`
 }
 
 type TokenModel struct {

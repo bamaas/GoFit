@@ -10,12 +10,12 @@ import (
 // Embed database migrations files
 //go:embed all:migrations
 var MigrationsFs embed.FS
-var MigrationsPath string = "migrations"
+var MigrationsPath = "migrations"
 
 // Embed static frontend files
 //go:embed all:static
 var BuildFs embed.FS
-var BuildPath string = "static"
+var BuildPath = "static"
 
 // Get the subtree of the embedded files with `static` directory as a root.
 func BuildHTTPFS() http.FileSystem {

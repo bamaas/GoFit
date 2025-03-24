@@ -16,6 +16,7 @@ sops = "3.9.2"
 terraform = "1.10.1"
 yq = "4.44.5"
 trivy = "0.60.0"
+"go:github.com/golangci/golangci-lint/cmd/golangci-lint" = "1.60.0"
 
 [hooks]
 enter = "mise i -q"

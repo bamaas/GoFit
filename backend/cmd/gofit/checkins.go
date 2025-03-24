@@ -109,9 +109,9 @@ func (app *application) createCheckIn(w http.ResponseWriter, r *http.Request) {
 
 	// Get the input
 	var input struct {
-		Datetime int64   `json:"datetime"`
-		Weight   float64 `json:"weight"`
 		Notes    string  `json:"notes"`
+		Weight   float64 `json:"weight"`
+		Datetime int64   `json:"datetime"`
 	}
 	err := app.readJSON(w, r, &input)	// first decode into input struct to prevent decoding of i.e. uuid field
 	if err != nil {

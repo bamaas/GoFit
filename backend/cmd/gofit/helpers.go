@@ -43,7 +43,11 @@ func (app *application) writeJSON(w http.ResponseWriter, status int, v interface
 	}
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(status)
-	w.Write(js) // TODO: return error if write fails
+	_, err = w.Write(js)
+	if err != nil {
+		http.Error(w, "Error writing response", http.StatusInternalServerError)
+		return
+	}
 }
 
 func (app *application) readInt(qs url.Values, key string, defaultValue int) int {
