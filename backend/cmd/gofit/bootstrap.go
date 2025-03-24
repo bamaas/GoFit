@@ -59,8 +59,11 @@ func (app *application) Bootstrap() error {
 			Email:     u.Email,
 			Goal: 	   "cut",
 		}
-		user.Password.Set(u.Password)
-		err := app.injectUser(&user)
+		err := user.Password.Set(u.Password)
+		if err != nil {
+			return err
+		}
+		err = app.injectUser(&user)
 		if err != nil {
 			return err
 		}

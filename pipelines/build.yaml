@@ -87,11 +87,11 @@ stages:
           - script: make lint/markdown
             displayName: Lint Markdown files
 
-      # - job: LintGoLang
-      #   displayName: Lint Go files
-      #   steps:
-      #     - script: make lint/go
-      #       displayName: Lint Go files
+      - job: LintGoLang
+        displayName: Lint Go files
+        steps:
+          - script: make lint/go
+            displayName: Lint Go files
 
       - job: LintYaml
         container: ${{ variables.containerJobImage }}

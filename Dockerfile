@@ -20,7 +20,7 @@ WORKDIR /src
 COPY ./backend/go.mod ./backend/go.sum ./
 RUN go mod download
 COPY ./backend .
-COPY --from=frontend-builder /src/build ./backend/internal/assets/static/
+COPY --from=frontend-builder /src/build ./internal/assets/static/
 RUN CGO_ENABLED=0 go build \
     -ldflags="-s -w" \
     -o /bin/gofit ./cmd/gofit && \

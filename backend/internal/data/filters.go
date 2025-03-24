@@ -5,10 +5,10 @@ import (
 )
 
 type Filters struct {
-	Page int
-	PageSize int
 	StartTime time.Time
 	EndTime time.Time
+	Page int
+	PageSize int
 }
 
 func (f Filters) limit() int {

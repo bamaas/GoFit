@@ -7,9 +7,9 @@ import (
 )
 
 type Config struct {
-	LogLevel string
+	LogLevel        string
+	Users           []user
 	DevelopmentMode bool
-	Users []user
 }
 
 // Default configuration values
@@ -24,7 +24,7 @@ func getEnv(key, fallback string) string {
 }
 
 type user struct {
-	Email string `json:"email"`
+	Email    string `json:"email"`
 	Password string `json:"password"`
 }
 

@@ -5,15 +5,16 @@ import (
 	"database/sql"
 	"fmt"
 
+	// Import the sqlite driver for its side effects (database driver registration)
 	_ "modernc.org/sqlite"
 )
 
 type CheckIn struct {
 	UUID     string    `json:"uuid,omitempty"`
-	UserID   int64     `json:"-"`
+	Notes	 string    `json:"notes,omitempty"`
 	Datetime int64 	   `json:"datetime"`
 	Weight   float64   `json:"weight"`
-	Notes	 string    `json:"notes,omitempty"`
+	UserID   int64     `json:"-"`
 }
 
 type CheckInWithStats struct {
@@ -44,9 +45,9 @@ func (m *CheckInModel) Get(userID int64, UUID string) (CheckIn, error) {
 	entries := []CheckIn{}
 	for r.Next() {
 		var e CheckIn
-		err := r.Scan(&e.UUID, &e.Datetime, &e.Weight, &e.Notes)
-		if err != nil {
-			return CheckIn{}, err
+		scanErr := r.Scan(&e.UUID, &e.Datetime, &e.Weight, &e.Notes)
+		if scanErr != nil {
+			return CheckIn{}, scanErr
 		}
 		entries = append(entries, e)
 	}
@@ -106,9 +107,9 @@ func (m *CheckInModel) List(userID int64, filters Filters) ([]CheckInWithStats, 
 	entries := []CheckInWithStats{}
 	for r.Next() {
 		var e CheckInWithStats
-		err := r.Scan(&totalRecords, &e.UUID, &e.Datetime, &e.Weight, &e.Notes, &e.MovingAverage, &e.WeightDifference)
-		if err != nil {
-			return nil, Metadata{}, err
+		scanErr := r.Scan(&totalRecords, &e.UUID, &e.Datetime, &e.Weight, &e.Notes, &e.MovingAverage, &e.WeightDifference)
+		if scanErr != nil {
+			return nil, Metadata{}, scanErr
 		}
 		entries = append(entries, e)
 	}

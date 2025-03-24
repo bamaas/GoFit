@@ -19,9 +19,8 @@ func (m *StatsModel) GetWeightDifference(userID int64, filters Filters) (*float6
     
     m.logger.Debug("Getting weight difference...")
 
-
     format := "2006-01-02"
-    args := []any{}
+    var args []any
     q := ""
 
     // If no start or end time is provided, get the difference between the first and last checkin
@@ -32,10 +31,7 @@ func (m *StatsModel) GetWeightDifference(userID int64, filters Filters) (*float6
         -
         (SELECT weight FROM checkins WHERE user_id = ? ORDER BY datetime ASC LIMIT 1);
         `
-        args = []any{
-            userID,
-            userID,
-        }
+        args = []any{userID, userID}
 
     // If only an end time is provided, get the difference between the first checkin and the checkin at the end time
     } else if filters.StartTime.IsZero() && !filters.EndTime.IsZero() {
@@ -100,7 +96,7 @@ func (m *StatsModel) GetWeightAverage(userID int64, filters Filters) (*float64, 
     m.logger.Debug("Getting weight average...")
 
     format := "2006-01-02"
-    args := []any{}
+    var args []any
     q := ""
 
     if filters.StartTime.IsZero() {

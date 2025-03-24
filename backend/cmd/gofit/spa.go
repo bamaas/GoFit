@@ -17,7 +17,11 @@ func (app *application) spaHandler(w http.ResponseWriter, r *http.Request) {
             return
         }
         w.WriteHeader(http.StatusAccepted)
-        w.Write(index)
+        _, err = w.Write(index)
+        if err != nil {
+            http.Error(w, "Error writing response", http.StatusInternalServerError)
+            return
+        }
 	}
 
     f, err := assets.BuildFs.Open(filepath.Join(assets.BuildPath, r.URL.Path))

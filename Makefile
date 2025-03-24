@@ -15,6 +15,7 @@ USERS=[{"email": "demo@gofit.nl", "password": "gofit123"}, {"email": "test@gofit
 LOG_LEVEL=debug
 
 # -------------- Help --------------
+
 help:           																			## Show this help.
 	@fgrep -h "##" $(MAKEFILE_LIST) | fgrep -v fgrep | sed -e 's/\\$$//' | sed -e 's/:.*##/;/' | column -t -s';'
 
@@ -24,6 +25,7 @@ dev: dev/install/tools dev/install/githooks													## Setup development env
 
 dev/install/tools:																			## Install development tools
 	mise use -g uv
+	mise settings experimental=true
 	mise trust
 	mise install
 
@@ -196,7 +198,7 @@ cluster/load_image:																			## Load image into kind cluster
 cluster/full_install: cluster/create image/build cluster/load_image helm/install				## Create kind cluster, build image, load image into cluster and install helm chart
 
 # -------------- Terraform --------------
-TERRAFORM_DIR="./deploy/terraform"
+TERRAFORM_DIR="${PWD}/deploy/terraform"
 
 terraform/init:																				## Initialize terraform
 	terraform -chdir=${TERRAFORM_DIR} init
@@ -218,7 +220,7 @@ terraform/destroy:																			## Delete terraform resources
 
 # -------------- Linting --------------
 
-LINT_CONFIG_DIR=.lint
+LINT_CONFIG_DIR=${PWD}/.lint
 
 lint: lint/helm lint/dockerfiles lint/markdown lint/yaml lint/spelling						## Lint all
 
@@ -266,17 +268,8 @@ commit-msg-check:                                       									## Validate tha
 	@echo "-------"
 	@cz check --commit-msg-file .git/COMMIT_EDITMSG
 
-# Always make sure to have the golangci-lint image containing the same Go version as the project.
 lint/go:																					## Lint Go code.
-	docker run \
-	--rm \
-	-t \
-	-v ${PWD}:/app \
-	-v ~/.cache/golangci-lint/v1.58.1:/root/.cache \
-	-w /app \
-	--entrypoint /bin/sh \
-	golangci/golangci-lint:v1.58.1-alpine \
-	-c "go version && go mod download && golangci-lint run --config ${LINT_CONFIG_DIR}/.golangci.yaml -v"
+	cd backend && golangci-lint run --config ${LINT_CONFIG_DIR}/.golangci.yaml -v
 
 ## -------------- Versioning --------------
 
