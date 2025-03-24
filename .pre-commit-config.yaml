@@ -43,13 +43,13 @@ repos:
         language: system
         stages: [pre-commit]
 
-      # - id: LintGoLang
-      #   name: Lint Go code
-      #   entry: make
-      #   args: ['lint/go']
-      #   pass_filenames: false
-      #   language: system
-      #   stages: [commit]
+      - id: LintGoLang
+        name: Lint Go code
+        entry: make
+        args: ['lint/go']
+        pass_filenames: false
+        language: system
+        stages: [commit]
 
       - id: commitizen
         name: Commit message validation
