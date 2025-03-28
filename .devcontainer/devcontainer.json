@@ -36,7 +36,15 @@
 	"postCreateCommand": "mise trust && make dev",
 
 	// Configure tool-specific properties.
-	// "customizations": {},
+	"customizations": {
+		"vscode": {
+			"extensions": [
+				"golang.go",
+				"alexcvzz.vscode-sqlite",
+				"svelte.svelte-vscode"
+			]
+		}
+	},
 
 	// Uncomment to connect as root instead. More info: https://aka.ms/dev-containers-non-root.
 	"remoteUser": "root",
