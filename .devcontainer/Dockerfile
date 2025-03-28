@@ -30,4 +30,10 @@ RUN apt-get update && \
     apt-get install -y bsdmainutils --no-install-recommends && \
     rm -rf /var/lib/apt/lists/*
 
+# Install sqlite3
+# The VSCode extension for SQLite doesn't work when installed via Mise.
+RUN apt-get update && \
+    apt-get install -y sqlite3 --no-install-recommends && \
+    rm -rf /var/lib/apt/lists/*
+
 ENTRYPOINT [ "" ]

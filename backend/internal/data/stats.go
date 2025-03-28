@@ -11,6 +11,7 @@ type StatsModel struct {
 }
 
 type WeightWeeklyAverage struct {
+    Year int `json:"year"`
     Week int `json:"week"`
     Weight float64 `json:"weight"`
 }
@@ -27,9 +28,12 @@ func (m *StatsModel) GetWeightDifference(userID int64, filters Filters) (*float6
     if filters.StartTime.IsZero() && filters.EndTime.IsZero() {
         q = `
         SELECT
-        (SELECT weight FROM checkins WHERE user_id = ? ORDER BY datetime DESC LIMIT 1)
-        -
-        (SELECT weight FROM checkins WHERE user_id = ? ORDER BY datetime ASC LIMIT 1);
+        ROUND(
+            (SELECT weight FROM checkins WHERE user_id = ? ORDER BY datetime DESC LIMIT 1)
+            -
+            (SELECT weight FROM checkins WHERE user_id = ? ORDER BY datetime ASC LIMIT 1),
+            1
+        );
         `
         args = []any{userID, userID}
 
@@ -37,9 +41,12 @@ func (m *StatsModel) GetWeightDifference(userID int64, filters Filters) (*float6
     } else if filters.StartTime.IsZero() && !filters.EndTime.IsZero() {
         q = `
         SELECT
-        (SELECT weight FROM checkins WHERE datetime > strftime('%s', ?) AND datetime < strftime('%s', ?) AND user_id = ? ORDER BY datetime LIMIT 1)
-        -
-        (SELECT weight FROM checkins WHERE user_id = ? ORDER BY datetime ASC LIMIT 1);
+        ROUND(
+            (SELECT weight FROM checkins WHERE datetime > strftime('%s', ?) AND datetime < strftime('%s', ?) AND user_id = ? ORDER BY datetime LIMIT 1)
+            -
+            (SELECT weight FROM checkins WHERE user_id = ? ORDER BY datetime ASC LIMIT 1),
+            1
+        );
         `
         args = []any{
             filters.EndTime.Format(format),
@@ -52,9 +59,12 @@ func (m *StatsModel) GetWeightDifference(userID int64, filters Filters) (*float6
     } else if !filters.StartTime.IsZero() && filters.EndTime.IsZero() {
         q = `
         SELECT
-        (SELECT weight FROM checkins WHERE user_id = ? ORDER BY datetime DESC LIMIT 1)
-        -
-        (SELECT weight FROM checkins WHERE datetime > strftime('%s', ?) AND datetime < strftime('%s', ?) AND user_id = ? ORDER BY datetime DESC LIMIT 1);
+        ROUND(
+            (SELECT weight FROM checkins WHERE user_id = ? ORDER BY datetime DESC LIMIT 1)
+            -
+            (SELECT weight FROM checkins WHERE datetime > strftime('%s', ?) AND datetime < strftime('%s', ?) AND user_id = ? ORDER BY datetime DESC LIMIT 1),
+            1
+        );
         `
         args = []any{
             userID,
@@ -67,9 +77,12 @@ func (m *StatsModel) GetWeightDifference(userID int64, filters Filters) (*float6
     } else {
         q = `
         SELECT
-        (SELECT weight FROM checkins WHERE datetime > strftime('%s', ?) AND datetime < strftime('%s', ?) AND user_id = ? ORDER BY datetime LIMIT 1)
-        -
-        (SELECT weight FROM checkins WHERE datetime > strftime('%s', ?) AND datetime < strftime('%s', ?) AND user_id = ? ORDER BY datetime LIMIT 1);
+        ROUND(
+            (SELECT weight FROM checkins WHERE datetime > strftime('%s', ?) AND datetime < strftime('%s', ?) AND user_id = ? ORDER BY datetime LIMIT 1)
+            -
+            (SELECT weight FROM checkins WHERE datetime > strftime('%s', ?) AND datetime < strftime('%s', ?) AND user_id = ? ORDER BY datetime LIMIT 1),
+            1
+        );
         `
         args = []any{
             filters.EndTime.Format(format),
@@ -101,7 +114,7 @@ func (m *StatsModel) GetWeightAverage(userID int64, filters Filters) (*float64, 
 
     if filters.StartTime.IsZero() {
         q = `
-        SELECT AVG(weight) FROM checkins WHERE user_id = ? AND datetime < strftime('%s', ?);
+        SELECT ROUND(AVG(weight), 1) FROM checkins WHERE user_id = ? AND datetime < strftime('%s', ?);
         `
         args = []any{
             userID,
@@ -109,7 +122,7 @@ func (m *StatsModel) GetWeightAverage(userID int64, filters Filters) (*float64, 
         }
     } else {
         q = `
-        SELECT AVG(weight) FROM checkins WHERE user_id = ? AND datetime >= strftime('%s', ?) AND datetime < strftime('%s', ?);
+        SELECT ROUND(AVG(weight), 1) FROM checkins WHERE user_id = ? AND datetime >= strftime('%s', ?) AND datetime < strftime('%s', ?);
         `
         args = []any{
             userID,
@@ -132,10 +145,11 @@ func (m *StatsModel) GetWeightAverageByWeek(userID int64) ([]WeightWeeklyAverage
         m.logger.Debug("Getting weight average by week...")
 
         q := `
-        SELECT strftime('%W', datetime(datetime, 'unixepoch')) as week, AVG(weight) 
+        SELECT strftime('%Y', datetime(datetime, 'unixepoch')) as year, strftime('%W', datetime(datetime, 'unixepoch')) as week, ROUND(AVG(weight), 1) 
         FROM checkins 
         WHERE user_id = ?
-        GROUP BY week;
+        GROUP BY strftime('%Y', datetime(datetime, 'unixepoch')), strftime('%W', datetime(datetime, 'unixepoch'))
+        ORDER BY strftime('%Y', datetime(datetime, 'unixepoch')), strftime('%W', datetime(datetime, 'unixepoch'));
         `
         args := []any{
             userID,
@@ -152,7 +166,7 @@ func (m *StatsModel) GetWeightAverageByWeek(userID int64) ([]WeightWeeklyAverage
         data := []WeightWeeklyAverage{}
         for rows.Next() {
             var r WeightWeeklyAverage
-            err := rows.Scan(&r.Week, &r.Weight)
+            err := rows.Scan(&r.Year, &r.Week, &r.Weight)
             if err != nil {
                 return nil, err
             }
