@@ -188,6 +188,9 @@ stages:
         displayName: Scan image
         steps:
 
+          # TODO: improve this, bumping should not be necessary here.
+          - template: templates/steps/bump-version.yaml
+
           - template: templates/steps/load-image-from-pipeline-artifacts.yaml
             parameters:
               image: $(global_imageName)
