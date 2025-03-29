@@ -7,3 +7,4 @@ commitizen:
   - deploy/chart/gofit/Chart.yaml:version
   - deploy/chart/gofit/Chart.yaml:appVersion
   - deploy/chart/gofit/values.yaml:tag
+  - .version
