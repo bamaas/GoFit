@@ -274,6 +274,7 @@ lint/go:																					## Lint Go code.
 ## -------------- Versioning --------------
 
 VERSION?=`yq -r '.commitizen.version' .cz.yaml`
+VERSION_FILE=.version
 
 gh/release:
 	gh config set prompt disabled
@@ -293,6 +294,12 @@ bump:																						## Bump version.
 
 get_version:																				## Prints the current project version.
 	@echo ${VERSION}
+
+verify_version_file_is_untouched:															## Verify the .version file is untouched.
+	@git --no-pager diff --exit-code HEAD ${VERSION_FILE} || \
+	(echo "ERROR: ${VERSION_FILE} file has changed, that's not allowed. Bumping happens automatically on merge to master"; exit 1)
+	@git --no-pager diff --exit-code origin/master...HEAD ${VERSION_FILE} || \
+	(echo "ERROR: ${VERSION_FILE} file has changed, that's not allowed. Bumping happens automatically on merge to master"; exit 1)
 
 ## -------------- Vulnerability scanning --------------
 
